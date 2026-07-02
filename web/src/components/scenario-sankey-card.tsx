@@ -38,12 +38,15 @@ type ScenarioSankeyCardProps = {
   className?: string;
 };
 
-const NODE_WIDTH = 132;
+const NODE_WIDTH = 116;
 const NODE_GAP = 8;
-const CHART_WIDTH = 880;
-const MIN_CHART_HEIGHT = 500;
-const MAX_CHART_HEIGHT = 860;
+const CHART_WIDTH = 760;
+const MIN_CHART_HEIGHT = 360;
+const MAX_CHART_HEIGHT = 680;
 const PADDING = { top: 16, right: 24, bottom: 16, left: 24 };
+const MIN_ZOOM = 0.8;
+const MAX_ZOOM = 1.5;
+const ZOOM_STEP = 0.1;
 
 function columnX(column: SankeyColumn) {
   const available = CHART_WIDTH - PADDING.left - PADDING.right - NODE_WIDTH;
@@ -314,6 +317,8 @@ function linkPath(link: SankeyLink, source: SankeyNode, target: SankeyNode) {
 
 export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey", description, className }: ScenarioSankeyCardProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [compact, setCompact] = useState(false);
 
   const sankey = useMemo(() => {
     if (!scenario) {
@@ -323,7 +328,7 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
     const widestColumn = Math.max(...Object.values(built.columnNodes).map((nodes) => nodes.length));
     const chartHeight = clamp(
       MIN_CHART_HEIGHT,
-      360 + widestColumn * 52,
+      280 + widestColumn * 44,
       MAX_CHART_HEIGHT,
     );
     const columnNodes = {
@@ -366,6 +371,8 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
 
   const activeNode = activeId ? sankey.nodeLookup.get(activeId) ?? null : null;
   const activeLink = activeId ? sankey.links.find((link) => link.id === activeId) ?? null : null;
+  const visualZoom = compact ? Math.max(MIN_ZOOM, zoom - 0.1) : zoom;
+  const zoomTransform = `translate(${CHART_WIDTH / 2} ${sankey.chartHeight / 2}) scale(${visualZoom}) translate(${-CHART_WIDTH / 2} ${-sankey.chartHeight / 2})`;
   const totalAllocated = sankey.allocatedBudget;
   const categoryLeader = sankey.columnNodes[2][0];
   const evidenceLeader = sankey.columnNodes[1][0];
@@ -390,7 +397,7 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
       : defaultSummary;
 
   return (
-    <article className={`panel-card premium-section-card scenario-sankey-card ${className ?? ""}`.trim()}>
+    <article className={`panel-card premium-section-card scenario-sankey-card ${compact ? "is-compact" : ""} ${className ?? ""}`.trim()}>
       <div className="scenario-sankey-head">
         <div>
           <div className="eyebrow">Budget flow</div>
@@ -402,6 +409,33 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
         <div className="scenario-sankey-head-metrics">
           <div className="truth-badge derived">{Math.round(scenario.allocationSummary.allocationCoveragePct * 100)}% coverage</div>
           <div className="truth-badge observed">{formatCurrency(totalAllocated)} allocated</div>
+          <div className="scenario-chart-controls" role="group" aria-label="Sankey zoom and compact controls">
+            <button
+              type="button"
+              className="scenario-chart-control-button"
+              onClick={() => setZoom((current) => clamp(MIN_ZOOM, current - ZOOM_STEP, MAX_ZOOM))}
+              aria-label="Zoom out Sankey"
+            >
+              -
+            </button>
+            <span className="scenario-chart-control-value" aria-live="polite">{Math.round(visualZoom * 100)}%</span>
+            <button
+              type="button"
+              className="scenario-chart-control-button"
+              onClick={() => setZoom((current) => clamp(MIN_ZOOM, current + ZOOM_STEP, MAX_ZOOM))}
+              aria-label="Zoom in Sankey"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className={`scenario-chart-control-button scenario-chart-control-button--toggle ${compact ? "is-active" : ""}`}
+              onClick={() => setCompact((value) => !value)}
+              aria-label={compact ? "Disable compact Sankey mode" : "Enable compact Sankey mode"}
+            >
+              Compact
+            </button>
+          </div>
         </div>
       </div>
 
@@ -424,6 +458,7 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
                 <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.5" />
               </linearGradient>
             </defs>
+            <g transform={zoomTransform}>
             <rect x="0" y="0" width={CHART_WIDTH} height={sankey.chartHeight} rx="28" className="scenario-sankey-backdrop" />
             {sankey.links.map((link) => {
               const source = sankey.nodeLookup.get(link.sourceId);
@@ -432,13 +467,14 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
                 return null;
               }
               const isActive = activeId == null || activeId === link.id || activeId === link.sourceId || activeId === link.targetId;
+              const isFlowing = activeId == null || activeId === link.id;
               return (
                 <path
                   key={link.id}
                   d={linkPath(link, source, target)}
-                  className={`scenario-sankey-link ${isActive ? "is-active" : "is-dimmed"} ${activeId === link.id ? "is-flowing" : ""}`}
+                  className={`scenario-sankey-link ${isActive ? "is-active" : "is-dimmed"} ${isFlowing ? "is-flowing" : ""} ${activeId === link.id ? "is-flowing-focus" : ""}`}
                   stroke={link.color}
-                  strokeWidth={clamp(2, Math.min(link.sourceY2 - link.sourceY1, link.targetY2 - link.targetY1) * 0.82, 24)}
+                  strokeWidth={clamp(2, Math.min(link.sourceY2 - link.sourceY1, link.targetY2 - link.targetY1) * 0.78, 18)}
                   onMouseEnter={() => setActiveId(link.id)}
                   onMouseLeave={() => setActiveId(null)}
                 >
@@ -492,6 +528,7 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
                 </g>
               );
             })}
+            </g>
           </svg>
         </div>
 
