@@ -216,6 +216,7 @@ flowchart TD
 - [Artifact Strategy](docs/ARTIFACT_STRATEGY.md)
 - [Verified Cost Sources](docs/verified_cost_sources.md)
 - [Screen Tour](docs/SCREEN_TOUR.md)
+- [Screenshot Gallery](docs/SCREENSHOT_GALLERY.md)
 - [City Onboarding Recipes](docs/CITY_ONBOARDING_RECIPES.md)
 - [Implementation Status](docs/IMPLEMENTATION_STATUS.md)
 - [Live Thermal Setup](docs/LIVE_THERMAL_SETUP.md)
