@@ -1,0 +1,31 @@
+{
+  "sources": [
+    {
+      "id": "la-cool-communities-1997",
+      "name": "Cool Communities Program, Los Angeles (1997)",
+      "category": "citywide benchmark",
+      "estimatedCostUsd": 1000000000,
+      "summary": "A published Los Angeles cooling package is cited in urban heat literature at roughly US$1B. It is a real cost anchor for whole-city mitigation planning, not a fabricated model output.",
+      "evidenceUrl": "https://en.wikipedia.org/wiki/Urban_heat_island#Mitigation",
+      "sourceNote": "Use this only as a coarse benchmark until the repo has a city-specific unit-cost table."
+    },
+    {
+      "id": "nyc-heat-island-initiative-2006",
+      "name": "Mitigating New York City's Heat Island With Urban Forestry, Living Roofs, and Light Surfaces",
+      "category": "comparative ranking source",
+      "estimatedCostUsd": null,
+      "summary": "The literature-cited NYSERDA report ranks interventions by temperature reduction cost effectiveness, stating that light surfaces, light roofs, and curbside planting are cheaper per degree of cooling than street trees.",
+      "evidenceUrl": "https://www.nyserda.ny.gov/programs/environment/emep/project/6681_25/06-06%20Complete%20report-web.pdf",
+      "sourceNote": "Use this for priority ranking only. It is not a per-unit cost table."
+    },
+    {
+      "id": "nyc-cool-pavement-pilot-2025",
+      "name": "Cool pavement pilot program, New York City (2025)",
+      "category": "public seed-cost example",
+      "estimatedCostUsd": 5500000,
+      "summary": "Public reporting cites a cool-pavement pilot program in New York City and an incremental sealant premium of about $0.60 per square yard versus traditional sealants.",
+      "evidenceUrl": "https://nypost.com/2025/10/08/us-news/cool-pavement-pilot-program-could-come-to-nyc-streets-by-2026-under-council-bill/",
+      "sourceNote": "Use as a public planning anchor and derived seed cost example only."
+    }
+  ]
+}

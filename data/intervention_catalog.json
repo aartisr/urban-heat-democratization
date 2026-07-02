@@ -1,0 +1,148 @@
+{
+  "interventions": [
+    {
+      "id": "light-surfaces",
+      "name": "Light surfaces",
+      "category": "surface cooling",
+      "measurementUnit": "program",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 1,
+      "summary": "The NYSERDA comparative source ranks light surfaces among the cheapest cooling options per degree of temperature reduction.",
+      "evidenceUrl": "https://www.nyserda.ny.gov/programs/environment/emep/project/6681_25/06-06%20Complete%20report-web.pdf",
+      "sourceNote": "Real ranking evidence only. This repository still does not claim a city-specific unit price from this source."
+    },
+    {
+      "id": "cool-roofs",
+      "name": "Cool roofs",
+      "category": "building cooling",
+      "measurementUnit": "program",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 2,
+      "summary": "The NYSERDA comparative source places light roofs among the cheaper heat-island mitigation options per degree of cooling.",
+      "evidenceUrl": "https://www.nyserda.ny.gov/programs/environment/emep/project/6681_25/06-06%20Complete%20report-web.pdf",
+      "sourceNote": "Priority ordering is source-backed, but no Boston-ready unit cost is claimed here."
+    },
+    {
+      "id": "curbside-planting",
+      "name": "Curbside planting",
+      "category": "urban forestry",
+      "measurementUnit": "program",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 3,
+      "summary": "The NYSERDA comparative source indicates curbside planting is more cost-effective per degree of cooling than street trees.",
+      "evidenceUrl": "https://www.nyserda.ny.gov/programs/environment/emep/project/6681_25/06-06%20Complete%20report-web.pdf",
+      "sourceNote": "Real comparative evidence only. No per-tree procurement price is asserted from this source."
+    },
+    {
+      "id": "street-trees",
+      "name": "Street trees",
+      "category": "urban forestry",
+      "measurementUnit": "program",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 4,
+      "summary": "The NYSERDA comparative source says street trees are less cost-effective per degree of cooling than light surfaces, light roofs, and curbside planting.",
+      "evidenceUrl": "https://www.nyserda.ny.gov/programs/environment/emep/project/6681_25/06-06%20Complete%20report-web.pdf",
+      "sourceNote": "This is a real ranking result, not a city-specific planting cost table."
+    },
+    {
+      "id": "cool-pavement",
+      "name": "Cool pavement",
+      "category": "surface cooling",
+      "measurementUnit": "program",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 7,
+      "summary": "Cool pavement can lower surface temperatures on selected streets and plazas, but the catalog still needs a verified seed row before the app treats it as a costed procurement item.",
+      "evidenceUrl": "https://nypost.com/2025/10/08/us-news/cool-pavement-pilot-program-could-come-to-nyc-streets-by-2026-under-council-bill/",
+      "sourceNote": "Public reporting citing ASCE describes a cool-pavement sealant premium of about $0.60 per square yard. The matching verified unit-cost seed row lives in the separate unit-cost file."
+    },
+    {
+      "id": "shade-structures",
+      "name": "Shade structures",
+      "category": "public-realm shade",
+      "measurementUnit": "structure",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 5,
+      "summary": "Public shade structures can quickly cool hard-play or plaza spaces, but the catalog still needs a verified unit-cost row before the app treats them as costed procurement items.",
+      "evidenceUrl": "https://www.theatlantic.com/health/archive/2024/09/playgrounds-need-more-shade/679997/",
+      "sourceNote": "Public reporting notes that some playground shade structures can cost upward of $95,000; this entry remains ranking-only until a procurement source is added."
+    },
+    {
+      "id": "green-roofs",
+      "name": "Green roofs",
+      "category": "building cooling",
+      "measurementUnit": "square foot",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 6,
+      "summary": "Green roofs are a related cooling action that can be costed from public case-study examples, but this repo still needs a verified row before treating them as procurement-ready.",
+      "evidenceUrl": "https://en.wikipedia.org/wiki/Green_roof",
+      "sourceNote": "Public case-study examples in the literature show extensive green roofs can be costed from real project totals; the repo still needs the matching verified unit-cost row."
+    },
+    {
+      "id": "green-walls",
+      "name": "Green walls",
+      "category": "vertical greening",
+      "measurementUnit": "program",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 8,
+      "summary": "Green walls can cool building edges and adjacent sidewalks through shading and evapotranspiration, especially where horizontal tree canopy is hard to add.",
+      "evidenceUrl": "https://www.theguardian.com/environment/2024/feb/23/botanical-gardens-most-effective-green-space-at-cooling-streets-in-heatwaves",
+      "sourceNote": "Review coverage of GCCAR findings notes that green walls significantly mitigate surrounding heat and are useful where ground-space tree planting is constrained."
+    },
+    {
+      "id": "permeable-paving",
+      "name": "Permeable paving",
+      "category": "surface cooling",
+      "measurementUnit": "program",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 9,
+      "summary": "Permeable paving supports evaporative cooling, reduces runoff, and can improve near-surface comfort in heat-exposed plazas and low-traffic streets.",
+      "evidenceUrl": "https://en.wikipedia.org/wiki/Permeable_paving",
+      "sourceNote": "The literature describes heat-island mitigation benefits from reflective and permeable paving and its compatibility with stormwater control."
+    },
+    {
+      "id": "pocket-parks",
+      "name": "Pocket parks",
+      "category": "public-realm shade",
+      "measurementUnit": "site",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 11,
+      "summary": "Pocket parks convert very small leftover sites into human-scale cooling spaces with seating, shade, and vegetation.",
+      "evidenceUrl": "https://en.wikipedia.org/wiki/Pocket_park",
+      "sourceNote": "Pocket parks are a related micro-space intervention that can be paired with shade and planting; this entry becomes verified only when a seed cost row is present."
+    },
+    {
+      "id": "transit-shade-canopies",
+      "name": "Transit shade canopies",
+      "category": "public-realm shade",
+      "measurementUnit": "canopy",
+      "unitCostUsd": null,
+      "costStatus": "ranking_only",
+      "priorityRank": 10,
+      "summary": "Shade canopies at transit stops and other waiting areas cut direct solar exposure where people are forced to stand still in the heat.",
+      "evidenceUrl": "https://arxiv.org/abs/2405.01225",
+      "sourceNote": "Shaded routing research shows that localized shade along mobility corridors produces disproportionate heat-exposure benefits, supporting transit-stop shade as a targeted intervention."
+    },
+    {
+      "id": "whole-city-cooling-package",
+      "name": "Whole-city cooling package",
+      "category": "citywide benchmark",
+      "measurementUnit": "citywide program",
+      "unitCostUsd": 1000000000,
+      "costStatus": "benchmark_only",
+      "priorityRank": null,
+      "summary": "A literature-cited Los Angeles package provides a coarse whole-city benchmark of about US$1B for large-scale cooling action.",
+      "evidenceUrl": "https://en.wikipedia.org/wiki/Urban_heat_island#Mitigation",
+      "sourceNote": "Use this only as a macro benchmark for exhaustive planning, not as a substitute for per-action unit costs."
+    }
+  ]
+}

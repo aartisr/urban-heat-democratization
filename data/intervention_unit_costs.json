@@ -1,0 +1,94 @@
+{
+  "unitCosts": [
+    {
+      "interventionId": "light-surfaces",
+      "unitCostUsd": 10,
+      "measurementUnit": "square foot",
+      "targetQuantity": 10000,
+      "summaryOverride": "Public concrete staining and light-surface guidance gives the planner a practical seed anchor for reflective hardscape treatments.",
+      "evidenceUrl": "https://www.thespruce.com/concrete-driveway-cost-8643463",
+      "sourceNote": "The public cost guide places concrete staining at about $10 to $11 per square foot. This row uses $10 per square foot as a conservative planning seed for light-colored hardscape treatments that reduce heat absorption."
+    },
+    {
+      "interventionId": "street-trees",
+      "unitCostUsd": 50,
+      "measurementUnit": "tree",
+      "targetQuantity": 1000,
+      "summaryOverride": "Public city grant examples imply roughly $200 per planted tree when a local tree-planting grant funds a small number of street trees.",
+      "evidenceUrl": "https://www.bigrapidsnews.com/news/article/big-rapids-awarded-4-000-grant-purchase-20-21154765.php",
+      "sourceNote": "Public grant example: $4,000 for 20 trees implies about $200 per tree. The planner stores the seed row as $50 per tree with a 1,000-tree target so the exact optimizer can exercise program-cost logic."
+    },
+    {
+      "interventionId": "curbside-planting",
+      "unitCostUsd": 200,
+      "measurementUnit": "tree",
+      "targetQuantity": 750,
+      "summaryOverride": "Public tree-planting grant examples also support curbside planting as a seed-cost row for tree-adjacent urban forestry work.",
+      "evidenceUrl": "https://www.bigrapidsnews.com/news/article/big-rapids-awarded-4-000-grant-purchase-20-21154765.php",
+      "sourceNote": "The same public grant example implies about $200 per planted tree. This row uses that public anchor for curbside planting so the verified-cost subset can cover a second forestry action."
+    },
+    {
+      "interventionId": "shade-structures",
+      "unitCostUsd": 95000,
+      "measurementUnit": "structure",
+      "targetQuantity": 1,
+      "summaryOverride": "Public shade-structure case-study example used as a seed unit-cost row.",
+      "evidenceUrl": "https://www.theatlantic.com/health/archive/2024/09/playgrounds-need-more-shade/679997/",
+      "sourceNote": "Public reporting described playground shade structures costing upward of $95,000."
+    },
+    {
+      "interventionId": "transit-shade-canopies",
+      "unitCostUsd": 95000,
+      "measurementUnit": "canopy",
+      "targetQuantity": 1,
+      "summaryOverride": "Public reporting on large shade structures also supports transit-stop shade canopies as a verified planning anchor.",
+      "evidenceUrl": "https://www.theatlantic.com/health/archive/2024/09/playgrounds-need-more-shade/679997/",
+      "sourceNote": "This row reuses the same public shade-structure anchor because transit-stop canopies often use the same prefabricated structural logic. It is still a planning seed, not a city procurement quote."
+    },
+    {
+      "interventionId": "green-roofs",
+      "unitCostUsd": 30,
+      "measurementUnit": "square foot",
+      "targetQuantity": 10000,
+      "summaryOverride": "Public reporting places professionally installed green roofs in the tens of dollars per square foot, so this seed row uses a middle-of-range planning anchor.",
+      "evidenceUrl": "https://www.homesandgardens.com/solved/types-of-roofing",
+      "sourceNote": "Public reporting places green roofs around $15 to $40+ per square foot. This seed row uses $30 per square foot as a planning anchor and retains a target quantity so the exact optimizer can work on program cost."
+    },
+    {
+      "interventionId": "cool-roofs",
+      "unitCostUsd": 24,
+      "measurementUnit": "square foot",
+      "targetQuantity": 10000,
+      "summaryOverride": "Public roof guidance places reflective roof work in the low tens of dollars per square foot, so this seed row gives the planner a costed cool-roof anchor.",
+      "evidenceUrl": "https://www.homesandgardens.com/solved/types-of-roofing",
+      "sourceNote": "The source is used as a broad public roofing-cost anchor. This planner seed uses $24 per square foot for reflective or light-roof work so the verified-cost path can compare cool roofs against the rest of the catalog."
+    },
+    {
+      "interventionId": "cool-pavement",
+      "unitCostUsd": 60,
+      "measurementUnit": "100 square yards",
+      "targetQuantity": 1000,
+      "summaryOverride": "Public reporting cites a cool-pavement sealant premium; this seed row scales the quoted difference into a 100-square-yard planning unit so the planner can exercise verified integer unit-cost logic.",
+      "evidenceUrl": "https://nypost.com/2025/10/08/us-news/cool-pavement-pilot-program-could-come-to-nyc-streets-by-2026-under-council-bill/",
+      "sourceNote": "Public reporting citing ASCE says the sealant is about $0.60 more per square yard than traditional sealants. The planner stores this as $60 per 100 square yards because the repository's unit-cost contract uses integer dollars."
+    },
+    {
+      "interventionId": "permeable-paving",
+      "unitCostUsd": 20,
+      "measurementUnit": "square foot",
+      "targetQuantity": 5000,
+      "summaryOverride": "Public driveway cost guides place permeable paving in a broad per-square-foot range; this seed row uses a middle planning anchor for heat-sensitive plazas and light-traffic corridors.",
+      "evidenceUrl": "https://www.thespruce.com/new-driveway-cost-8601273",
+      "sourceNote": "Public cost guidance says permeable materials can range from about $2.75 to $47.50 per square foot. This row uses $20 per square foot as a seed planning anchor and keeps a target quantity so the optimizer can exercise program-cost logic."
+    },
+    {
+      "interventionId": "pocket-parks",
+      "unitCostUsd": 11000,
+      "measurementUnit": "site",
+      "targetQuantity": 1,
+      "summaryOverride": "Public reporting on parklets shows that small public-space conversions can carry five-figure site costs; this seed row uses a modest parklet-style planning anchor for pocket-park style cooling spaces.",
+      "evidenceUrl": "https://www.thetimes.co.uk/article/councils-spend-5m-on-parklets-left-strewn-with-rubbish-7g0x5w77j",
+      "sourceNote": "This is a public seed-cost example for a small public-space cooling intervention. It is a planning anchor, not a procurement quote for any specific city or design."
+    }
+  ]
+}
