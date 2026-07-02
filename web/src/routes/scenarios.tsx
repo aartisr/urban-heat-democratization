@@ -11,6 +11,7 @@ import { ScienceDemocratizationBanner } from "../components/science-democratizat
 import { StoryJourneyStrip } from "../components/story-journey-strip";
 import { SunburstCard } from "../components/sunburst-card";
 import { createWhatIfScenarios, getCityBenchmarkSuite, getCityExperience, getCityPlannerValidation, getCitySpectral, getRobustnessLab, listCities, listCostSources, listInterventions, listRuns, listScenarios, queueRun, resetAndGenerateScenarios } from "../lib/api";
+import { defaultStudyCityId, defaultStudyCityLabel } from "../lib/study-city";
 import { personaModeProfiles, personaScenarioPresets } from "../lib/persona-modes";
 import { useActivePersonaMode } from "../lib/use-active-persona-mode";
 import type { CostSource, InterventionRecord, PlanningMode, RobustnessLab, RunRecord, ScenarioRecord } from "../lib/types";
@@ -610,7 +611,7 @@ export function ScenariosPage() {
   const modePreset = personaScenarioPresets[activeModeId];
   const search = useSearch({ from: "/scenarios" });
   const queryClient = useQueryClient();
-  const [cityId, setCityId] = useState(search.cityId ?? "boston");
+  const [cityId, setCityId] = useState(search.cityId ?? defaultStudyCityId);
   const [budgetUsd, setBudgetUsd] = useState(search.budgetUsd ?? 250000);
   const [planningMode, setPlanningMode] = useState<PlanningMode>("best_under_budget");
   const [submissionMessage, setSubmissionMessage] = useState<string | null>(null);
@@ -1255,7 +1256,7 @@ export function ScenariosPage() {
         <div className="mode-suite-header">
           <div>
             <div className="eyebrow">Benchmark suite</div>
-            <h2>{benchmarkSuiteQuery.data?.cityName ?? "Boston"} planning snapshot</h2>
+            <h2>{benchmarkSuiteQuery.data?.cityName ?? defaultStudyCityLabel} planning snapshot</h2>
             <p className="muted">
               Canonical budgets keep the current planner behavior easy to inspect and compare without opening a separate tooling page.
             </p>
@@ -1780,7 +1781,7 @@ export function ScenariosPage() {
             The proof-of-concept robustness lab shows the same style of intervention increasing lambda2, improving sink reliability, and reducing conductance. That is strong evidence that the network becomes harder to sever and easier to cool.
           </p>
           <p className="muted">
-            Important: this repository does not yet contain a validated city-specific causal temperature model, so a true °C reduction for Boston scenarios is not proven here. What is proven is the direction of improvement in the graph objective: better connectivity, less vulnerability to cut failure, and higher sink reachability.
+            Important: this repository does not yet contain a validated city-specific causal temperature model, so a true °C reduction for this study city is not proven here. What is proven is the direction of improvement in the graph objective: better connectivity, less vulnerability to cut failure, and higher sink reachability.
           </p>
           {robustnessLab ? (
             <>

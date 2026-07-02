@@ -272,7 +272,9 @@ type PlaceAnchor = {
   explanation: string;
 };
 
-const BOSTON_PLACE_ANCHORS: PlaceAnchor[] = [
+// Bundled study-city place anchors. To swap in a different city's coordinates,
+// replace this array and update the defaultStudyCityId in lib/study-city.ts.
+const BUNDLED_CITY_PLACE_ANCHORS: PlaceAnchor[] = [
   { lng: -71.062871, lat: 42.375193, street: "Cordis Street", area: "Charlestown", explanation: "a compact residential street with limited shade continuity" },
   { lng: -71.064521, lat: 42.376851, street: "High Street", area: "Charlestown", explanation: "a hill-adjacent corridor where shade and cooling access matter" },
   { lng: -71.05132, lat: 42.333735, street: "F Street", area: "South Boston", explanation: "a dense mixed-use corridor with exposed pedestrian movement" },
@@ -403,13 +405,13 @@ function projectedHeatComparison(
 }
 
 function scenarioPlaceHint(marker: ScenarioMapMarker): ScenarioPlaceHint | null {
-  if (!BOSTON_PLACE_ANCHORS.length) {
+  if (!BUNDLED_CITY_PLACE_ANCHORS.length) {
     return null;
   }
 
-  let best = BOSTON_PLACE_ANCHORS[0];
+  let best = BUNDLED_CITY_PLACE_ANCHORS[0];
   let bestDistance = distanceSquared(marker.lng, marker.lat, best.lng, best.lat);
-  for (const candidate of BOSTON_PLACE_ANCHORS.slice(1)) {
+  for (const candidate of BUNDLED_CITY_PLACE_ANCHORS.slice(1)) {
     const candidateDistance = distanceSquared(marker.lng, marker.lat, candidate.lng, candidate.lat);
     if (candidateDistance < bestDistance) {
       best = candidate;
@@ -3008,7 +3010,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         whereRow.appendChild(whereLabel);
         const whereValue = document.createElement("span");
         whereValue.className = "scenario-marker-popup-value";
-        whereValue.textContent = placeHint ? placeHint.label : "Boston";
+        whereValue.textContent = placeHint ? placeHint.label : "Selected area";
         whereRow.appendChild(whereValue);
         details.appendChild(whereRow);
 
