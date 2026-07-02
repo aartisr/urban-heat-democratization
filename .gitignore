@@ -1,0 +1,11 @@
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+outputs/
+web/node_modules/
+web/dist/
+web/.vite/
+web/.env.local
+web/.turbo/
+data/runtime/

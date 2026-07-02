@@ -1,0 +1,43 @@
+{
+  "cases": [
+    {
+      "actionCount": 6,
+      "allocationCoveragePct": 1.0,
+      "benchmarkLabel": "Early-stage benchmark coverage",
+      "budgetUsd": 50000,
+      "exhaustiveAvailable": true,
+      "label": "Starter budget",
+      "planningMode": "best_under_budget"
+    },
+    {
+      "actionCount": 4,
+      "allocationCoveragePct": 0.3806,
+      "benchmarkLabel": "Early-stage benchmark coverage",
+      "budgetUsd": 250000,
+      "exhaustiveAvailable": true,
+      "label": "Evidence-first",
+      "planningMode": "evidence_first"
+    },
+    {
+      "actionCount": 3,
+      "allocationCoveragePct": 1.0,
+      "benchmarkLabel": "Early-stage benchmark coverage",
+      "budgetUsd": 1000000,
+      "exhaustiveAvailable": true,
+      "label": "Benchmark-share",
+      "planningMode": "benchmark_share"
+    },
+    {
+      "actionCount": 1,
+      "allocationCoveragePct": 1.0,
+      "benchmarkLabel": "Early-stage benchmark coverage",
+      "budgetUsd": 5000000,
+      "exhaustiveAvailable": true,
+      "label": "Whole-city anchor",
+      "planningMode": "whole_city_benchmark"
+    }
+  ],
+  "cityId": "boston",
+  "cityName": "Boston",
+  "headline": "A compact benchmark suite now shows how the planner behaves across canonical budgets and planning modes."
+}
