@@ -7,7 +7,7 @@
 
 Official website: [https://ai-aarti.com](https://ai-aarti.com)
 
-Copyright (c) 2026 Aarti S Ravikumar
+Copyright (c) 2026 [Aarti S Ravikumar](https://ai-aarti.com)
 
 Urban heat is one of the most unequal climate risks in modern cities.
 This repository turns that reality into a system people can see, question,
@@ -23,6 +23,18 @@ with three jobs:
 
 It is designed to be serious enough for researchers, useful enough for city
 teams, and clear enough for educators, students, and community advocates.
+
+## AI acknowledgement and authorship
+
+AI tools were used as enablers during development for acceleration tasks such
+as drafting, refactoring, testing support, and documentation refinement.
+
+The original idea, research direction, solution design, mathematical framing,
+and project intent are authored by [Aarti S Ravikumar](https://ai-aarti.com).
+
+This repository distinguishes AI-assisted execution from core authorship:
+AI enabled parts of the implementation process, while the originating
+intellectual contribution remains Aarti's.
 
 ## Platform snapshot
 
