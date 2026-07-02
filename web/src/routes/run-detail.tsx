@@ -19,7 +19,7 @@ export function RunDetailPage() {
           <div className="eyebrow">Run detail</div>
           <h1>{run?.scenario ?? runId}</h1>
         </div>
-        <p>{run?.summary ?? "Run metadata, Boston context, logs, and attached artifacts live here."}</p>
+        <p>{run?.summary ?? "Run metadata, context, logs, and attached artifacts live here."}</p>
       </header>
 
       <StoryJourneyStrip

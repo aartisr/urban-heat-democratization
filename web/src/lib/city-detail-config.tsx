@@ -115,6 +115,19 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
     ? `${cityMap.narrative} Compare ${thermalSourceNames} to see how observed thermal evidence supports the derived spectral story before moving into scenarios.`
     : citySpectral?.summary ?? cityMap?.narrative ?? "Use this page to read the city, understand the evidence, and move naturally into planning.";
 
+  const storyJourney = {
+    title: "City decision storyline",
+    subtitle: cityExperience?.bundled
+      ? "Keep the city page reusable: evidence, readiness, scenarios, and execution stay in one consistent flow."
+      : "Keep the city page reusable: boundary registration, evidence, readiness, and execution stay in one consistent flow.",
+    items: [
+      { label: "Observe", detail: "Inspect heat, cooling, and bottleneck structure in the city atlas." },
+      { label: "Assess", detail: "Review readiness, trust audit, and robustness for evidence integrity." },
+      { label: "Plan", detail: "Bridge into scenarios with city-aware defaults and transparent assumptions." },
+      { label: "Operationalize", detail: "Queue runs and export artifacts while retaining a traceable record." },
+    ],
+  };
+
   const journeyCards: CityIntelligenceOverviewProps["journeyCards"] = [
     {
       eyebrow: "1. Observe",
@@ -318,6 +331,7 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
     suggestedBudget,
     scenarioSearch,
     overview,
+    storyJourney,
     sections: {
       evidenceCards,
       snapshotCards,

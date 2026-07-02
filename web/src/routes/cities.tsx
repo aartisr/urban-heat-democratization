@@ -399,7 +399,7 @@ export function CitiesPage() {
             ) : null}
             {formValue.boundarySource === "catalog" ? (
               <p className="full-span muted">
-                The Boston catalog preset loads the bundled repository boundary automatically.
+                The catalog preset loads the bundled repository boundary automatically.
               </p>
             ) : null}
             <label className="full-span">
@@ -407,7 +407,7 @@ export function CitiesPage() {
               <textarea value={formValue.notes} onChange={(e) => setFormValue((prev) => ({ ...prev, notes: e.target.value }))} rows={4} />
             </label>
             <p className="full-span muted">
-              Boston can load directly from the bundled catalog. New York City, Chicago, Los Angeles, Houston, and custom cities use the same upload-first onboarding workflow.
+              Bundled cities can load directly from the catalog. Upload-first cities use the same onboarding workflow, so the mental model stays consistent as the catalog grows.
             </p>
             <div className="full-span">
               <button className="button-link" type="submit" disabled={!uploadReady}>Save city</button>

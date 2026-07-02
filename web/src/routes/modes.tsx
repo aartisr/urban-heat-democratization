@@ -6,6 +6,7 @@ import { PersonaFlowRail } from "../components/persona-flow-rail";
 import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
 import { StoryJourneyStrip } from "../components/story-journey-strip";
 import { getCityBenchmarkSuite } from "../lib/api";
+import { defaultStudyCityId, defaultStudyCityLabel } from "../lib/study-city";
 import { type PersonaModeId } from "../lib/persona-modes";
 import { useActivePersonaMode } from "../lib/use-active-persona-mode";
 import type { BenchmarkSuiteCase } from "../lib/types";
@@ -28,7 +29,7 @@ const personaModes: PersonaMode[] = [
     id: "educator",
     audience: "Educator",
     title: "Teach the city like a living climate diagram",
-    summary: "Use Boston as a classroom-ready case study, then move learners from heat signals to bottlenecks to policy tradeoffs.",
+    summary: "Use the bundled study city as a classroom-ready case study, then move learners from heat signals to bottlenecks to policy tradeoffs.",
     bestFor: "Classrooms, workshops, and public demos",
     promise: "Start with the map, explain the science in plain language, and finish with a compare-and-contrast scenario discussion.",
     outcome: "Learners leave with a clear mental model of why the city overheats and what a plausible response looks like.",
@@ -169,7 +170,7 @@ function ModeSuiteCard({ item }: { item: BenchmarkSuiteCase }) {
 
 export function ModesPage() {
   const { activeModeId, setMode } = useActivePersonaMode();
-  const benchmarkSuiteQuery = useQuery({ queryKey: ["city-benchmark-suite", "boston"], queryFn: () => getCityBenchmarkSuite("boston") });
+  const benchmarkSuiteQuery = useQuery({ queryKey: ["city-benchmark-suite", defaultStudyCityId], queryFn: () => getCityBenchmarkSuite(defaultStudyCityId) });
   const modeAnchors = useMemo(
     () => [
       { label: "Educator", to: "#educator" },
@@ -195,7 +196,7 @@ export function ModesPage() {
             <Link
               to="/scenarios"
               search={{
-                cityId: "boston",
+                cityId: defaultStudyCityId,
                 budgetUsd: 250000,
                 focus: undefined,
                 sourceLayer: undefined,
@@ -271,7 +272,7 @@ export function ModesPage() {
             </div>
             <div>
               <strong>Most polished</strong>
-              <span>Boston-led storytelling with clean benchmark framing.</span>
+              <span>City-led storytelling with clean benchmark framing.</span>
             </div>
             <div>
               <strong>Most rigorous</strong>
@@ -292,7 +293,7 @@ export function ModesPage() {
           </div>
           <div className="mode-suite-badge">
             <span>City</span>
-            <strong>{benchmarkSuiteQuery.data?.cityName ?? "Boston"}</strong>
+            <strong>{benchmarkSuiteQuery.data?.cityName ?? defaultStudyCityLabel}</strong>
           </div>
         </div>
         <div className="mode-suite-grid">
