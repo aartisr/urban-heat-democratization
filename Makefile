@@ -10,7 +10,7 @@ PYTHON_IN_VENV := $(VENV)/bin/python
 PIP_IN_VENV := $(VENV)/bin/pip
 UVICORN_IN_VENV := $(VENV)/bin/uvicorn
 
-.PHONY: help check-python install-python setup web-install api run-api web build test validate-packages quick-reference live-landsat live-ecostress
+.PHONY: help check-python install-python setup web-install api run-api web build test test-web test-python validate-packages quick-reference live-landsat live-ecostress
 
 help:
 	@echo "Available targets:"
@@ -22,7 +22,9 @@ help:
 	@echo "  make run-api            Alias for 'make api'"
 	@echo "  make web                Run the TanStack frontend"
 	@echo "  make build              Build the frontend"
-	@echo "  make test               Run frontend tests"
+	@echo "  make test               Run Python and frontend tests"
+	@echo "  make test-web           Run frontend tests"
+	@echo "  make test-python        Run Python tests"
 	@echo "  make validate-packages  Validate bundled package metadata and artifacts"
 	@echo "  make live-landsat       Build the latest Landsat bridge JSON for a city"
 	@echo "  make live-ecostress     Build the latest ECOSTRESS bridge JSON for a city"
@@ -62,7 +64,15 @@ build:
 	npm --prefix $(WEB_DIR) run build
 
 test:
+	$(MAKE) test-python
+	$(MAKE) test-web
+
+test-web:
 	npm --prefix $(WEB_DIR) test
+
+test-python:
+	@test -x "$(PYTHON_IN_VENV)" || (echo "Virtualenv is missing. Run 'make setup' first."; exit 1)
+	PYTHONPATH=. $(PYTHON_IN_VENV) -m pytest tests
 
 validate-packages:
 	@test -x "$(PYTHON_IN_VENV)" || (echo "Virtualenv is missing. Run 'make setup' first."; exit 1)
