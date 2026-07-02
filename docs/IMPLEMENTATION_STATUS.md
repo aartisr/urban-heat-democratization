@@ -33,7 +33,7 @@ The repo is now a working TanStack-first urban-heat planning app with a Python A
 - Frontend performance is only partially improved so far: the atlas now waits for explicit user activation before loading its heaviest assets, but the MapLibre vendor chunk is still large once the interactive atlas is opened.
 - Live thermal refresh is now active and asynchronous when configured, but the system still depends on operator-provided adapter endpoints or files rather than shipping with direct Landsat or ECOSTRESS provider integrations.
 - Live thermal refresh is now active and asynchronous when configured, and the atlas now shows source freshness, but it still depends on operator-provided adapter endpoints or files rather than shipping with direct Landsat or ECOSTRESS provider integrations.
-- Live thermal refresh is now active and asynchronous when configured, and the repo now ships official-metadata bridge scripts for Landsat and ECOSTRESS, but Landsat still requires an operator-selected official collection concept id and the system still does not raster-process fresh orbital scenes into new thermal polygons inside the API itself.
+- Live thermal refresh is now active and asynchronous when configured, and the repo now ships first-party bridge scripts plus Make targets for Landsat and ECOSTRESS freshness metadata, but Landsat still requires an operator-selected official collection concept id and the system still does not raster-process fresh orbital scenes into new thermal polygons inside the API itself.
 - Planning strategies are now modular, but only benchmark-share strategies are implemented so far; no city-specific optimizer or calibrated benefit engine exists yet.
 - The documentation now includes a real screenshot gallery generated from browser automation against the running app UI.
 - Planner validation is only partial so far: it now reports readiness, missing pieces, and warnings in planner language, but it is still much lighter than the full research-repo validation stack.
@@ -49,7 +49,6 @@ The repo is now a working TanStack-first urban-heat planning app with a Python A
 - Exhaustive mitigation cost estimation for whole-city and subregion scenarios.
 - Additional real bundled cities beyond Boston so the generic city-experience architecture is exercised by multiple city datasets rather than multiple Boston package variants.
 - Full Boston run execution parity with `spectral_urbanism_boston` including worker-backed jobs, config validation, and real pipeline logs.
-- Built-in first-party Landsat and ECOSTRESS ingestion connectors; current live refresh requires a configured adapter payload source rather than shipping with provider-authenticated fetchers out of the box.
 
 ## Keep Updating
 
