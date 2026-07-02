@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties } from "react";
+import { useMemo, useState } from "react";
 
 export type SunburstNode = {
   id: string;
@@ -32,6 +32,9 @@ type SunburstCardProps = {
 
 const TAU = Math.PI * 2;
 const START_ANGLE = -Math.PI / 2;
+const MIN_ZOOM = 0.8;
+const MAX_ZOOM = 1.5;
+const ZOOM_STEP = 0.1;
 const SUNBURST_FALLBACK_COLORS = [
   "#0f766e",
   "#2563eb",
@@ -206,6 +209,8 @@ function formatShare(value: number, total: number) {
 export function SunburstCard({ title, description, centerLabel, centerDetail, centerMeta, nodes, className }: SunburstCardProps) {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
   const [pinnedNodeId, setPinnedNodeId] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [compact, setCompact] = useState(false);
 
   const layout = useMemo(() => {
     const depthCount = Math.max(1, maxDepth(nodes));
@@ -243,9 +248,11 @@ export function SunburstCard({ title, description, centerLabel, centerDetail, ce
 
   const focusMode = pinnedNodeId ? "Pinned focus" : hoveredNodeId ? "Previewing" : "Tap to explore";
   const centerTitle = hoveredNodeId || pinnedNodeId ? activeNode?.label ?? centerLabel : centerLabel;
+  const visualZoom = compact ? Math.max(MIN_ZOOM, zoom - 0.1) : zoom;
+  const zoomTransform = `translate(280 280) scale(${visualZoom}) translate(-280 -280)`;
 
   return (
-    <div className={`scenario-sunburst-card ${className ?? ""}`.trim()}>
+    <div className={`scenario-sunburst-card ${compact ? "is-compact" : ""} ${className ?? ""}`.trim()}>
       <div className="scenario-sunburst-head">
         <div>
           <div className="eyebrow">Sunburst story</div>
@@ -255,6 +262,33 @@ export function SunburstCard({ title, description, centerLabel, centerDetail, ce
         <div className="scenario-sunburst-head-actions">
           {centerMeta ? <div className="truth-badge derived">{centerMeta}</div> : null}
           <div className="truth-badge observed">{focusMode}</div>
+          <div className="scenario-chart-controls" role="group" aria-label="Sunburst zoom and compact controls">
+            <button
+              type="button"
+              className="scenario-chart-control-button"
+              onClick={() => setZoom((current) => Math.max(MIN_ZOOM, current - ZOOM_STEP))}
+              aria-label="Zoom out Sunburst"
+            >
+              -
+            </button>
+            <span className="scenario-chart-control-value" aria-live="polite">{Math.round(visualZoom * 100)}%</span>
+            <button
+              type="button"
+              className="scenario-chart-control-button"
+              onClick={() => setZoom((current) => Math.min(MAX_ZOOM, current + ZOOM_STEP))}
+              aria-label="Zoom in Sunburst"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              className={`scenario-chart-control-button scenario-chart-control-button--toggle ${compact ? "is-active" : ""}`}
+              onClick={() => setCompact((value) => !value)}
+              aria-label={compact ? "Disable compact Sunburst mode" : "Enable compact Sunburst mode"}
+            >
+              Compact
+            </button>
+          </div>
         </div>
       </div>
       <div className="scenario-sunburst-guidance">
@@ -288,8 +322,9 @@ export function SunburstCard({ title, description, centerLabel, centerDetail, ce
                 <stop offset="100%" stopColor="rgba(255,255,255,0.86)" />
               </radialGradient>
             </defs>
+            <g transform={zoomTransform}>
             <circle cx="280" cy="280" r="236" className="scenario-sunburst-halo" />
-            {layout.nodes.map((node, index) => {
+            {layout.nodes.map((node) => {
               const isActive = activeNode?.id === node.id;
               const resolvedColor = ensureReadableSunburstColor(node.color, `${node.id}-${node.label}`);
               return (
@@ -299,7 +334,6 @@ export function SunburstCard({ title, description, centerLabel, centerDetail, ce
                   fill={resolvedColor}
                   className={`scenario-sunburst-slice ${node.depth === 1 ? "is-depth-one" : ""} tone-${node.tone ?? "derived"} ${isActive ? "is-active" : ""}`}
                   filter={isActive ? "url(#sunburstGlow)" : undefined}
-                  style={{ fill: resolvedColor, animationDelay: `${index * 55}ms` } as CSSProperties}
                   onMouseEnter={() => setHoveredNodeId(node.id)}
                   onMouseLeave={() => setHoveredNodeId(null)}
                   onFocus={() => setHoveredNodeId(node.id)}
@@ -323,6 +357,7 @@ export function SunburstCard({ title, description, centerLabel, centerDetail, ce
             >
               {centerTitle}
             </text>
+            </g>
           </svg>
           <div className="scenario-sunburst-ring-key" aria-label="Sunburst ring key">
             {nodes.map((node, index) => (
@@ -333,10 +368,13 @@ export function SunburstCard({ title, description, centerLabel, centerDetail, ce
                 onClick={() => setPinnedNodeId(node.id)}
                 onFocus={() => setHoveredNodeId(node.id)}
                 onBlur={() => setHoveredNodeId(null)}
-                aria-pressed={pinnedNodeId === node.id}
-                aria-label={`Inspect ${node.label}`}
+                aria-label={`${pinnedNodeId === node.id ? "Pinned" : "Inspect"} ${node.label}`}
               >
-                <span className="scenario-sunburst-label-swatch" style={{ background: ensureReadableSunburstColor(node.color, `${node.id}-${node.label}`) }} />
+                <span className="scenario-sunburst-label-swatch">
+                  <svg viewBox="0 0 14 14" className="scenario-sunburst-label-swatch-svg" aria-hidden="true">
+                    <circle cx="7" cy="7" r="7" fill={ensureReadableSunburstColor(node.color, `${node.id}-${node.label}`)} />
+                  </svg>
+                </span>
                 <span className="scenario-sunburst-ring-key-copy">
                   <strong>{node.label}</strong>
                   <span>{index === 0 ? "Inner evidence ring" : "Outer intervention ring"}</span>

@@ -5,6 +5,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/re
 
 import { MathBlock } from "../components/math-block";
 import { PersonaFlowRail } from "../components/persona-flow-rail";
+import { ScenarioPackedBubbleCard } from "../components/scenario-packed-bubble-card";
 import { ScenarioSankeyCard } from "../components/scenario-sankey-card";
 import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
 import { StoryJourneyStrip } from "../components/story-journey-strip";
@@ -1074,7 +1075,7 @@ export function ScenariosPage() {
         <article className="scenario-story-card">
           <span>02</span>
           <strong>Read composition</strong>
-          <p>Use the sunburst to separate evidence base, intervention mix, and budget concentration in one visual scan.</p>
+          <p>Use sunburst for hierarchy, then packed bubbles for quick budget concentration and intervention dominance checks.</p>
         </article>
         <article className="scenario-story-card">
           <span>03</span>
@@ -1090,6 +1091,7 @@ export function ScenariosPage() {
 
       <nav className="scenario-story-nav" aria-label="Scenario page sections">
         <a href="#scenario-composition">Composition</a>
+        <a href="#scenario-bubbles">Packed bubbles</a>
         <a href="#scenario-sankey">Budget flow</a>
         <a href="#scenario-generator">Generator</a>
         <a href="#scenario-math-proof">Math proof</a>
@@ -1102,12 +1104,50 @@ export function ScenariosPage() {
         subtitle="The page is organized to keep science legible: composition, budget flow, constrained optimization, then audit-ready comparison."
         items={[
           { label: "Compose", detail: "Read evidence and intervention composition in the sunburst before selecting budgets." },
+          { label: "Scan", detail: "Use packed bubbles for immediate intervention budget dominance and concentration checks." },
           { label: "Trace", detail: "Follow budget causality with Sankey from evidence quality into intervention families." },
           { label: "Optimize", detail: "Generate and compare scenarios with confidence-aware, uncertainty-bounded metrics." },
           { label: "Audit", detail: "Inspect planner validation, run history, and provenance before decisions leave the room." },
         ]}
         className="scenario-story-journey"
       />
+
+      <section className="scenario-view-rationale panel-card premium-section-card" aria-label="Why three visual views">
+        <div className="scenario-view-rationale-head">
+          <div>
+            <div className="eyebrow">Why three visual lenses</div>
+            <h2>Each chart answers a different planning question</h2>
+            <p className="muted">
+              Keeping Sunburst, Packed bubbles, and Sankey together follows progressive disclosure patterns from the reference set:
+              overview first, concentration second, causality third.
+            </p>
+          </div>
+          <div className="truth-badge derived">helper-backed</div>
+        </div>
+        <div className="scenario-view-rationale-grid">
+          <article>
+            <strong>Sunburst: hierarchy and evidence structure</strong>
+            <p>Best for understanding composition and evidence layering before users reason about budget flows.</p>
+            <span>
+              Uses helpers for arc geometry, hierarchy weighting, readable color fallback, and stable detail focus.
+            </span>
+          </article>
+          <article>
+            <strong>Packed bubbles: concentration and dominance</strong>
+            <p>Best for seeing which interventions dominate allocated budget without trace-path complexity.</p>
+            <span>
+              Uses helpers for budget weighting, non-overlap packing, category color mapping, and compact top-N filtering.
+            </span>
+          </article>
+          <article>
+            <strong>Sankey: causality and budget provenance</strong>
+            <p>Best for tracing how budget moves from evidence quality to intervention families and actions.</p>
+            <span>
+              Uses helpers for staged node construction, column layout, link path routing, and evidence-aware flow styling.
+            </span>
+          </article>
+        </div>
+      </section>
 
       <div className="scenario-visual-gallery" id="scenario-composition">
         {activeSunburstScenario ? (
@@ -1120,6 +1160,12 @@ export function ScenariosPage() {
             nodes={activeSunburstNodes}
             className="scenario-sunburst-card--hero scenario-sunburst-card--lede"
           />
+        ) : null}
+
+        {activeSunburstScenario ? (
+          <div id="scenario-bubbles">
+            <ScenarioPackedBubbleCard scenario={activeSunburstScenario} />
+          </div>
         ) : null}
       </div>
 
