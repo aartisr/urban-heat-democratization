@@ -1,4 +1,5 @@
 import type { CityOnboardingInput, CityProfile, RunRecord, ScenarioRecord } from "./types";
+import { defaultStudyCityId } from "./study-city";
 
 const CITIES_KEY = "urban_heat_democratization.cities";
 const RUNS_KEY = "urban_heat_democratization.runs";
@@ -177,9 +178,9 @@ const seedRuns: RunRecord[] = [
     progress: 100,
     updatedAt: "2026-06-30T12:24:00.000Z",
     outputs: ["heat-atlas.json", "scenario-summary.csv", "provenance-manifest.json"],
-    summary: "Bundled Boston baseline study run.",
+    summary: "Bundled baseline study run.",
     outputArtifactIds: ["boston-study-guide", "cheeger-bottleneck", "low-cooling-access"],
-    logs: ["[2026-06-30T12:24:00.000Z] Boston baseline study completed."],
+    logs: ["[2026-06-30T12:24:00.000Z] Baseline study completed."],
   },
   {
     id: "run-boston-002",
@@ -189,9 +190,9 @@ const seedRuns: RunRecord[] = [
     progress: 68,
     updatedAt: "2026-06-30T12:29:00.000Z",
     outputs: ["partial-history.json"],
-    summary: "Boston mitigation planning run in progress.",
+    summary: "Mitigation planning run in progress.",
     outputArtifactIds: ["boston-study-guide"],
-    logs: ["[2026-06-30T12:29:00.000Z] Boston mitigation study is running."],
+    logs: ["[2026-06-30T12:29:00.000Z] Mitigation study is running."],
   },
 ];
 
@@ -335,7 +336,7 @@ export async function queueRun(cityId: string, scenario: string): Promise<RunRec
     updatedAt: now,
     outputs: [],
     summary: `${cityId} run queued in the mock registry.`,
-    outputArtifactIds: cityId === "boston" ? ["boston-study-guide"] : [],
+    outputArtifactIds: cityId === defaultStudyCityId ? ["boston-study-guide"] : [],
     logs: [`[${now}] Mock run created for ${cityId}.`],
   };
   const stored = readJson<RunRecord[]>(RUNS_KEY, []);
@@ -351,10 +352,10 @@ export async function getRun(runId: string) {
   }
   return {
     ...match,
-    cityName: match.cityId === "boston" ? "Boston" : match.cityId,
+    cityName: match.cityId,
     createdAt: match.updatedAt,
-    notes: match.cityId === "boston"
-      ? ["Boston mock run includes the study guide artifact for parity with the main app flow."]
+    notes: match.cityId === defaultStudyCityId
+      ? ["Bundled city mock run includes the study guide artifact for parity with the main app flow."]
       : ["Mock run record."],
   };
 }

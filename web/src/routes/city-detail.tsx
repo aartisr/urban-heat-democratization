@@ -81,7 +81,7 @@ export function CityDetailPage() {
       await queryClient.invalidateQueries({ queryKey: ["city-trust-audit", cityId] });
     },
   });
-  const bostonMapStats = cityMapQuery.data ? {
+  const cityMapStats = cityMapQuery.data ? {
     heatZones: cityMapQuery.data.heatZones.length,
     accessZones: cityMapQuery.data.accessZones.length,
     highHeatZones: cityMapQuery.data.heatZones.filter((zone) => zone.scoreClass.toLowerCase() === "high").length,
@@ -101,7 +101,7 @@ export function CityDetailPage() {
     trustAudit: cityTrustAuditQuery.data,
     scenarios: scenariosQuery.data,
     runs: runsQuery.data,
-    mapStats: bostonMapStats,
+    mapStats: cityMapStats,
   });
   const registrationStatusCards = buildRegistrationStatusCards(cityDataRegistrationQuery.data);
 
@@ -128,14 +128,9 @@ export function CityDetailPage() {
       />
 
       <StoryJourneyStrip
-        title={`${cityName} decision intelligence arc`}
-        subtitle="This city view moves from thermal evidence to planning readiness, preserving data provenance and uncertainty context throughout."
-        items={[
-          { label: "Observe", detail: "Inspect heat, cooling, and bottleneck structure in the city atlas." },
-          { label: "Assess", detail: "Review readiness, trust audit, and robustness for evidence integrity." },
-          { label: "Plan", detail: "Bridge into scenarios with city-specific defaults and transparent assumptions." },
-          { label: "Operationalize", detail: "Queue runs and export artifacts while retaining a traceable record." },
-        ]}
+        title={detailConfig.storyJourney.title}
+        subtitle={detailConfig.storyJourney.subtitle}
+        items={detailConfig.storyJourney.items}
       />
 
       <ScienceDemocratizationBanner />
@@ -145,7 +140,7 @@ export function CityDetailPage() {
         data={cityMapQuery.data}
         scenarios={scenariosQuery.data}
         loading={cityMapQuery.isLoading}
-        summary={cityMapQuery.data?.narrative ?? citySpectralQuery.data?.summary ?? "Open the atlas to inspect heat bottlenecks, cooling gaps, and study-layer evidence."}
+        summary={cityMapQuery.data?.narrative ?? citySpectralQuery.data?.summary ?? "Open the atlas to inspect bottlenecks, cooling gaps, and study-layer evidence."}
         onActivate={() => setAtlasActivated(true)}
         onMapRefresh={() => {
           void cityMapQuery.refetch();

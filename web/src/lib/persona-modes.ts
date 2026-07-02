@@ -1,4 +1,5 @@
 import type { PlanningMode } from "./types";
+import { defaultStudyCityId } from "./study-city";
 
 export type PersonaModeId = "educator" | "student" | "planner" | "researcher" | "community-advocate";
 
@@ -106,31 +107,31 @@ export const personaModeProfiles: Record<PersonaModeId, PersonaModeProfile> = {
 
 export const personaScenarioPresets: Record<PersonaModeId, PersonaScenarioPreset> = {
   educator: {
-    cityId: "boston",
+    cityId: defaultStudyCityId,
     budgetUsd: 120000,
     planningMode: "benchmark_share",
     evidenceGoal: "Prioritize clear, source-backed actions suitable for classroom discussion.",
   },
   student: {
-    cityId: "boston",
+    cityId: defaultStudyCityId,
     budgetUsd: 80000,
     planningMode: "best_under_budget",
     evidenceGoal: "Maximize learnable tradeoffs while keeping assumptions visible.",
   },
   planner: {
-    cityId: "boston",
+    cityId: defaultStudyCityId,
     budgetUsd: 350000,
     planningMode: "best_under_budget",
     evidenceGoal: "Favor interventions with stronger evidence-readiness and defensible benchmark coverage.",
   },
   researcher: {
-    cityId: "boston",
+    cityId: defaultStudyCityId,
     budgetUsd: 500000,
     planningMode: "evidence_first",
     evidenceGoal: "Stress-test model sensitivity using higher budgets and evidence-first ranking behavior.",
   },
   "community-advocate": {
-    cityId: "boston",
+    cityId: defaultStudyCityId,
     budgetUsd: 200000,
     planningMode: "benchmark_share",
     evidenceGoal: "Keep impact/uncertainty communication simple for neighborhood-facing narratives.",

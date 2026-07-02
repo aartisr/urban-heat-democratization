@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError, createWhatIfScenarios, getCity, listCities } from "./api";
+import { defaultStudyCityId } from "./study-city";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -17,7 +18,7 @@ describe("api client", () => {
         }),
       )
       .mockResolvedValueOnce(
-        new Response(JSON.stringify({ cities: [{ id: "boston", name: "Boston" }] }), {
+        new Response(JSON.stringify({ cities: [{ id: defaultStudyCityId, name: "Study city" }] }), {
           status: 200,
           headers: { "Content-Type": "application/json", "x-request-id": "req-2" },
         }),
@@ -28,7 +29,7 @@ describe("api client", () => {
     const cities = await listCities();
 
     expect(cities).toHaveLength(1);
-    expect(cities[0]?.id).toBe("boston");
+    expect(cities[0]?.id).toBe(defaultStudyCityId);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
@@ -63,7 +64,7 @@ describe("api client", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(createWhatIfScenarios("boston", 100000)).rejects.toBeInstanceOf(ApiError);
+    await expect(createWhatIfScenarios(defaultStudyCityId, 100000)).rejects.toBeInstanceOf(ApiError);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
