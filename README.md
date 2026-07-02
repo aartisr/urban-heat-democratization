@@ -5,6 +5,10 @@
 ![Frontend Vite + React](https://img.shields.io/badge/frontend-Vite%20%2B%20React-0ea5e9)
 ![API FastAPI](https://img.shields.io/badge/api-FastAPI-10b981)
 
+Official website: [https://ai-aarti.com](https://ai-aarti.com)
+
+Copyright (c) 2026 Aarti S Ravikumar
+
 Urban heat is one of the most unequal climate risks in modern cities.
 This repository turns that reality into a system people can see, question,
 model, and act on.
@@ -456,3 +460,7 @@ If you want a one-line description, it is this:
 `urban_heat_democratization` is a research-informed, action-oriented urban heat
 intelligence platform that helps people move from heat observation to heat
 understanding to heat mitigation planning.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
