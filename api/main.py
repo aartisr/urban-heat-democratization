@@ -1294,6 +1294,7 @@ def _planner_validation(city_id: str) -> dict[str, object]:
     boundary_resolved_path, boundary_exists = _verify_city_path(boundary_path)
     boundary_geojson_valid = False
     boundary_feature_count = 0
+    registration_payload = _city_data_registration_payload(city_key) if city_key in _CITY_STORE else None
     if not bundled and boundary_resolved_path and boundary_exists:
         boundary_suffix = Path(boundary_resolved_path).suffix.lower()
         if boundary_suffix in {".geojson", ".json"}:
@@ -1326,6 +1327,60 @@ def _planner_validation(city_id: str) -> dict[str, object]:
                 ),
             },
         )
+        if isinstance(registration_payload, dict):
+            registered_items = [
+                (
+                    "thermalInputsPath",
+                    bool(city_record.get("thermalInputsRegistered")) or bool(str(city_record.get("thermalInputsPath", "")).strip()),
+                    "Thermal inputs",
+                ),
+                (
+                    "artifactBundlePath",
+                    bool(city_record.get("artifactBundleRegistered")) or bool(str(city_record.get("artifactBundlePath", "")).strip()),
+                    "Artifact bundle",
+                ),
+                (
+                    "bottleneckOverlayPath",
+                    bool(city_record.get("bottleneckOverlayRegistered")) or bool(str(city_record.get("bottleneckOverlayPath", "")).strip()),
+                    "Bottleneck overlay",
+                ),
+                (
+                    "coolingOverlayPath",
+                    bool(city_record.get("coolingOverlayRegistered")) or bool(str(city_record.get("coolingOverlayPath", "")).strip()),
+                    "Cooling overlay",
+                ),
+            ]
+            expected_items = [item for item in registered_items if item[1]]
+            content_valid_map = registration_payload.get("contentValid", {})
+            content_label_map = registration_payload.get("contentLabels", {})
+            if expected_items:
+                valid_count = sum(1 for key, _, _ in expected_items if bool(content_valid_map.get(key)))
+                if valid_count == len(expected_items):
+                    status = "ready"
+                    detail = "All registered uploaded paths pass current content checks."
+                else:
+                    status = "partial"
+                    failing_labels = [
+                        label
+                        for key, _, label in expected_items
+                        if not bool(content_valid_map.get(key))
+                    ]
+                    detail = "Registered uploads still failing content checks: " + ", ".join(failing_labels) + "."
+                checks.insert(
+                    2,
+                    {
+                        "id": "registered-content",
+                        "label": "Registered upload content checks",
+                        "status": status,
+                        "detail": detail,
+                    },
+                )
+                for key, _, label in expected_items:
+                    note = str(content_label_map.get(key, "")).lower()
+                    if "score-like" in note:
+                        warnings.append(
+                            f"{label} is structurally valid but currently lacks score-like numeric properties."
+                        )
     for check in checks:
         status = str(check.get("status", "missing"))
         label = str(check.get("label", "Unknown check"))
@@ -1388,6 +1443,48 @@ def _verify_city_path(raw_path: str | None) -> tuple[str | None, bool]:
     return str(candidate), candidate.exists()
 
 
+def _geojson_feature_quality(path: Path) -> dict[str, int | bool]:
+    try:
+        features = _load_geojson_features(path)
+    except Exception:
+        features = []
+    feature_count = len(features)
+    geometry_count = 0
+    scored_feature_count = 0
+    score_like_keys = {
+        "score",
+        "temp_c",
+        "cheeger_score",
+        "cooling_score",
+        "resistance_score",
+    }
+    for feature in features:
+        geometry = feature.get("geometry")
+        if isinstance(geometry, dict) and _geometry_points(geometry):
+            geometry_count += 1
+        properties = feature.get("properties")
+        if isinstance(properties, dict) and any(isinstance(properties.get(key), (int, float)) for key in score_like_keys):
+            scored_feature_count += 1
+    return {
+        "featureCount": feature_count,
+        "geometryCount": geometry_count,
+        "scoredFeatureCount": scored_feature_count,
+        "contentValid": feature_count > 0 and geometry_count > 0,
+    }
+
+
+def _json_payload_non_empty(path: Path) -> bool:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    if isinstance(payload, dict):
+        return len(payload) > 0
+    if isinstance(payload, list):
+        return len(payload) > 0
+    return False
+
+
 def _validate_registered_city_path(kind: str, raw_path: str | None) -> dict[str, object]:
     resolved_path, exists = _verify_city_path(raw_path)
     if not resolved_path:
@@ -1410,11 +1507,28 @@ def _validate_registered_city_path(kind: str, raw_path: str | None) -> dict[str,
     suffix = path.suffix.lower()
     if kind == "thermal":
         allowed = {".tif", ".tiff", ".csv", ".json", ".nc"}
-        content_valid = suffix in allowed or path.is_dir()
+        content_valid = False
+        if path.is_dir():
+            content_valid = any(
+                child.is_file() and child.suffix.lower() in allowed
+                for child in path.rglob("*")
+            )
+        elif suffix in {".tif", ".tiff", ".nc"}:
+            content_valid = path.stat().st_size > 0
+        elif suffix == ".csv":
+            try:
+                lines = [line for line in path.read_text(encoding="utf-8", errors="ignore").splitlines() if line.strip()]
+            except Exception:
+                lines = []
+            content_valid = len(lines) >= 2
+        elif suffix == ".json":
+            content_valid = _json_payload_non_empty(path)
+        elif suffix in allowed:
+            content_valid = path.stat().st_size > 0
         label = (
             "Thermal input path looks plausible."
             if content_valid
-            else "Thermal input path exists, but the file type is not recognized as a raster/table input."
+            else "Thermal input path exists, but it does not look like a non-empty raster/table payload yet."
         )
         return {"path": resolved_path, "exists": True, "contentValid": content_valid, "label": label}
 
@@ -1426,24 +1540,42 @@ def _validate_registered_city_path(kind: str, raw_path: str | None) -> dict[str,
                 "contentValid": False,
                 "label": "Overlay path exists, but it is not a GeoJSON file.",
             }
-        try:
-            features = _load_geojson_features(path)
-        except Exception:
-            features = []
-        content_valid = len(features) > 0
-        label = (
-            f"GeoJSON overlay with {len(features)} feature(s)."
-            if content_valid
-            else "GeoJSON overlay file exists, but it does not contain valid features."
-        )
+        quality = _geojson_feature_quality(path)
+        content_valid = bool(quality["contentValid"])
+        feature_count = int(quality["featureCount"])
+        geometry_count = int(quality["geometryCount"])
+        scored_feature_count = int(quality["scoredFeatureCount"])
+        if content_valid:
+            label = (
+                f"GeoJSON overlay with {feature_count} feature(s); {geometry_count} include usable geometry, "
+                f"{scored_feature_count} include score-like properties."
+            )
+            if scored_feature_count == 0:
+                label += " Overlay is structurally valid but lacks score-like numeric properties."
+        else:
+            label = "GeoJSON overlay file exists, but it does not contain valid features with usable geometry."
         return {"path": resolved_path, "exists": True, "contentValid": content_valid, "label": label}
 
     if kind == "artifact":
-        content_valid = path.is_dir() or suffix in {".zip", ".json", ".geojson", ".md", ".pdf"}
+        if path.is_dir():
+            content_valid = any(child.is_file() for child in path.rglob("*"))
+            label = (
+                "Artifact bundle path looks plausible."
+                if content_valid
+                else "Artifact bundle directory exists, but no files were found inside it."
+            )
+            return {"path": resolved_path, "exists": True, "contentValid": content_valid, "label": label}
+        if suffix == ".json":
+            content_valid = _json_payload_non_empty(path)
+        elif suffix == ".geojson":
+            quality = _geojson_feature_quality(path)
+            content_valid = bool(quality["contentValid"])
+        else:
+            content_valid = suffix in {".zip", ".md", ".pdf"} and path.stat().st_size > 0
         label = (
             "Artifact bundle path looks plausible."
             if content_valid
-            else "Artifact bundle path exists, but the file type is not recognized as a deliverable bundle."
+            else "Artifact bundle path exists, but it does not look like a non-empty deliverable bundle."
         )
         return {"path": resolved_path, "exists": True, "contentValid": content_valid, "label": label}
 
