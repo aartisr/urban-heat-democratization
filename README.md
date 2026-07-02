@@ -43,6 +43,7 @@ What is real today:
 
 - [Quick Reference](/Users/rraviku2/aarti/urban_heat_democratization/docs/QUICK_REFERENCE.md)
 - [Production Blueprint](/Users/rraviku2/aarti/urban_heat_democratization/docs/PRODUCTION_BLUEPRINT.md)
+- [Artifact Strategy](/Users/rraviku2/aarti/urban_heat_democratization/docs/ARTIFACT_STRATEGY.md)
 - [Screen Tour](/Users/rraviku2/aarti/urban_heat_democratization/docs/SCREEN_TOUR.md)
 - [City Onboarding Recipes](/Users/rraviku2/aarti/urban_heat_democratization/docs/CITY_ONBOARDING_RECIPES.md)
 - [Implementation Status](/Users/rraviku2/aarti/urban_heat_democratization/docs/IMPLEMENTATION_STATUS.md)

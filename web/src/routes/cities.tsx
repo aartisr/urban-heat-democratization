@@ -6,7 +6,7 @@ import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/re
 import { PersonaFlowRail } from "../components/persona-flow-rail";
 import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
 import { StoryJourneyStrip } from "../components/story-journey-strip";
-import { listCities, listCityExperiences, onboardCity } from "../lib/api";
+import { getCity, getCityExperience, getCityReadiness, getCityTrustAudit, listCities, listCityExperiences, onboardCity } from "../lib/api";
 import { useActivePersonaMode } from "../lib/use-active-persona-mode";
 import type { CityExperience, CityOnboardingInput, CityProfile } from "../lib/types";
 
@@ -38,10 +38,29 @@ export function CitiesPage() {
   const bundledCityIds = new Set(bundledExperiences.map((experience) => experience.cityId));
   const uploadFirstCities = catalogCities.filter((city) => !bundledCityIds.has(city.id));
 
+  const prefetchCityDetail = (cityId: string) => {
+    void import("../routes/city-detail");
+    void Promise.all([
+      queryClient.prefetchQuery({ queryKey: ["city", cityId], queryFn: () => getCity(cityId), staleTime: 60_000 }),
+      queryClient.prefetchQuery({ queryKey: ["city-experience", cityId], queryFn: () => getCityExperience(cityId), staleTime: 60_000 }),
+      queryClient.prefetchQuery({ queryKey: ["city-readiness", cityId], queryFn: () => getCityReadiness(cityId), staleTime: 60_000 }),
+      queryClient.prefetchQuery({ queryKey: ["city-trust-audit", cityId], queryFn: () => getCityTrustAudit(cityId), staleTime: 60_000 }),
+    ]);
+  };
+
   const columns = useMemo(() => [
     columnHelper.accessor("name", {
       header: "City",
-      cell: (info) => <Link to="/cities/$cityId" params={{ cityId: info.row.original.id }}>{info.getValue()}</Link>,
+      cell: (info) => (
+        <Link
+          to="/cities/$cityId"
+          params={{ cityId: info.row.original.id }}
+          onMouseEnter={() => prefetchCityDetail(info.row.original.id)}
+          onFocus={() => prefetchCityDetail(info.row.original.id)}
+        >
+          {info.getValue()}
+        </Link>
+      ),
     }),
     columnHelper.accessor("region", { header: "Region" }),
     columnHelper.accessor("population", { header: "Population" }),
@@ -49,7 +68,7 @@ export function CitiesPage() {
     columnHelper.accessor("baselineTempC", { header: "Baseline °C", cell: (info) => `${info.getValue().toFixed(1)}°C` }),
     columnHelper.accessor("canopyCoverage", { header: "Canopy" }),
     columnHelper.accessor("planningCostMultiplier", { header: "Multiplier", cell: (info) => `${info.getValue().toFixed(2)}x` }),
-  ], []);
+  ], [queryClient]);
 
   const table = useReactTable({
     data: citiesQuery.data ?? [],
@@ -133,7 +152,15 @@ export function CitiesPage() {
               <p>{experience.summary}</p>
               <p className="muted">Bundled packages: {experience.availablePackageIds.length}</p>
               <div className="quick-links">
-                <Link to="/cities/$cityId" params={{ cityId: experience.cityId }} className="button-link">Open {experience.cityName}</Link>
+                <Link
+                  to="/cities/$cityId"
+                  params={{ cityId: experience.cityId }}
+                  className="button-link"
+                  onMouseEnter={() => prefetchCityDetail(experience.cityId)}
+                  onFocus={() => prefetchCityDetail(experience.cityId)}
+                >
+                  Open {experience.cityName}
+                </Link>
               </div>
             </div>
           ))}
