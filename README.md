@@ -1,280 +1,372 @@
 # Urban Heat Democratization
 
-TanStack-first urban heat planning app with a Python API and scientific core.
+[![CI](https://github.com/aartisr/urban-heat-democratization/actions/workflows/ci.yml/badge.svg)](https://github.com/aartisr/urban-heat-democratization/actions/workflows/ci.yml)
+![Python 3.11](https://img.shields.io/badge/python-3.11-blue)
+![Frontend Vite + React](https://img.shields.io/badge/frontend-Vite%20%2B%20React-0ea5e9)
+![API FastAPI](https://img.shields.io/badge/api-FastAPI-10b981)
 
-This repository is the generic, modular successor to the Boston-specific research work in `spectral_urbanism_boston` and the earlier `spectral-urbanism` codebase. Today it supports:
+Urban heat is one of the most unequal climate risks in modern cities.
+This repository turns that reality into a system people can see, question,
+model, and act on.
 
-- a TanStack web app in `web/`
-- a FastAPI backend in `api/`
-- shared Python logic in `core/`
-- runtime persistence in `data/runtime/`
-- bundled Boston study artifacts plus upload-first onboarding for other cities
-- async live-thermal adapter support with bridgeable Landsat and ECOSTRESS freshness metadata
-- a simplified top-level workflow centered on overview, cities, modes, scenarios, exports, and runs
+`urban_heat_democratization` is a city-agnostic urban heat planning platform
+with three jobs:
 
-## Current reality
+1. explain where heat is trapped,
+2. show why cooling access breaks down,
+3. help users compare mitigation strategies with scientific and operational
+   discipline.
 
-What is real today:
+It is designed to be serious enough for researchers, useful enough for city
+teams, and clear enough for educators, students, and community advocates.
 
-- Boston is the only bundled city with local boundary and spectral overlay artifacts in this repo.
-- Two bundled Boston package variants exist:
+## Platform snapshot
+
+| Dimension | Current strength |
+| --- | --- |
+| Mission | Translate urban heat science into planning and public action |
+| Product shape | Interactive atlas, scenario workbench, exports, and run tracking |
+| Scientific core | Graph, spectral, resistance, reliability, and raster workflows in Python |
+| Operational model | Local-first API, SQLite runtime queue, JSON mirrors, CI-backed validation |
+| Best current experience | Boston bundled artifacts with upload-first expansion for new cities |
+
+## Why it matters now
+
+Heat is not distributed fairly.
+Neither is the capacity to study it, explain it, or act on it.
+
+This platform is built around a simple belief: the tools for understanding
+urban heat should not be locked behind specialist workflows, unreadable
+pipelines, or one-off consulting studies. They should be usable by the people
+who have to teach, debate, fund, and implement heat mitigation in the real
+world.
+
+## Truth and evidence standard
+
+This repository should be read with one governing rule:
+
+`If a claim is not source-backed, bounded, and honestly labeled, it should not appear here as fact.`
+
+In practice, that means:
+
+- verified claims should point to public, inspectable, or reproducible sources
+- benchmark claims should be labeled as benchmarks, not disguised as local truth
+- proxy metrics should be labeled as proxies, not implied to be validated field outcomes
+- partial features should stay described as partial until evidence says otherwise
+- unknowns, caveats, and missing data should be stated near the claim, not buried later
+
+This repo would rather be precisely honest than impressively vague.
+
+## Why this project exists
+
+Most heat tools stop at a heat map.
+Most research pipelines stop at a paper.
+
+This project aims for the missing middle: a platform that makes advanced urban
+heat reasoning legible, reproducible, and actionable.
+
+The ambition is not just to visualize heat.
+The ambition is to help answer the questions real people ask:
+
+- Where are the heat traps?
+- Why are they trapped?
+- Which corridors are structurally weak?
+- Which interventions help most under a fixed budget?
+- What changes when equity matters as much as aggregate cooling?
+- What can a city, school, classroom, or community group actually do next?
+
+## What makes it different
+
+- `Research-grade core`: Python modules for graph analysis, spectral methods,
+  reliability, percolation, raster handling, and report generation.
+- `Decision-oriented UX`: a TanStack web app for maps, scenarios, city
+  onboarding, exports, and run management.
+- `Explainability-first design`: the system is built around interpretable
+  layers, scenario comparison, provenance, and transparent tradeoffs.
+- `City-agnostic architecture`: Boston is the primary bundled example, but the
+  system is intentionally structured for onboarding additional cities.
+- `Local-first execution`: runtime state is stored in SQLite and mirrored JSON,
+  which keeps the platform easy to run, inspect, and extend.
+- `Live-data bridge model`: the repo can build local bridge payloads for live
+  Landsat and ECOSTRESS freshness metadata without hard-wiring the whole system
+  to one provider stack.
+
+## Current product reality
+
+This repository is ambitious, but it is also explicit about what is real today.
+
+- Boston is the only bundled city with local boundary and overlay artifacts in
+  this repo.
+- Two Boston package variants exist today:
   - `boston-research`
   - `boston-classroom`
-- New York City, Chicago, Los Angeles, Houston, and custom cities are upload-first presets, not bundled local-data cities.
-- Scenario planning is benchmark-based, not yet a validated city-specific optimizer.
-- Runtime state is stored locally in SQLite and mirrored JSON files under `data/runtime/`.
+- New York City, Chicago, Los Angeles, Houston, and custom geographies are
+  onboarding presets, not fully bundled local-data cities.
+- Scenario planning is benchmark-based today. It is useful for structured
+  exploration, but it is not yet a validated city-specific optimization engine.
+- Runtime state is local-first and stored in SQLite plus mirrored JSON files
+  under `data/runtime/`.
 
-## Repo layout
+That honesty is a feature, not a weakness. The repo is designed so the gap
+between today's implementation and tomorrow's production platform is visible,
+traceable, and bridgeable.
 
-- `web/`
-  React + Vite + TanStack Router/Query/Table frontend.
-- `api/`
-  FastAPI app and HTTP endpoints.
-- `core/`
-  Shared Python logic for cities, maps, package contracts, strategies, spectra, reliability, and percolation.
-- `data/`
-  Bundled artifacts such as Boston boundary and overlay GeoJSON files, intervention catalog, and cost sources.
-- `docs/`
-  Study guides, the living implementation log, and planning documents.
-- `scripts/`
-  Utility scripts, including bundled package validation.
-
-## Fast document map
-
-- [Quick Reference](/Users/rraviku2/aarti/urban_heat_democratization/docs/QUICK_REFERENCE.md)
-- [Production Blueprint](/Users/rraviku2/aarti/urban_heat_democratization/docs/PRODUCTION_BLUEPRINT.md)
-- [Artifact Strategy](/Users/rraviku2/aarti/urban_heat_democratization/docs/ARTIFACT_STRATEGY.md)
-- [Screen Tour](/Users/rraviku2/aarti/urban_heat_democratization/docs/SCREEN_TOUR.md)
-- [City Onboarding Recipes](/Users/rraviku2/aarti/urban_heat_democratization/docs/CITY_ONBOARDING_RECIPES.md)
-- [Implementation Status](/Users/rraviku2/aarti/urban_heat_democratization/docs/IMPLEMENTATION_STATUS.md)
-- [Live Thermal Setup](/Users/rraviku2/aarti/urban_heat_democratization/docs/LIVE_THERMAL_SETUP.md)
-- [Live Provider Bridges](/Users/rraviku2/aarti/urban_heat_democratization/docs/LIVE_PROVIDER_BRIDGES.md)
-- [Intervention Unit Costs](/Users/rraviku2/aarti/urban_heat_democratization/docs/INTERVENTION_UNIT_COSTS.md)
-
-## Architecture at a glance
+## Experience at a glance
 
 ```mermaid
 flowchart LR
     U[User] --> W[TanStack Web App]
     W --> A[FastAPI API]
-    A --> C[Core Python Modules]
-    C --> D[Bundled Data and Runtime Files]
-    A --> R[SQLite Runtime Store]
-    A --> J[Runtime JSON Snapshots]
+    A --> C[Scientific Python Core]
+    C --> D[Bundled and Runtime Data]
+    A --> S[SQLite Runtime Store]
+    A --> J[JSON Runtime Snapshots]
 
     D --> B1[Bundled Boston Boundary]
     D --> B2[Bundled Boston Overlays]
-    D --> B3[Cost Sources]
-    D --> B4[Intervention Catalog]
+    D --> B3[Intervention Costs]
+    D --> B4[City Package Metadata]
 ```
 
 ```mermaid
 flowchart TD
-    subgraph Frontend
-        F1[City Browser]
-        F2[City Detail]
-        F3[Scenarios]
-        F4[Runs]
-        F5[Exports]
-    end
+    S[Choose City] --> O[Observe Heat Layers]
+    O --> X[Inspect Cooling Access and Bottlenecks]
+    X --> Q[Run What-If Scenarios]
+    Q --> R[Queue Analysis Runs]
+    R --> E[Export Maps, Tables, and Narratives]
 
-    subgraph Backend
-        A1[/cities/]
-        A2[/cities/onboard/]
-        A3[/scenarios/what-if/]
-        A4[/runs/]
-        A5[/bundled-packages/]
-    end
-
-    subgraph Python Core
-        C1[cities.py]
-        C2[city_experience.py]
-        C3[city_maps.py]
-        C4[city_strategies.py]
-        C5[city_package_contract.py]
-    end
-
-    F1 --> A1
-    F1 --> A2
-    F2 --> A1
-    F2 --> A5
-    F3 --> A3
-    F4 --> A4
-    F5 --> A5
-
-    A1 --> C1
-    A1 --> C2
-    A2 --> C1
-    A3 --> C4
-    A5 --> C2
-    A5 --> C5
-    A1 --> C3
+    S --> N[Onboard New City]
+    N --> B[Upload or Resolve Boundary]
+    B --> L[Register Local Data Readiness]
+    L --> Q
 ```
 
-## User journey in one picture
+## Architecture quick reference
 
-```mermaid
-flowchart LR
-    S[Start] --> B[Open Boston]
-    B --> O[Observe real boundary and overlays]
-    O --> Q[Try a what-if scenario]
-    Q --> R[Queue a run]
-    R --> E[Export artifacts and guides]
+| Layer | Responsibility | Primary location |
+| --- | --- | --- |
+| Experience | City browsing, map exploration, scenarios, exports, run views | `web/` |
+| Service | API contracts, orchestration, runtime coordination, access rules | `api/` |
+| Scientific core | Domain logic for graphs, spectra, reliability, reports, and rasters | `core/` |
+| Bundled data | Study artifacts, package metadata, cost sources, static city assets | `data/` |
+| Mutable runtime | Onboarded cities, queued runs, JSON mirrors, SQLite state | `data/runtime/` |
 
-    S --> N[Onboard new city]
-    N --> U[Upload or register boundary]
-    U --> G[Register local data readiness]
-    G --> Q
-```
+## Core capabilities
 
-## Requirements
+### Atlas and city exploration
 
-- Python 3.11 required for the pinned scientific stack
-- Node.js 18+ recommended
+- city catalog and city detail views
+- interactive heat maps and overlay inspection
+- desktop full-page map mode for focused spatial analysis
+- bundled Boston study artifacts and upload-first city onboarding
 
-Python dependencies are listed in [requirements.txt](/Users/rraviku2/aarti/urban_heat_democratization/requirements.txt).
+### Scientific modeling
 
-Important:
+- graph-based thermal representation of urban space
+- spectral bottleneck analysis
+- cooling access and resistance-style metrics
+- robustness and percolation analysis
+- report-friendly metrics and summaries
 
-- This repo is currently pinned for Python 3.11.
-- Do not use the system `python3` blindly unless it is actually Python 3.11.
-- Using Python 3.9 or a much newer interpreter can cause SciPy to fall back to a source build and fail with Cython/Meson errors.
-- `make setup` now attempts to install `python3.11` with Homebrew on macOS if it is missing.
+### Scenario planning
 
-## Setup
+- benchmark-based what-if analysis
+- intervention tradeoff framing
+- cost-aware planning workflows
+- queue-backed run creation and state tracking
 
-### Python
+### Operational readiness
 
-From the repo root:
+- local SQLite-backed runtime queue
+- JSON mirrors for inspectable local state
+- package validation scripts for bundled city artifacts
+- CI for Python tests, web tests, frontend build, and Playwright smoke coverage
+
+## Repository layout
+
+- `web/`: React + Vite + TanStack frontend
+- `api/`: FastAPI service and HTTP endpoints
+- `core/`: shared scientific and domain logic
+- `data/`: bundled artifacts, runtime state, and sources
+- `docs/`: plans, blueprints, guides, and operational notes
+- `scripts/`: environment, validation, and provider bridge utilities
+- `tests/`: Python test suite
+
+## Fast document map
+
+- [Quick Reference](docs/QUICK_REFERENCE.md)
+- [Production Blueprint](docs/PRODUCTION_BLUEPRINT.md)
+- [Artifact Strategy](docs/ARTIFACT_STRATEGY.md)
+- [Verified Cost Sources](docs/verified_cost_sources.md)
+- [Screen Tour](docs/SCREEN_TOUR.md)
+- [City Onboarding Recipes](docs/CITY_ONBOARDING_RECIPES.md)
+- [Implementation Status](docs/IMPLEMENTATION_STATUS.md)
+- [Live Thermal Setup](docs/LIVE_THERMAL_SETUP.md)
+- [Live Provider Bridges](docs/LIVE_PROVIDER_BRIDGES.md)
+- [Intervention Unit Costs](docs/INTERVENTION_UNIT_COSTS.md)
+
+## Quickstart
+
+### Requirements
+
+- Python `3.11`
+- Node.js `18+`
+
+Python 3.11 matters here because the pinned geospatial and scientific stack is
+validated for that interpreter.
+
+### One-command environment setup
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-If you want a repo-provided bootstrap path:
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-bash scripts/bootstrap_env.sh
-```
-
-If you want the `Makefile` to handle Python setup too:
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
 make setup
 ```
 
-When `python3.11` is missing and Homebrew is available on macOS, the setup flow will install `python@3.11` before creating `.venv`.
+That flow will:
 
-If you want a fast compatibility check before creating the environment:
+- check for `python3.11`
+- install it with Homebrew on macOS when possible
+- create `.venv`
+- install Python dependencies
+- install web dependencies
+
+### Manual setup
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-python3 scripts/check_python_env.py
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+npm --prefix web install
 ```
 
-### Web
+### Run the platform locally
+
+Terminal 1:
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization/web
-npm install
+make api
 ```
 
-## Developer workflow
+Terminal 2:
 
-```mermaid
-flowchart TD
-    A[Install Python deps] --> B[Install web deps]
-    B --> C[Run FastAPI]
-    C --> D[Run Vite frontend]
-    D --> E[Use app locally]
-    E --> F[Validate bundled packages]
-    F --> G[Build frontend]
+```bash
+make web
 ```
 
-Typical daily workflow:
+Then open the Vite URL shown in the terminal and start with Boston.
 
-1. Activate the Python virtual environment.
-2. Start the FastAPI server.
-3. Start the Vite frontend.
-4. Make code changes in `web/`, `api/`, or `core/`.
-5. Validate bundled packages if you changed package metadata or artifacts.
-6. Build the frontend before calling the work complete.
+### Build and test
 
-## How to run the app
+```bash
+make test
+make build
+```
 
-You usually run the API and the web app in two terminals.
+Equivalent targeted commands:
 
-### 1. Run the Python API
+```bash
+make test-python
+make test-web
+cd web && npm run test:e2e
+```
+
+## First 10 minutes
+
+If you want the shortest path to understanding the system:
+
+1. run `make setup`
+2. run `make api`
+3. run `make web`
+4. open Boston in the atlas
+5. inspect map layers and use full-page map mode on desktop
+6. try a scenario on the Scenarios page
+7. visit Cities and onboard a new GeoJSON boundary
+8. inspect the exported runtime state under `data/runtime/`
+
+Recommended first API checks:
+
+- `GET /api/health`
+- `GET /api/v1/health`
+- `GET /api/v1/cities`
+- `GET /api/v1/bundled-packages`
+- `GET /api/v1/artifacts`
+
+## Running the major workflows
+
+### API
 
 Preferred:
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
 make api
 ```
 
-Raw fallback:
-
-From the repo root:
+Fallback:
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
 source .venv/bin/activate
 PYTHONPATH=. uvicorn api.main:app --reload
 ```
 
-This starts the FastAPI server, typically at `http://127.0.0.1:8000`.
-
-Useful health checks:
-
-- `GET /api/health`
-- `GET /api/v1/health`
-
-### 2. Run the TanStack frontend
-
-In a second terminal:
+### Frontend
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization/web
-npm run dev
+make web
 ```
 
-By default, Vite serves the app locally and proxies browser requests to the API through the configured frontend environment.
-
-### 3. Build the frontend
+### Frontend production build
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization/web
-npm run build
+make build
 ```
 
-### 4. Run frontend tests
+### Bundled package validation
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization/web
-npm test
+make validate-packages
 ```
 
-### 5. Run end-to-end tests
+### Live Landsat and ECOSTRESS bridge payloads
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization/web
-npm run test:e2e
+make live-landsat CITY=boston
+make live-ecostress CITY=boston
 ```
 
-The E2E suite uses Playwright and mocks API routes in-browser so the flow tests are stable and fast.
+These commands write local provider bridge payloads to `data/runtime/live_thermal/providers/`.
 
-## Access control and workspaces
+## City onboarding model
 
-The API now supports workspace-scoped role checks for mutating actions.
+There are two supported onboarding paths today:
 
-- Header: `x-api-key`
-- Header: `x-workspace-id`
+1. onboarding through the web UI
+2. onboarding through `POST /api/v1/cities/onboard`
+
+Supported onboarding styles in the UI:
+
+- `demo`
+- `upload`
+- `catalog`
+
+Practical interpretation today:
+
+- `demo` is best for bundled or classroom-style exploration
+- `upload` is best for bringing a new GeoJSON boundary into the runtime store
+- `catalog` is best when the boundary already exists on disk and the backend can resolve it
+
+After onboarding, the runtime city record is persisted locally, including in:
+
+- `data/runtime/cities.json`
+- `data/runtime/urban_heat_runtime.sqlite3`
+
+## Access control and workspace behavior
+
+The API supports workspace-scoped role checks for mutating actions.
+
+Headers:
+
+- `x-api-key`
+- `x-workspace-id`
 
 Demo keys:
 
@@ -288,812 +380,79 @@ Optional strict mode:
 export UHD_ENFORCE_AUTH=true
 ```
 
-Custom token map (JSON):
+## Quality bar
 
-```bash
-export UHD_ACCESS_TOKENS='{
-  "my-admin-key": {
-    "userId": "u-1",
-    "displayName": "Platform Admin",
-    "workspaces": { "default": "admin", "boston-lab": "editor" }
-  }
-}'
-```
+This repo now includes a stronger quality baseline than a typical research-code
+prototype.
 
-The sidebar now includes a workspace access switcher so users can test role/workspace behavior directly from the app.
+- Python tests run in CI
+- bundled city packages are validated in CI
+- frontend unit tests run in CI
+- frontend production build runs in CI
+- Playwright smoke coverage runs in CI
 
-## Durable async run queue
+Just as important, the repo maintains a documentation quality bar:
 
-Run creation now uses a durable SQLite-backed async queue worker:
+- implementation claims should match what the code and tests actually do
+- source-backed costs should stay distinguishable from benchmark or proxy values
+- partial systems should remain marked partial in user-facing docs
+- provenance and caveats should sit close to the result being described
 
-- queued jobs stored in `runtime_run_jobs` table
-- background worker processes run execution jobs
-- run status transitions: `queued` -> `running` -> `succeeded`/`failed`
+The goal is not only to explore ideas, but to turn them into a dependable
+system that can keep evolving without breaking its promises.
 
-This is intentionally local-first and can be replaced later by Redis/Celery/RQ infrastructure without changing API contracts.
+## Why contributors should care
 
-### 5. Build live Landsat and ECOSTRESS bridge payloads
+This is the kind of repository where product design, scientific computing,
+public-interest technology, geospatial analysis, and climate storytelling all
+meet in one place.
 
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-make live-landsat CITY=boston
-make live-ecostress CITY=boston
-```
+If you work on it, you are not just polishing code paths. You are improving the
+clarity, credibility, and usefulness of a tool that aims to help cities reason
+better about one of the defining resilience problems of this century.
 
-These commands query official NASA CMR granule metadata and write local bridge payloads to:
+## Design philosophy
 
-- `data/runtime/live_thermal/providers/boston_landsat_live.json`
-- `data/runtime/live_thermal/providers/boston_ecostress_live.json`
+This platform is guided by a few non-negotiable principles:
 
-Then:
+- `Democratize, do not dumb down`
+- `Explainability over opacity`
+- `Actionability over novelty`
+- `City-agnostic design over one-off hard-coding`
+- `Scientific seriousness with public-facing clarity`
 
-1. copy `data/live_thermal_sources.example.json` to `data/live_thermal_sources.json`
-2. start the API
-3. open Boston in the atlas
-4. enable `Auto-refresh live data when configured`
+In other words: the best result is not a beautiful map.
+The best result is a better decision.
 
-## How to run the Python files
+## Relationship to sister repositories
 
-There is not just one Python entry point. This repo has:
+This repository is the generic, modular successor to earlier work in:
 
-- one long-running API server
-- several utility scripts
-- a few Boston-specific data helpers
+- `spectral_urbanism_boston`
+- `spectral-urbanism`
 
-```mermaid
-flowchart TD
-    P[Python entry points] --> P1[make api]
-    P --> P2[scripts/run_api.sh]
-    P --> P3[uvicorn api.main:app]
-    P --> P4[scripts/validate_city_packages.py]
-    P --> P5[check_overlay_alignment.py]
-    P --> P6[generate_demo_figs.py]
-    P --> P7[fetch_boston_boundary*.py]
-```
+Those repositories remain valuable references for research and historical
+implementation context. This repository is where the platform story becomes
+modular, product-facing, and city-extensible.
 
-### Main Python server
+## Where this is headed
 
-Run the API with:
+The long-term vision is a platform that can support:
 
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-make api
-```
+- reproducible city onboarding at scale
+- richer uncertainty and fairness analysis
+- stronger scenario optimization
+- more robust live data integration
+- higher-fidelity exports for planning, education, and public communication
 
-or directly with:
+The repo already contains the bones of that future: a serious scientific core,
+an interactive application layer, a growing operational playbook, and a clear
+architecture for scaling beyond a single city.
 
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-source .venv/bin/activate
-PYTHONPATH=. uvicorn api.main:app --reload
-```
+## Summary
 
-### Validate bundled packages
+If you want a one-line description, it is this:
 
-This checks that bundled package definitions point to real files and include the expected artifacts:
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-source .venv/bin/activate
-PYTHONPATH=. python3 scripts/validate_city_packages.py
-```
-
-### Check Python compatibility before installing
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-python3 scripts/check_python_env.py
-```
-
-### Check raster/overlay alignment against a city boundary
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-source .venv/bin/activate
-python3 check_overlay_alignment.py <overlay.tif> <city_boundary.geojson> [buffer_m]
-```
-
-Example:
-
-```bash
-python3 check_overlay_alignment.py my_overlay.tif data/boston_boundary_precise.geojson 50
-```
-
-### Generate demo figures
-
-This script creates toy PNG figures in the current working directory:
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-source .venv/bin/activate
-python3 generate_demo_figs.py
-```
-
-Expected outputs:
-
-- `fig_traditional.png`
-- `fig_ndvi.png`
-- `fig_stats.png`
-
-### Boston boundary fetch helpers
-
-These are utility scripts for fetching Boston boundary data. They are Boston-specific and may require network access:
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-source .venv/bin/activate
-python3 fetch_boston_boundary.py
-python3 fetch_boston_boundary_osm.py
-python3 fetch_boston_boundary_dataport.py
-python3 fetch_boston_boundary_massgis.py
-python3 fetch_boston_boundary_precise.py
-```
-
-Notes:
-
-- These are helpers, not part of the normal app startup flow.
-- Some of them depend on external services being available.
-
-## How to onboard a new city
-
-There are two supported paths today:
-
-1. use the UI onboarding flow
-2. call the onboarding API directly
-
-```mermaid
-flowchart TD
-    A[Need a new city] --> B{How will you add it?}
-    B -->|UI| C[Cities page onboarding form]
-    B -->|API| D[POST /api/v1/cities/onboard]
-    C --> E[Boundary stored or resolved]
-    D --> E
-    E --> F[Runtime city record created]
-    F --> G[Open city detail]
-    G --> H[Register thermal inputs and overlays]
-```
-
-## First 10 minutes
-
-If you want to get productive quickly, use this path:
-
-1. Create and activate a Python virtual environment.
-2. Install Python dependencies from `requirements.txt`.
-3. Install frontend dependencies in `web/`.
-4. Start the API with `make api`.
-5. Start the frontend with `npm run dev`.
-6. Open the app and explore Boston first, because Boston is the only bundled real-data city today.
-7. Open the Cities page and onboard a new city with a GeoJSON boundary if you want to test the upload-first flow.
-8. Open the onboarded city and register any local thermal inputs or overlays you already have.
-
-Recommended first API checks:
-
-- `GET /api/v1/health`
-- `GET /api/v1/cities`
-- `GET /api/v1/bundled-packages`
-- `GET /api/v1/artifacts`
-
-### Option 1: Onboard a city in the UI
-
-1. Start the API.
-2. Start the web app.
-3. Open the Cities page.
-4. Choose one of these onboarding styles:
-   - `demo`
-   - `upload`
-   - `catalog`
-
-What each means today:
-
-- `demo`
-  Best for bundled/demo behavior. Boston is the only truly bundled city right now.
-- `upload`
-  Upload a GeoJSON boundary file for a city such as Chicago, Los Angeles, Houston, New York City, or a custom city.
-- `catalog`
-  Provide a boundary path that already exists on disk and can be resolved by the backend.
-
-After onboarding, the runtime city record is persisted to:
-
-- [data/runtime/cities.json](/Users/rraviku2/aarti/urban_heat_democratization/data/runtime/cities.json)
-- [data/runtime/urban_heat_runtime.sqlite3](/Users/rraviku2/aarti/urban_heat_democratization/data/runtime/urban_heat_runtime.sqlite3)
-
-### UI onboarding picture
-
-```mermaid
-flowchart LR
-    P1[Pick preset city or custom] --> P2[Choose boundary source]
-    P2 --> P3[Upload GeoJSON or provide path]
-    P3 --> P4[Submit onboarding form]
-    P4 --> P5[City saved to runtime store]
-```
-
-### Option 2: Onboard a city through the API
-
-Endpoint:
-
-```text
-POST /api/v1/cities/onboard
-```
-
-Request fields:
-
-- `name`
-- `region`
-- `population`
-- `boundarySource`
-- `boundaryPath`
-- `boundaryFileName`
-- `boundaryGeojsonText`
-- `notes`
-
-#### Example: upload a new city boundary
-
-```json
-{
-  "name": "Cambridge",
-  "region": "Massachusetts",
-  "population": "118000",
-  "boundarySource": "upload",
-  "boundaryPath": null,
-  "boundaryFileName": "cambridge.geojson",
-  "boundaryGeojsonText": "{ ... full GeoJSON text ... }",
-  "notes": "Uploaded Cambridge boundary for heat-planning research."
-}
-```
-
-Behavior:
-
-- the GeoJSON text is validated
-- the upload is written into `data/runtime/uploads/`
-- a city record is created in the runtime store
-
-#### Example: upload a new city boundary with `curl`
-
-This is useful when you already have a local GeoJSON file and want to test onboarding without using the UI.
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-python3 - <<'PY' > /tmp/cambridge-onboard.json
-from pathlib import Path
-import json
-
-payload = {
-    "name": "Cambridge",
-    "region": "Massachusetts",
-    "population": "118000",
-    "boundarySource": "upload",
-    "boundaryPath": None,
-    "boundaryFileName": "cambridge.geojson",
-    "boundaryGeojsonText": Path("cambridge.geojson").read_text(),
-    "notes": "Uploaded Cambridge boundary for heat-planning research."
-}
-print(json.dumps(payload))
-PY
-curl -X POST http://127.0.0.1:8000/api/v1/cities/onboard \
-  -H "Content-Type: application/json" \
-  --data @/tmp/cambridge-onboard.json
-```
-
-#### Example: register a city from an existing local boundary path
-
-```json
-{
-  "name": "Chicago",
-  "region": "Midwest US",
-  "population": "2700000",
-  "boundarySource": "catalog",
-  "boundaryPath": "/absolute/path/to/chicago_boundary.geojson",
-  "boundaryFileName": null,
-  "boundaryGeojsonText": null,
-  "notes": "Using a pre-existing local boundary file."
-}
-```
-
-Important current limitation:
-
-- `catalog` only marks a city as ready if the boundary path resolves to a real file the backend can access.
-- non-Boston cities are still upload-first in practice unless you provide your own local boundary and later register more local artifacts.
-
-## What happens after onboarding
-
-Onboarding a city only creates the city record and boundary metadata.
-
-If you want the city to feel more like Boston inside the app, you still need to register local data readiness on the city detail page:
-
-- thermal inputs
-- artifact bundle
-- bottleneck overlay
-- cooling overlay
-
-That information is stored in the runtime city record and is used by:
-
-- planner validation
-- readiness checks
-- export surfaces for uploaded cities
-
-## Data model and runtime files
-
-### Runtime file picture
-
-```mermaid
-flowchart TD
-    RT[Runtime State] --> S1[data/runtime/urban_heat_runtime.sqlite3]
-    RT --> S2[data/runtime/cities.json]
-    RT --> S3[data/runtime/scenarios.json]
-    RT --> S4[data/runtime/runs.json]
-    RT --> S5[data/runtime/uploads/]
-```
-
-### What lives where
-
-- [data/runtime/urban_heat_runtime.sqlite3](/Users/rraviku2/aarti/urban_heat_democratization/data/runtime/urban_heat_runtime.sqlite3)
-  Primary local runtime database for city, scenario, and run state.
-- [data/runtime/cities.json](/Users/rraviku2/aarti/urban_heat_democratization/data/runtime/cities.json)
-  JSON snapshot of onboarded cities and their readiness metadata.
-- [data/runtime/scenarios.json](/Users/rraviku2/aarti/urban_heat_democratization/data/runtime/scenarios.json)
-  JSON snapshot of what-if scenarios created through the app.
-- [data/runtime/runs.json](/Users/rraviku2/aarti/urban_heat_democratization/data/runtime/runs.json)
-  JSON snapshot of queued and completed local runs.
-- `data/runtime/uploads/`
-  Uploaded boundary files created by API onboarding.
-
-### Core artifact picture
-
-```mermaid
-flowchart LR
-    A[Bundled artifacts] --> A1[data/boston_boundary_precise.geojson]
-    A --> A2[data/cheeger_bottleneck.geojson]
-    A --> A3[data/low_cooling_access_zones.geojson]
-    A --> A4[data/cost_sources.json]
-    A --> A5[data/intervention_catalog.json]
-    A --> A6[docs/BOSTON_STUDY_GUIDE.md]
-    A --> A7[docs/BOSTON_CLASSROOM_GUIDE.md]
-```
-
-### Main backend concepts
-
-- `city profile`
-  A city listed in the runtime catalog, with basic metadata like name, region, and readiness status.
-- `city experience`
-  The UI-facing package of starter scenarios, study cards, export defaults, and bundled behavior for a city.
-- `bundled package`
-  A named artifact bundle such as `boston-research` or `boston-classroom`.
-- `scenario`
-  A benchmark-based planning record created from a city and a budget.
-- `run`
-  A runtime record that tracks a scenario handoff, artifacts, and local logs.
-- `data registration`
-  Per-city metadata that tells the app whether thermal inputs, overlays, and artifact bundles are present.
-
-## Troubleshooting
-
-### `uvicorn: command not found`
-
-Your virtual environment is probably not activated, or Python dependencies are not installed yet.
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-source .venv/bin/activate
-pip install -r requirements.txt
-make api
-```
-
-### `scipy` fails during install with a Cython or Meson error
-
-This is usually not a bug in your app code.
-
-In this repo, it usually means one of these:
-
-- you are not using Python 3.11
-- pip could not find a compatible wheel for the interpreter you used
-- SciPy fell back to a source build
-
-Fastest fix:
-
-```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
-python3 scripts/check_python_env.py
-```
-
-If that fails, install and use Python 3.11 explicitly:
-
-```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-Or use the bootstrap script:
-
-```bash
-bash scripts/bootstrap_env.sh
-```
-
-Or use the `Makefile`, which now attempts a Homebrew install of `python3.11` first:
-
-```bash
-make setup
-```
-
-Why this happens:
-
-- `requirements.txt` pins `scipy==1.11.4`
-- the repo is pinned around Python 3.11
-- when your interpreter does not match the wheel support for that stack, pip may try to compile SciPy locally
-- local SciPy builds often fail with the kind of Cython/Meson error you saw
-- `scripts/bootstrap_env.sh` and `make setup` now try `brew install python@3.11` automatically on macOS when `python3.11` is missing
-
-### The frontend starts, but API requests fail
-
-Check that the FastAPI server is running first:
-
-```bash
-curl http://127.0.0.1:8000/api/v1/health
-```
-
-If that fails, restart the API server.
-
-### Onboarding fails with a boundary error
-
-Current backend behavior:
-
-- `upload` requires valid GeoJSON text
-- `catalog` requires a real boundary file path that the backend can resolve
-- non-demo onboarding fails if no usable boundary can be found
-
-Good checks:
-
-- confirm the GeoJSON is valid JSON
-- confirm the file really exists
-- prefer an absolute path for `catalog` onboarding
-
-### A new city appears, but it still feels empty
-
-That is expected today.
-
-Onboarding creates the city record and boundary metadata, but it does not automatically create:
-
-- thermal inputs
-- artifact bundle
-- bottleneck overlay
-- cooling overlay
-
-Register those from the city detail page if you have them.
-
-### Scenario heat reduction and equity fields are blank
-
-That is also expected today.
-
-The current scenario engine is benchmark-based and does not yet ship with a validated city-specific benefit model.
-
-### Boston works better than other cities
-
-That is accurate for the current repo state.
-
-Boston is the only bundled city with real local artifacts in this repository. Other cities currently use the upload-first path.
-
-### The README diagrams do not render
-
-The diagrams use Mermaid. GitHub renders Mermaid in Markdown, but some editors and terminals do not.
-
-If your viewer does not render Mermaid:
-
-- open the README on GitHub or in a Markdown viewer with Mermaid support
-- or just read the surrounding bullets and numbered steps, which describe the same flows in plain text
-
-## Useful API endpoints
-
-- `GET /api/v1/cities`
-- `GET /api/v1/cities/{city_id}`
-- `GET /api/v1/cities/{city_id}/experience`
-- `GET /api/v1/cities/{city_id}/map`
-- `GET /api/v1/cities/{city_id}/spectral`
-- `GET /api/v1/cities/{city_id}/readiness`
-- `GET /api/v1/cities/{city_id}/planner-validation`
-- `GET /api/v1/cities/{city_id}/data-registration`
-- `POST /api/v1/cities/{city_id}/data-registration`
-- `POST /api/v1/cities/onboard`
-- `GET /api/v1/bundled-packages`
-- `GET /api/v1/bundled-packages/{package_id}`
-- `GET /api/v1/bundled-packages/{package_id}/validate`
-- `GET /api/v1/scenarios`
-- `POST /api/v1/scenarios/what-if`
-- `GET /api/v1/runs`
-- `POST /api/v1/runs`
-- `GET /api/v1/artifacts`
-
-## Current status
-
-The most accurate high-level status is kept in:
-
-- [docs/IMPLEMENTATION_STATUS.md](/Users/rraviku2/aarti/urban_heat_democratization/docs/IMPLEMENTATION_STATUS.md)
-
-Key truth today:
-
-- the architecture is now generic and modular
-- the package contract system is in place
-- the strategy layer is modular
-- Boston is still the only real bundled city dataset
-- scenarios are still benchmark-based
-
-## Friendly orientation map
-
-If you are:
-
-- a planner
-  Start with Boston, then go to Scenarios and Exports.
-- an educator
-  Start with the `boston-classroom` package and the classroom guide.
-- a researcher
-  Start with the `boston-research` package, bundled package validation, and the living implementation log.
-- a developer
-  Start the API and frontend, then read `core/city_experience.py`, `core/city_strategies.py`, and `api/main.py`.
-
-## Visual gallery
-
-This repo does not currently check in a polished screenshot set, but these visual route maps show the main screens and what each one is for.
-
-If you want a shorter visual walkthrough, see:
-
-- [SCREEN_TOUR.md](/Users/rraviku2/aarti/urban_heat_democratization/docs/SCREEN_TOUR.md)
-
-### Home and entry flow
-
-```mermaid
-flowchart LR
-    H[Home] --> M[Choose mode]
-    H --> C[Browse cities]
-    H --> S[Test scenarios]
-    H --> R[View runs]
-```
-
-### Cities and onboarding
-
-```mermaid
-flowchart TD
-    C1[Cities page] --> C2[Bundled Boston cards]
-    C1 --> C3[Upload-first presets]
-    C1 --> C4[Boundary upload form]
-    C4 --> C5[Runtime city created]
-    C5 --> C6[Open city detail]
-```
-
-### City detail experience
-
-```mermaid
-flowchart TD
-    D1[City detail] --> D2[Map and overlays]
-    D1 --> D3[Planning readiness]
-    D1 --> D4[Guided study cards]
-    D1 --> D5[Register local data]
-    D1 --> D6[Queue run]
-```
-
-### Scenario workflow
-
-```mermaid
-flowchart LR
-    S1[Choose city] --> S2[Pick budget]
-    S2 --> S3[Generate what-if]
-    S3 --> S4[Compare evidence and benchmark gap]
-    S4 --> S5[Queue run]
-```
-
-### Export workflow
-
-```mermaid
-flowchart LR
-    E1[Exports page] --> E2[Choose bundled package]
-    E2 --> E3[Review package validation]
-    E3 --> E4[Download guides and GeoJSON artifacts]
-    E1 --> E5[Inspect uploaded-city artifact area]
-```
-
-### Runs workflow
-
-```mermaid
-flowchart LR
-    R1[Runs index] --> R2[Open run detail]
-    R2 --> R3[Review logs]
-    R2 --> R4[Review attached artifacts]
-    R2 --> R5[Trace scenario and city]
-```
-
-### What the app feels like today
-
-- `Home`
-  Best place to orient a new user quickly.
-- `Cities`
-  Best place to onboard a new city or jump into Boston.
-- `City detail`
-  Best place to understand readiness, overlays, and local data registration.
-- `Scenarios`
-  Best place to test budget what-ifs.
-- `Exports`
-  Best place to download bundled artifacts and inspect package validation.
-- `Runs`
-  Best place to inspect queued work and trace run history.
-
-## FAQ
-
-### Is this production-ready for any city?
-
-No, not yet.
-
-What is true today:
-
-- the architecture is generic and modular
-- Boston is the strongest real bundled example
-- other cities are upload-first
-- scenarios are still benchmark-based
-
-### Is Boston the only bundled city?
-
-Yes.
-
-Boston is the only real bundled city dataset in this repo today. There are two Boston package variants, but they are still Boston-based:
-
-- `boston-research`
-- `boston-classroom`
-
-### What is the difference between a city and a bundled package?
-
-- A `city` is a runtime entity such as Boston, Chicago, or a custom onboarded city.
-- A `bundled package` is an artifact bundle tied to a city, such as `boston-research`.
-
-### If I onboard Chicago, do I get Chicago overlays automatically?
-
-No.
-
-You get:
-
-- a city record
-- boundary metadata
-- a path toward readiness
-
-You do not automatically get:
-
-- thermal rasters
-- bottleneck overlays
-- cooling overlays
-- a bundled Chicago package
-
-### Do I need the web app to onboard a city?
-
-No.
-
-You can onboard a city through either:
-
-- the Cities page in the UI
-- `POST /api/v1/cities/onboard`
-
-### Why are heat reduction and equity fields blank?
-
-Because the current scenario engine is benchmark-based and does not yet include a validated city-specific benefit model.
-
-### What files matter most for day-to-day development?
-
-- `api/main.py`
-- `core/cities.py`
-- `core/city_experience.py`
-- `core/city_maps.py`
-- `core/city_strategies.py`
-- `core/city_package_contract.py`
-- `web/src/routes/`
-
-### What is the fastest way to understand the repo?
-
-1. Run the API.
-2. Run the frontend.
-3. Explore Boston.
-4. Read the bundled package section.
-5. Read the living log in `docs/IMPLEMENTATION_STATUS.md`.
-
-## Common city onboarding recipes
-
-These are practical starting patterns for common cases.
-
-If you want the copy-paste recipe version in one place, see:
-
-- [CITY_ONBOARDING_RECIPES.md](/Users/rraviku2/aarti/urban_heat_democratization/docs/CITY_ONBOARDING_RECIPES.md)
-
-### Recipe: Cambridge with a local GeoJSON
-
-Use this when you already have a Cambridge boundary file.
-
-1. Start the API and frontend.
-2. Go to Cities.
-3. Choose `Custom` or use `Cambridge` as the city name.
-4. Select `upload`.
-5. Upload `cambridge.geojson`.
-6. Submit the form.
-7. Open the new city detail page.
-8. Register thermal inputs and overlays if you already have them.
-
-Best when:
-
-- you are prototyping a nearby city
-- you have a trusted boundary file already
-
-### Recipe: New York City as an upload-first preset
-
-Use this when you want a preset city label but do not yet have bundled data.
-
-1. Start the app.
-2. Open Cities.
-3. Choose `New York City` from the preset selector.
-4. Upload a valid NYC boundary GeoJSON.
-5. Submit onboarding.
-6. Open the city detail page.
-7. Register any local inputs you have.
-
-Expected result:
-
-- NYC appears in the runtime city list
-- readiness improves once local files are registered
-- NYC still does not become a bundled city automatically
-
-### Recipe: Chicago from a boundary file on disk
-
-Use this when the backend machine already has the boundary file.
-
-1. Start the API.
-2. Use UI `catalog` mode or `POST /api/v1/cities/onboard`.
-3. Provide an absolute path to the Chicago GeoJSON file.
-4. Submit onboarding.
-5. Confirm the path resolves correctly.
-
-Best when:
-
-- you are running the app locally
-- the boundary file already exists on disk
-
-### Recipe: Los Angeles for benchmark planning only
-
-Use this when you want to create scenarios before you have local overlays.
-
-1. Onboard Los Angeles with a valid boundary.
-2. Open the Los Angeles city detail page.
-3. Confirm readiness and planner-validation status.
-4. Go to Scenarios.
-5. Generate benchmark what-if scenarios.
-
-Important:
-
-- this gives you planning scaffolding
-- it does not claim Los Angeles-specific thermal or equity results yet
-
-### Recipe: Houston as a custom upload-first study city
-
-1. Onboard Houston with a valid GeoJSON boundary.
-2. Register thermal and land-cover inputs if available.
-3. Register any bottleneck and cooling overlay outputs if you have them.
-4. Use Exports to inspect the uploaded-city artifact area.
-
-Best when:
-
-- you have partial local data
-- you want to test the readiness and export flow before a full city package exists
-
-### Recipe: Fully custom city
-
-Use this when your city is not listed as a preset.
-
-1. Open Cities.
-2. Leave the preset selector empty or choose a custom path through the form.
-3. Enter city name, region, and population.
-4. Upload a valid GeoJSON boundary.
-5. Submit onboarding.
-6. Open the city detail page.
-7. Register whatever local files you have.
-
-Best when:
-
-- you are studying a smaller municipality
-- you are testing an educational or research workflow
-
-## Reference documents
-
-- [Master Plan](/Users/rraviku2/aarti/urban_heat_democratization/01_master_plan.md)
-- [System Architecture](/Users/rraviku2/aarti/urban_heat_democratization/02_system_architecture.md)
-- [Phase Roadmap](/Users/rraviku2/aarti/urban_heat_democratization/03_phase_roadmap.md)
+`urban_heat_democratization` is a research-informed, action-oriented urban heat
+intelligence platform that helps people move from heat observation to heat
+understanding to heat mitigation planning.
