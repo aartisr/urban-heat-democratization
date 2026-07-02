@@ -1,0 +1,35 @@
+{
+  "cities": {
+    "boston": {
+      "refreshIntervalSec": 900,
+      "providerTargets": [
+        "NASA ECOSTRESS",
+        "USGS Landsat"
+      ],
+      "adapters": [
+        {
+          "id": "landsat",
+          "adapterKind": "landsat-stac-item-bridge",
+          "mode": "file",
+          "location": "data/runtime/live_thermal/providers/boston_landsat_live.json",
+          "backupLocation": "data/runtime/live_thermal/backups/boston_landsat_backup.json",
+          "label": "Landsat live surface",
+          "sourceName": "USGS Landsat live adapter",
+          "provider": "USGS LandsatLook STAC",
+          "sensor": "Landsat"
+        },
+        {
+          "id": "ecostress",
+          "adapterKind": "ecostress-live-geojson",
+          "mode": "file",
+          "location": "data/runtime/live_thermal/providers/boston_ecostress_live.json",
+          "backupLocation": "data/runtime/live_thermal/backups/boston_ecostress_backup.json",
+          "label": "ECOSTRESS live surface",
+          "sourceName": "NASA ECOSTRESS live adapter",
+          "provider": "NASA",
+          "sensor": "ECOSTRESS"
+        }
+      ]
+    }
+  }
+}
