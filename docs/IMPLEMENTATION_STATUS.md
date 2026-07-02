@@ -3,6 +3,7 @@
 This is the living source of truth for what is implemented, what is partial, and what remains.
 
 Reviewed against:
+
 - [01_master_plan.md](../01_master_plan.md)
 - [02_system_architecture.md](../02_system_architecture.md)
 - [03_phase_roadmap.md](../03_phase_roadmap.md)
@@ -37,11 +38,10 @@ The repo is now a working TanStack-first urban-heat planning app with a Python A
 - The documentation is now much more user-friendly, but the repo still does not yet include a real photographic screenshot gallery of the running app.
 - Planner validation is only partial so far: it now reports readiness, missing pieces, and warnings in planner language, but it is still much lighter than the full research-repo validation stack.
 - Uploaded-city validation is only partial so far: it now detects real boundary presence and distinguishes missing overlays from missing boundaries, but it still does not run full raster or data-contract validation.
-- Uploaded-city validation now also checks whether registered paths look like the right file types and whether GeoJSON overlays contain valid features, but it still does not validate full raster semantics or full artifact contents.
-- Browser automation support for live browser QA is not yet implemented; the repo only records the future plugin request in the status snapshot.
+- Uploaded-city validation now also checks non-empty payload content for registered thermal and artifact paths, validates GeoJSON overlays for usable geometry plus score-like numeric properties, and flags weak overlay content quality in planner validation; it still does not validate full raster semantics or full artifact contents.
+- Browser automation support now exists with Playwright smoke coverage, fullscreen-map regression specs, and opt-in live-backend runs, but broader end-to-end persona-flow coverage is still pending.
 - The home page now carries the theory/model/results explanation as simple cards instead of separate pages.
 - The scenario and city detail pages now absorb the calibration, comparison, procurement, and history context so users do not have to jump across many specialist pages.
-
 
 ## Remaining
 
@@ -54,6 +54,7 @@ The repo is now a working TanStack-first urban-heat planning app with a Python A
 ## Keep Updating
 
 When progress is made:
+
 - move completed items out of `Partial` or `Remaining`,
 - split ambiguous items into smaller pieces,
 - keep the snapshot short and factual,

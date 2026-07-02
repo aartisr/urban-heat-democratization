@@ -50,6 +50,14 @@ test.beforeEach(async ({ page }) => {
     });
   });
 
+  await page.route("**/api/v1/scenarios**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([]),
+    });
+  });
+
   await page.route("**/api/v1/city-experiences", async (route) => {
     await route.fulfill({
       status: 200,
@@ -108,6 +116,24 @@ test.beforeEach(async ({ page }) => {
 
   await page.route("**/api/v1/cities/**", async (route) => {
     const url = route.request().url();
+    if (/\/api\/v1\/cities\/[^/]+$/.test(url)) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: "boston",
+          name: "Boston",
+          region: "Northeast US",
+          population: "675k",
+          status: "Ready",
+          baselineTempC: 33.8,
+          canopyCoverage: "27%",
+          planningCostMultiplier: 1,
+          description: "Bundled demo city",
+        }),
+      });
+      return;
+    }
     if (url.includes("/spectral")) {
       await route.fulfill({
         status: 200,
@@ -394,4 +420,17 @@ test("scenario defaults change with active persona mode", async ({ page }) => {
   await page.getByRole("link", { name: "Test scenarios" }).click();
   await expect(page.getByLabel("Budget USD")).toHaveValue("200000");
   await expect(page.getByLabel("Planning mode")).toHaveValue("benchmark_share");
+});
+
+test("planner persona can complete the city-detail journey", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Planner" }).click();
+  await page.getByRole("link", { name: "Browse cities" }).click();
+  await expect(page).toHaveURL(/\/cities$/);
+
+  await page.getByRole("link", { name: "Open Boston" }).click();
+  await expect(page).toHaveURL(/\/cities\/boston$/);
+  await expect(page.getByRole("heading", { name: "Planning readiness" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Queue baseline run" })).toBeVisible();
+  await expect(page.getByText("decision intelligence arc")).toBeVisible();
 });
