@@ -9,6 +9,10 @@ export default defineConfig({
     },
   },
   build: {
+    // The map stack is already lazy-loaded from CityHeatMap via dynamic import.
+    // Keep a higher warning threshold so the dedicated cartography chunk does not
+    // masquerade as an initial-load regression during normal builds.
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
         onlyExplicitManualChunks: true,
