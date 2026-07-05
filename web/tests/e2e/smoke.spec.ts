@@ -432,5 +432,7 @@ test("planner persona can complete the city-detail journey", async ({ page }) =>
   await expect(page).toHaveURL(/\/cities\/boston$/);
   await expect(page.getByRole("heading", { name: "Planning readiness" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Queue baseline run" })).toBeVisible();
-  await expect(page.getByText("decision intelligence arc")).toBeVisible();
+  await expect(page.getByText("Workflow context")).toBeVisible();
+  await expect(page.getByText("City Detail")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open scenarios for this city" })).toBeVisible();
 });

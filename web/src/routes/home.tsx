@@ -24,7 +24,7 @@ export function HomePage() {
   });
 
   return (
-    <section className="page-stack">
+    <section className="page-stack home-page">
       <header className="hero-card premium-hero-card">
         <div className="premium-hero-copy">
           <div className="eyebrow">Urban heat planning for everyone</div>
