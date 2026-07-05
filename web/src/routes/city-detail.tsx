@@ -122,7 +122,7 @@ export function CityDetailPage() {
   }, [cityDataRegistrationQuery.data]);
 
   return (
-    <section className="page-stack">
+    <section className="page-stack city-detail-page">
       <CityIntelligenceOverview
         {...detailConfig.overview}
       />

@@ -95,6 +95,8 @@ function RootLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [focusMode, setFocusMode] = useState(false);
+  const [visualTheme, setVisualTheme] = useState<"editorial" | "momentum">("editorial");
   const appShellRef = useRef<HTMLDivElement | null>(null);
   const resizeStateRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
 
@@ -102,9 +104,17 @@ function RootLayout() {
     const stored = window.localStorage.getItem("uhd.sidebar.collapsed");
     const storedWidth = window.localStorage.getItem("uhd.sidebar.width");
     const storedTouched = window.localStorage.getItem("uhd.sidebar.user-touched");
+    const storedFocusMode = window.localStorage.getItem("uhd.focus.mode");
+    const storedTheme = window.localStorage.getItem("uhd.visual.theme");
     if (stored === "true") setSidebarCollapsed(true);
     if (storedWidth && Number.isFinite(Number(storedWidth))) {
       setSidebarWidth(clampSidebarWidth(Number(storedWidth)));
+    }
+    if (storedFocusMode === "true") {
+      setFocusMode(true);
+    }
+    if (storedTheme === "momentum" || storedTheme === "editorial") {
+      setVisualTheme(storedTheme);
     }
     if (!storedTouched && pathname.startsWith("/cities/")) {
       setSidebarCollapsed(true);
@@ -144,6 +154,14 @@ function RootLayout() {
   useEffect(() => {
     window.localStorage.setItem("uhd.sidebar.width", String(sidebarWidth));
   }, [sidebarWidth]);
+
+  useEffect(() => {
+    window.localStorage.setItem("uhd.focus.mode", focusMode ? "true" : "false");
+  }, [focusMode]);
+
+  useEffect(() => {
+    window.localStorage.setItem("uhd.visual.theme", visualTheme);
+  }, [visualTheme]);
 
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
@@ -190,11 +208,52 @@ function RootLayout() {
     setSidebarCollapsed(collapsed);
   };
 
+  const currentView = useMemo(() => {
+    if (pathname.startsWith("/cities/")) {
+      return {
+        title: "City Detail",
+        description: "Inspect evidence layers, readiness, and map-first decisions before scenario budgeting.",
+      };
+    }
+    if (pathname.startsWith("/runs/")) {
+      return {
+        title: "Run Detail",
+        description: "Review execution metadata, outputs, and logs to validate what actually ran.",
+      };
+    }
+    const nav = navItems.find((item) => item.to === pathname);
+    if (nav) {
+      return {
+        title: nav.label,
+        description: nav.label === "Overview"
+          ? "Start from one coherent narrative, then move into city, scenario, export, and run workflows."
+          : nav.label === "Modes"
+            ? "Choose the audience lens, then keep the same science with role-specific framing."
+            : nav.label === "Cities"
+              ? "Open a bundled city or onboard a new one without changing the decision workflow."
+              : nav.label === "Scenarios"
+                ? "Compare tradeoffs with explicit evidence status and uncertainty-aware planning signals."
+                : nav.label === "Exports"
+                  ? "Download artifacts and package evidence so decisions stay inspectable beyond this app."
+                  : "Track queue state and outputs with a clear execution registry.",
+      };
+    }
+    return {
+      title: "Urban Heat Workspace",
+      description: "Use a single workflow that stays readable from evidence to action.",
+    };
+  }, [pathname]);
+
+  const cityIdFromPath = pathname.startsWith("/cities/") ? pathname.split("/")[2] : undefined;
+
   const shellLayoutValue = useMemo(() => ({ sidebarCollapsed, sidebarWidth }), [sidebarCollapsed, sidebarWidth]);
 
   return (
     <AppShellLayoutContext.Provider value={shellLayoutValue}>
-      <div ref={appShellRef} className={`app-shell ${sidebarCollapsed ? "app-shell-collapsed" : ""}`}>
+      <div
+        ref={appShellRef}
+        className={`app-shell ${sidebarCollapsed ? "app-shell-collapsed" : ""} ${focusMode ? "app-shell-focus" : ""} ${visualTheme === "momentum" ? "app-shell-momentum" : "app-shell-editorial"}`.trim()}
+      >
         <aside className={`app-sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
           <div className="app-sidebar-top">
             <div className="brand-card">
@@ -292,6 +351,50 @@ function RootLayout() {
               Menu
             </button>
           ) : null}
+          <section className="app-main-toolbar" aria-label="Current workflow context">
+            <div className="app-main-toolbar-copy">
+              <span className="app-main-toolbar-kicker">Workflow context</span>
+              <strong>{currentView.title}</strong>
+              <p>{currentView.description}</p>
+            </div>
+            <div className="app-main-toolbar-actions">
+              <button
+                type="button"
+                className={`button-link secondary toolbar-focus-toggle ${focusMode ? "active" : ""}`}
+                onClick={() => setFocusMode((value) => !value)}
+                aria-pressed={focusMode}
+                title={focusMode ? "Disable focus mode" : "Enable focus mode"}
+              >
+                {focusMode ? "Focus mode on" : "Focus mode off"}
+              </button>
+              <button
+                type="button"
+                className={`button-link secondary toolbar-theme-toggle ${visualTheme === "momentum" ? "active" : ""}`}
+                onClick={() => setVisualTheme((value) => value === "editorial" ? "momentum" : "editorial")}
+                title={visualTheme === "momentum" ? "Switch to editorial theme" : "Switch to momentum theme"}
+              >
+                Theme: {visualTheme === "momentum" ? "Momentum" : "Editorial"}
+              </button>
+              {cityIdFromPath ? (
+                <Link
+                  to="/scenarios"
+                  search={{
+                    cityId: cityIdFromPath,
+                    budgetUsd: undefined,
+                    focus: undefined,
+                    sourceLayer: undefined,
+                    selectedLabel: undefined,
+                  }}
+                  className="button-link secondary"
+                >
+                  Open scenarios for this city
+                </Link>
+              ) : null}
+              {pathname.startsWith("/runs/") ? (
+                <Link to="/runs" className="button-link secondary">Back to run registry</Link>
+              ) : null}
+            </div>
+          </section>
           <Outlet />
         </main>
       </div>
