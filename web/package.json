@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:seo": "node ../scripts/build-github-pages.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",
     "preview": "vite preview",
     "test": "vitest run src",

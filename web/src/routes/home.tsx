@@ -91,6 +91,25 @@ export function HomePage() {
           </div>
         </div>
       </article>
+
+      <section className="panel-card premium-feature-card" aria-labelledby="wiki-resources-title">
+        <div className="feature-callout-grid">
+          <div>
+            <div className="eyebrow">Open learning library</div>
+            <h2 id="wiki-resources-title">Read the Urban Heat Democratization Wiki</h2>
+            <p className="muted">The project wiki explains the mission, methods, evidence standards, city onboarding, governance, and technical terms behind the atlas.</p>
+          </div>
+          <div className="quick-links">
+            <a className="button-link" href="https://github.com/aartisr/urban-heat-democratization/tree/main/docs/wiki">Open the Wiki</a>
+            <a className="button-link secondary" href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/03-science-and-interpretation.md">Methods and interpretation</a>
+          </div>
+        </div>
+        <div className="info-list">
+          <div><strong><a href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/01-the-case-for-democratization.md">Why democratize urban heat?</a></strong><span>Understand the public-interest case for accessible climate evidence.</span></div>
+          <div><strong><a href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/04-evidence-and-responsible-use.md">Evidence and responsible use</a></strong><span>See the limits, provenance expectations, and interpretation safeguards.</span></div>
+          <div><strong><a href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/05-city-onboarding-and-partnership.md">City onboarding and partnership</a></strong><span>Learn how a new city can contribute local evidence responsibly.</span></div>
+        </div>
+      </section>
     </section>
   );
 }
