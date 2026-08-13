@@ -13,6 +13,21 @@ This is not a claim that software alone can solve a public-health emergency. It 
 
 Official website: [ai-aarti.com](https://ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [MIT License](LICENSE)
 
+## Search, AI discovery, and GitHub Pages
+
+The project ships an ethical, reusable discovery layer for conventional search, AI search, and social previews: descriptive metadata, canonical URLs, crawl directives, a sitemap, Schema.org entities, and page-specific browser metadata. The static GitHub Pages field guide adds substantive, accessible context and links readers to the primary site and source materials; it deliberately avoids thin doorway pages or artificial link schemes that can harm search visibility.
+
+The one configuration surface is [seo/site.config.json](seo/site.config.json). Before deploying a fork or a custom domain, replace the site, repository, GitHub Pages, author, and contact URLs there. For the frontend, set `VITE_SITE_URL` to the same canonical primary URL at build time; if unset, it uses `https://ai-aarti.com`.
+
+```bash
+# Preview the deployable GitHub Pages companion locally
+node scripts/build-github-pages.mjs
+```
+
+The [GitHub Pages workflow](.github/workflows/pages.yml) deploys it automatically on a `main` branch push once GitHub Pages is enabled in the repository’s **Settings → Pages → Source: GitHub Actions**. Submit both primary and companion sitemaps to Google Search Console and Bing Webmaster Tools after the public URLs are live. Search rankings cannot be guaranteed, but the implementation is designed around the practices search engines and AI systems can reliably consume.
+
+For AI and research discovery, the frontend also serves [`/llms.txt`](web/public/llms.txt), [`/humans.txt`](web/public/humans.txt), and an Atom feed at [`/feed.xml`](web/public/feed.xml). These are helpful machine-readable signposts, not ranking tricks. Keep their URLs and project claims current whenever the primary site or supported cities change.
+
 ## The problem is urgent—and unequal
 
 Extreme heat is not experienced evenly across a city. Shade, tree canopy, building materials, pavement, access to cooling, public space, housing conditions, and historic investment patterns can all shape who bears the greatest burden. Yet the ability to analyze that burden is often concentrated in a small number of institutions, tools, and consulting workflows.
@@ -78,6 +93,8 @@ The project wiki is the fullest account of the mission, methods, evidence standa
 - [Roadmap, governance, and contribution](docs/wiki/06-roadmap-governance-and-contribution.md)
 - [Technical reference](docs/wiki/07-technical-reference.md)
 - [Glossary](docs/wiki/GLOSSARY.md)
+
+Every public-facing surface—including the app toolbar, homepage, GitHub Pages field guide, and AI-readable project summary—links back to this wiki and its most relevant sections. This helps readers reach the primary methods and evidence, while keeping the links useful rather than artificially repetitive.
 
 ## Platform snapshot
 
