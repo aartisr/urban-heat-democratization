@@ -56,7 +56,9 @@ def install_http_middleware(app: FastAPI, logger: logging.Logger) -> None:
         response.headers["x-content-type-options"] = "nosniff"
         response.headers["x-frame-options"] = "DENY"
         response.headers["referrer-policy"] = "strict-origin-when-cross-origin"
-        response.headers["cache-control"] = "no-store"
+        response.headers["permissions-policy"] = "camera=(), microphone=(), geolocation=()"
+        if "cache-control" not in response.headers:
+            response.headers["cache-control"] = "no-store"
         logger.info(
             "request_complete request_id=%s method=%s path=%s status=%s elapsed_ms=%s",
             request_id,

@@ -3,17 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Link } from "@tanstack/react-router";
 
-import { PersonaFlowRail } from "../components/persona-flow-rail";
-import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
-import { StoryJourneyStrip } from "../components/story-journey-strip";
+import { WorkflowHeader } from "../components/workflow-header";
 import { listCityExperiences, listRuns } from "../lib/api";
-import { useActivePersonaMode } from "../lib/use-active-persona-mode";
 import type { RunRecord } from "../lib/types";
 
 const columnHelper = createColumnHelper<RunRecord>();
 
 export function RunsPage() {
-  const { activeModeId } = useActivePersonaMode();
   const runsQuery = useQuery({ queryKey: ["runs"], queryFn: () => listRuns() });
   const experiencesQuery = useQuery({ queryKey: ["city-experiences"], queryFn: listCityExperiences });
 
@@ -45,29 +41,8 @@ export function RunsPage() {
   });
 
   return (
-    <section className="page-stack">
-      <header className="section-heading">
-        <div>
-          <div className="eyebrow">Runs</div>
-          <h1>Track analysis jobs, outputs, and the evidence trail.</h1>
-        </div>
-        <p>This registry keeps the app honest: you can see what ran, what finished, and which workflows still need attention.</p>
-      </header>
-
-      <StoryJourneyStrip
-        title="Execution evidence storyline"
-        subtitle="Runs make planning claims accountable by connecting scenarios, queue state, output artifacts, and execution history."
-        items={[
-          { label: "Queue", detail: "Launch scenario runs against city context with explicit scenario lineage." },
-          { label: "Track", detail: "Follow status and progress to distinguish active work from completed evidence." },
-          { label: "Inspect", detail: "Open run detail to review metadata, logs, and attached artifacts." },
-          { label: "Corroborate", detail: "Map each run back to scenario assumptions and export outputs." },
-        ]}
-      />
-
-      <PersonaFlowRail activeModeId={activeModeId} currentRoute="/runs" />
-
-      <ScienceDemocratizationBanner />
+    <section className="page-stack runs-page">
+      <WorkflowHeader eyebrow="Runs" title="Track analysis jobs, outputs, and the evidence trail." description="This registry keeps the app honest: you can see what ran, what finished, and which workflows still need attention." />
 
       <div className="panel-grid two-col premium-story-grid">
         <article className="panel-card premium-section-card">

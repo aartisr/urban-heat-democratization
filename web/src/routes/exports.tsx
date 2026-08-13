@@ -1,11 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
-import { PersonaFlowRail } from "../components/persona-flow-rail";
-import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
-import { StoryJourneyStrip } from "../components/story-journey-strip";
+import { WorkflowHeader } from "../components/workflow-header";
 import { artifactDownloadUrl, getCityDataRegistration, getCityReadiness, listArtifacts, listBundledPackages, listCities, listCostSources, validateBundledPackage } from "../lib/api";
-import { useActivePersonaMode } from "../lib/use-active-persona-mode";
 import type { ArtifactRecord, BundledPackage, CityProfile } from "../lib/types";
 
 function ArtifactMiniPreview({ artifact }: { artifact: ArtifactRecord }) {
@@ -47,7 +44,6 @@ function ArtifactMiniPreview({ artifact }: { artifact: ArtifactRecord }) {
 }
 
 export function ExportsPage() {
-  const { activeModeId } = useActivePersonaMode();
   const artifactsQuery = useQuery({ queryKey: ["artifacts"], queryFn: listArtifacts });
   const citiesQuery = useQuery({ queryKey: ["cities"], queryFn: listCities });
   const bundledPackagesQuery = useQuery({ queryKey: ["bundled-packages"], queryFn: listBundledPackages });
@@ -88,32 +84,12 @@ export function ExportsPage() {
   ));
 
   return (
-    <section className="page-stack">
-      <header className="section-heading">
-        <div>
-          <div className="eyebrow">Exports</div>
-          <h1>Download the package, the evidence, and the living record.</h1>
-        </div>
-        <p>
-          This page surfaces real artifacts from the repo and makes them downloadable from the app without making users
-          hunt across the codebase.
-        </p>
-      </header>
-
-      <StoryJourneyStrip
-        title="Export trust chain"
-        subtitle="Downloads are presented as a verifiable chain from package contract to source-backed artifacts and local registration status."
-        items={[
-          { label: "Select", detail: "Choose the package or uploaded city context relevant to your decision." },
-          { label: "Validate", detail: "Check contract status and readiness before distributing outputs." },
-          { label: "Download", detail: "Export the exact artifacts, overlays, and study guides used by the workflow." },
-          { label: "Explain", detail: "Carry source notes and benchmark framing into external presentations." },
-        ]}
+    <section className="page-stack exports-page">
+      <WorkflowHeader
+        eyebrow="Exports"
+        title="Download the package, the evidence, and the living record."
+        description="This page surfaces real artifacts from the repo and makes them downloadable from the app without making users hunt across the codebase."
       />
-
-      <PersonaFlowRail activeModeId={activeModeId} currentRoute="/exports" />
-
-      <ScienceDemocratizationBanner />
 
       <article className="panel-card premium-section-card">
         <h2>{selectedPackage?.name ?? "Bundled package"} export bundle</h2>

@@ -3,11 +3,8 @@ import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
-import { PersonaFlowRail } from "../components/persona-flow-rail";
-import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
-import { StoryJourneyStrip } from "../components/story-journey-strip";
+import { WorkflowHeader } from "../components/workflow-header";
 import { getCity, getCityExperience, getCityReadiness, getCityTrustAudit, listCities, listCityExperiences, onboardCity } from "../lib/api";
-import { useActivePersonaMode } from "../lib/use-active-persona-mode";
 import type { CityExperience, CityOnboardingInput, CityProfile } from "../lib/types";
 
 const columnHelper = createColumnHelper<CityProfile>();
@@ -27,7 +24,6 @@ const emptyUploadPreview: BoundaryUploadPreview = {
 };
 
 export function CitiesPage() {
-  const { activeModeId } = useActivePersonaMode();
   const queryClient = useQueryClient();
   const citiesQuery = useQuery({ queryKey: ["cities"], queryFn: () => listCities() });
   const experiencesQuery = useQuery({ queryKey: ["city-experiences"], queryFn: listCityExperiences });
@@ -89,29 +85,8 @@ export function CitiesPage() {
   const uploadReady = formValue.boundarySource !== "upload" || (Boolean(formValue.boundaryGeojsonText) && uploadPreview.error === null);
 
   return (
-    <section className="page-stack">
-      <header className="section-heading">
-        <div>
-          <div className="eyebrow">City onboarding</div>
-          <h1>Pick a city, or bring in a new boundary with the same workflow.</h1>
-        </div>
-        <p>Bundled cities open immediately. Upload-first cities use the same modular path, so new work still feels guided instead of fragmented.</p>
-      </header>
-
-      <StoryJourneyStrip
-        title="City onboarding story"
-        subtitle="Whether a city is bundled or upload-first, the workflow remains a single intelligible journey from boundary to study-ready outputs."
-        items={[
-          { label: "Select", detail: "Choose a bundled city for instant analysis or an upload-first path for local onboarding." },
-          { label: "Register", detail: "Attach valid boundaries and core metadata so downstream analysis is reproducible." },
-          { label: "Validate", detail: "Use readiness checks to see what is fully backed versus still partial." },
-          { label: "Advance", detail: "Carry the city into scenarios, exports, and runs with no context loss." },
-        ]}
-      />
-
-      <PersonaFlowRail activeModeId={activeModeId} currentRoute="/cities" />
-
-      <ScienceDemocratizationBanner />
+    <section className="page-stack cities-page">
+      <WorkflowHeader eyebrow="City onboarding" title="Pick a city, or bring in a new boundary with the same workflow." description="Bundled cities open immediately. Upload-first cities use the same modular path, so new work still feels guided instead of fragmented." />
 
       <section className="premium-story-grid">
         <article className="panel-card premium-card-stack">

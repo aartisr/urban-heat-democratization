@@ -2,9 +2,6 @@ import { useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
-import { PersonaFlowRail } from "../components/persona-flow-rail";
-import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
-import { StoryJourneyStrip } from "../components/story-journey-strip";
 import { getCityBenchmarkSuite } from "../lib/api";
 import { defaultStudyCityId, defaultStudyCityLabel } from "../lib/study-city";
 import { type PersonaModeId } from "../lib/persona-modes";
@@ -240,21 +237,6 @@ export function ModesPage() {
           </div>
         </div>
       </header>
-
-      <StoryJourneyStrip
-        title="Choose your decision lens"
-        subtitle="Every mode keeps the same scientific backbone while changing the narrative emphasis for the audience in front of you."
-        items={[
-          { label: "Audience", detail: "Pick the mode that matches your role: educator, student, planner, researcher, or advocate." },
-          { label: "Frame", detail: "Set the right starting route and language level without losing technical rigor." },
-          { label: "Act", detail: "Move into city and scenario pages with mode-aware defaults and evidence thresholds." },
-          { label: "Defend", detail: "Carry the same source trail into exports and runs so claims stay trustworthy." },
-        ]}
-      />
-
-      <PersonaFlowRail activeModeId={activeModeId} currentRoute="/modes" />
-
-      <ScienceDemocratizationBanner />
 
       <article className="panel-card premium-section-card modes-summary-card">
         <div className="section-summary">

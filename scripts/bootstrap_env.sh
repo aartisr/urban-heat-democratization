@@ -5,6 +5,8 @@ PYTHON_BIN="${PYTHON_BIN:-python3.11}"
 PYTHON_FALLBACK_PATHS=(
   "/opt/homebrew/bin/python3.11"
   "/usr/local/bin/python3.11"
+  "/opt/homebrew/opt/python@3.11/bin/python3.11"
+  "/usr/local/opt/python@3.11/bin/python3.11"
 )
 
 find_python311() {
@@ -71,7 +73,13 @@ resolve_python311() {
 
 PYTHON_PATH="$(resolve_python311)"
 
-"${PYTHON_PATH}" -m venv .venv
+# `venv` may preserve stale launchers when asked to reuse an existing
+# environment. Recreate only the project-local environment so `python`, pip,
+# and every launcher consistently use the pinned interpreter.
+if [[ -d .venv ]]; then
+  echo "Recreating existing .venv with Python 3.11..."
+fi
+"${PYTHON_PATH}" -m venv --clear .venv
 source .venv/bin/activate
 python scripts/check_python_env.py
 pip install --upgrade pip

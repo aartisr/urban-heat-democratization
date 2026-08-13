@@ -10,7 +10,7 @@ PYTHON_IN_VENV := $(VENV)/bin/python
 PIP_IN_VENV := $(VENV)/bin/pip
 UVICORN_IN_VENV := $(VENV)/bin/uvicorn
 
-.PHONY: help check-python install-python setup web-install api run-api web build test test-web test-python validate-packages quick-reference live-landsat live-ecostress
+.PHONY: help check-python install-python setup web-install api run-api web build performance test test-web test-python validate-packages quick-reference live-landsat live-ecostress
 
 help:
 	@echo "Available targets:"
@@ -22,6 +22,8 @@ help:
 	@echo "  make run-api            Alias for 'make api'"
 	@echo "  make web                Run the TanStack frontend"
 	@echo "  make build              Build the frontend"
+
+	@echo "  make performance        Build and enforce frontend performance budgets"
 	@echo "  make test               Run Python and frontend tests"
 	@echo "  make test-web           Run frontend tests"
 	@echo "  make test-python        Run Python tests"
@@ -62,6 +64,9 @@ web:
 
 build:
 	npm --prefix $(WEB_DIR) run build
+
+performance: build
+	npm --prefix $(WEB_DIR) run check:performance
 
 test:
 	$(MAKE) test-python
