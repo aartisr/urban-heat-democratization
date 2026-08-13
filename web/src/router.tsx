@@ -55,11 +55,18 @@ const navItems: Array<{
   search?: typeof baseScenarioSearch;
 }> = [
   { label: "Overview", shortLabel: "OV", to: "/" },
-  { label: "Modes", shortLabel: "MO", to: "/modes" },
   { label: "Cities", shortLabel: "CI", to: "/cities" },
   { label: "Scenarios", shortLabel: "SC", to: "/scenarios", search: baseScenarioSearch },
-  { label: "Exports", shortLabel: "EX", to: "/exports" },
-  { label: "Runs", shortLabel: "RU", to: "/runs" },
+];
+
+const secondaryNavItems: Array<{
+  label: string;
+  to: "/modes" | "/exports" | "/runs";
+  search?: typeof baseScenarioSearch;
+}> = [
+  { label: "Choose a path", to: "/modes" },
+  { label: "Exports", to: "/exports" },
+  { label: "Run history", to: "/runs" },
 ];
 
 const SIDEBAR_MIN_WIDTH = 240;
@@ -96,7 +103,6 @@ function RootLayout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(280);
   const [focusMode, setFocusMode] = useState(false);
-  const [visualTheme, setVisualTheme] = useState<"editorial" | "momentum">("editorial");
   const appShellRef = useRef<HTMLDivElement | null>(null);
   const resizeStateRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
 
@@ -105,16 +111,12 @@ function RootLayout() {
     const storedWidth = window.localStorage.getItem("uhd.sidebar.width");
     const storedTouched = window.localStorage.getItem("uhd.sidebar.user-touched");
     const storedFocusMode = window.localStorage.getItem("uhd.focus.mode");
-    const storedTheme = window.localStorage.getItem("uhd.visual.theme");
     if (stored === "true") setSidebarCollapsed(true);
     if (storedWidth && Number.isFinite(Number(storedWidth))) {
       setSidebarWidth(clampSidebarWidth(Number(storedWidth)));
     }
     if (storedFocusMode === "true") {
       setFocusMode(true);
-    }
-    if (storedTheme === "momentum" || storedTheme === "editorial") {
-      setVisualTheme(storedTheme);
     }
     if (!storedTouched && pathname.startsWith("/cities/")) {
       setSidebarCollapsed(true);
@@ -158,10 +160,6 @@ function RootLayout() {
   useEffect(() => {
     window.localStorage.setItem("uhd.focus.mode", focusMode ? "true" : "false");
   }, [focusMode]);
-
-  useEffect(() => {
-    window.localStorage.setItem("uhd.visual.theme", visualTheme);
-  }, [visualTheme]);
 
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
@@ -252,7 +250,7 @@ function RootLayout() {
     <AppShellLayoutContext.Provider value={shellLayoutValue}>
       <div
         ref={appShellRef}
-        className={`app-shell ${sidebarCollapsed ? "app-shell-collapsed" : ""} ${focusMode ? "app-shell-focus" : ""} ${visualTheme === "momentum" ? "app-shell-momentum" : "app-shell-editorial"}`.trim()}
+        className={`app-shell ${sidebarCollapsed ? "app-shell-collapsed" : ""} ${focusMode ? "app-shell-focus" : ""} app-shell-editorial`.trim()}
       >
         <aside className={`app-sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
           <div className="app-sidebar-top">
@@ -288,6 +286,18 @@ function RootLayout() {
                 {sidebarCollapsed ? item.shortLabel : item.label}
               </Link>
             ))}
+            {!sidebarCollapsed ? (
+              <details className="app-nav-more">
+                <summary>More tools</summary>
+                <div>
+                  {secondaryNavItems.map((item) => (
+                    <Link key={item.to} to={item.to} search={item.search} activeProps={{ "aria-current": "page" }}>
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              </details>
+            ) : null}
           </nav>
           {!sidebarCollapsed ? (
             <div className="app-sidebar-note">
@@ -366,14 +376,6 @@ function RootLayout() {
                 title={focusMode ? "Disable focus mode" : "Enable focus mode"}
               >
                 {focusMode ? "Focus mode on" : "Focus mode off"}
-              </button>
-              <button
-                type="button"
-                className={`button-link secondary toolbar-theme-toggle ${visualTheme === "momentum" ? "active" : ""}`}
-                onClick={() => setVisualTheme((value) => value === "editorial" ? "momentum" : "editorial")}
-                title={visualTheme === "momentum" ? "Switch to editorial theme" : "Switch to momentum theme"}
-              >
-                Theme: {visualTheme === "momentum" ? "Momentum" : "Editorial"}
               </button>
               {cityIdFromPath ? (
                 <Link

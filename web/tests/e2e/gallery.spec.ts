@@ -413,10 +413,12 @@ test("capture documentation screenshots", async ({ page }) => {
   await ensureScreenshotsDir();
 
   await page.goto("/");
-  await expect(page.getByText("Turn heat data into a plan people can trust.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Make heat visible. Make action possible." })).toBeVisible();
   await page.screenshot({ path: path.join(screenshotsDir, "home.png"), fullPage: true });
 
-  await page.getByRole("link", { name: "Browse cities" }).click();
+  await page.getByRole("link", { name: "Explore Boston" }).click();
+  await expect(page).toHaveURL(/\/cities\/boston$/);
+  await page.getByRole("link", { name: "Back to cities" }).click();
   await expect(page).toHaveURL(/\/cities$/);
   await page.screenshot({ path: path.join(screenshotsDir, "cities.png"), fullPage: true });
 

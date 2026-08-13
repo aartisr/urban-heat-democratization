@@ -4,12 +4,10 @@ import { Link, useSearch } from "@tanstack/react-router";
 import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
 import { MathBlock } from "../components/math-block";
-import { PersonaFlowRail } from "../components/persona-flow-rail";
 import { ScenarioPackedBubbleCard } from "../components/scenario-packed-bubble-card";
 import { ScenarioSankeyCard } from "../components/scenario-sankey-card";
-import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
-import { StoryJourneyStrip } from "../components/story-journey-strip";
 import { SunburstCard } from "../components/sunburst-card";
+import { WorkflowHeader } from "../components/workflow-header";
 import { createWhatIfScenarios, getCityBenchmarkSuite, getCityExperience, getCityPlannerValidation, getCitySpectral, getRobustnessLab, listCities, listCostSources, listInterventions, listRuns, listScenarios, queueRun, resetAndGenerateScenarios } from "../lib/api";
 import { defaultStudyCityId, defaultStudyCityLabel } from "../lib/study-city";
 import { personaModeProfiles, personaScenarioPresets } from "../lib/persona-modes";
@@ -1026,13 +1024,12 @@ export function ScenariosPage() {
     <section className="page-stack scenario-page">
       <div className="scenario-page-hero">
         <div className="scenario-hero-copy">
-          <header className="section-heading scenario-page-heading">
-            <div>
-              <div className="eyebrow">Scenario engine</div>
-              <h1>Review spectral evidence and verified cost benchmarks.</h1>
-            </div>
-            <p>{spectralQuery.data?.summary ?? "Use one guided page to test a budget, compare options, and keep the evidence trail visible without sending users across a maze of specialist screens."}</p>
-          </header>
+          <WorkflowHeader
+            className="scenario-page-heading"
+            eyebrow="Scenario engine"
+            title="Review spectral evidence and verified cost benchmarks."
+            description={spectralQuery.data?.summary ?? "Use one guided page to test a budget, compare options, and keep the evidence trail visible without sending users across a maze of specialist screens."}
+          />
         </div>
 
         {activeScenarioHierarchy ? (
@@ -1067,88 +1064,12 @@ export function ScenariosPage() {
         ) : null}
       </div>
 
-      <section className="scenario-story-deck" aria-label="Scenario narrative stages">
-        <article className="scenario-story-card">
-          <span>01</span>
-          <strong>Frame the problem</strong>
-          <p>Start with mode-specific evidence thresholds and city context so tradeoffs are scoped before optimization begins.</p>
-        </article>
-        <article className="scenario-story-card">
-          <span>02</span>
-          <strong>Read composition</strong>
-          <p>Use sunburst for hierarchy, then packed bubbles for quick budget concentration and intervention dominance checks.</p>
-        </article>
-        <article className="scenario-story-card">
-          <span>03</span>
-          <strong>Trace budget causality</strong>
-          <p>The Sankey reveals where dollars move from evidence quality into intervention families and top actions.</p>
-        </article>
-        <article className="scenario-story-card">
-          <span>04</span>
-          <strong>Decide and audit</strong>
-          <p>Generate, compare, and export with confidence-aware rankings and explicit uncertainty bands.</p>
-        </article>
-      </section>
-
-      <nav className="scenario-story-nav" aria-label="Scenario page sections">
-        <a href="#scenario-composition">Composition</a>
-        <a href="#scenario-bubbles">Packed bubbles</a>
-        <a href="#scenario-sankey">Budget flow</a>
-        <a href="#scenario-generator">Generator</a>
-        <a href="#scenario-math-proof">Math proof</a>
-        <a href="#scenario-table">Scenario table</a>
-        <a href="#scenario-audit">Audit</a>
-      </nav>
-
-      <StoryJourneyStrip
-        title="Scenario decision storyline"
-        subtitle="The page is organized to keep science legible: composition, budget flow, constrained optimization, then audit-ready comparison."
-        items={[
-          { label: "Compose", detail: "Read evidence and intervention composition in the sunburst before selecting budgets." },
-          { label: "Scan", detail: "Use packed bubbles for immediate intervention budget dominance and concentration checks." },
-          { label: "Trace", detail: "Follow budget causality with Sankey from evidence quality into intervention families." },
-          { label: "Optimize", detail: "Generate and compare scenarios with confidence-aware, uncertainty-bounded metrics." },
-          { label: "Audit", detail: "Inspect planner validation, run history, and provenance before decisions leave the room." },
-        ]}
-        className="scenario-story-journey"
-      />
-
-      <section className="scenario-view-rationale panel-card premium-section-card" aria-label="Why three visual views">
-        <div className="scenario-view-rationale-head">
-          <div>
-            <div className="eyebrow">Why three visual lenses</div>
-            <h2>Each chart answers a different planning question</h2>
-            <p className="muted">
-              Keeping Sunburst, Packed bubbles, and Sankey together follows progressive disclosure patterns from the reference set:
-              overview first, concentration second, causality third.
-            </p>
-          </div>
-          <div className="truth-badge derived">helper-backed</div>
+      <aside className="scenario-route-visual" aria-label="Aerial view of a tree-lined city block, illustrating the urban heat choices explored on this page">
+        <div className="scenario-route-visual-copy">
+          <span className="eyebrow">See the place behind the choices</span>
+          <p>Every scenario connects a budget decision to the streets, shade, and people it is meant to serve.</p>
         </div>
-        <div className="scenario-view-rationale-grid">
-          <article>
-            <strong>Sunburst: hierarchy and evidence structure</strong>
-            <p>Best for understanding composition and evidence layering before users reason about budget flows.</p>
-            <span>
-              Uses helpers for arc geometry, hierarchy weighting, readable color fallback, and stable detail focus.
-            </span>
-          </article>
-          <article>
-            <strong>Packed bubbles: concentration and dominance</strong>
-            <p>Best for seeing which interventions dominate allocated budget without trace-path complexity.</p>
-            <span>
-              Uses helpers for budget weighting, non-overlap packing, category color mapping, and compact top-N filtering.
-            </span>
-          </article>
-          <article>
-            <strong>Sankey: causality and budget provenance</strong>
-            <p>Best for tracing how budget moves from evidence quality to intervention families and actions.</p>
-            <span>
-              Uses helpers for staged node construction, column layout, link path routing, and evidence-aware flow styling.
-            </span>
-          </article>
-        </div>
-      </section>
+      </aside>
 
       <div className="scenario-visual-gallery" id="scenario-composition">
         {activeSunburstScenario ? (
@@ -1194,10 +1115,6 @@ export function ScenariosPage() {
           />
         </section>
       ) : null}
-
-      <PersonaFlowRail activeModeId={activeModeId} currentRoute="/scenarios" />
-
-      <ScienceDemocratizationBanner />
 
       <div className="scenario-insight-grid" id="scenario-context">
       <article className="panel-card premium-section-card scenario-support-card">

@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 
-import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
-import { StoryJourneyStrip } from "../components/story-journey-strip";
+import { WorkflowHeader } from "../components/workflow-header";
 import { artifactDownloadUrl, getRun, listArtifacts } from "../lib/api";
 
 export function RunDetailPage() {
@@ -13,27 +12,8 @@ export function RunDetailPage() {
   const artifactLookup = new Map((artifactsQuery.data ?? []).map((artifact) => [artifact.id, artifact]));
 
   return (
-    <section className="page-stack">
-      <header className="section-heading">
-        <div>
-          <div className="eyebrow">Run detail</div>
-          <h1>{run?.scenario ?? runId}</h1>
-        </div>
-        <p>{run?.summary ?? "Run metadata, context, logs, and attached artifacts live here."}</p>
-      </header>
-
-      <StoryJourneyStrip
-        title="Run-level audit narrative"
-        subtitle="Each run detail page tells a complete execution story: what was run, what was produced, and what evidence supports follow-up decisions."
-        items={[
-          { label: "Identify", detail: "Confirm run metadata, queue origin, scenario, and city context." },
-          { label: "Review", detail: "Read notes and status progression before interpreting outputs." },
-          { label: "Retrieve", detail: "Download attached artifacts tied directly to this execution." },
-          { label: "Verify", detail: "Inspect logs to validate assumptions, failures, and completion details." },
-        ]}
-      />
-
-      <ScienceDemocratizationBanner />
+    <section className="page-stack run-detail-page">
+      <WorkflowHeader eyebrow="Run detail" title={run?.scenario ?? runId} description={run?.summary ?? "Run metadata, context, logs, and attached artifacts live here."} />
 
       <div className="panel-grid two-col premium-story-grid">
         <article className="panel-card premium-section-card">

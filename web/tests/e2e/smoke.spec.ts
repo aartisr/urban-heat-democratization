@@ -358,11 +358,23 @@ test.beforeEach(async ({ page }) => {
 
 test("home page renders and navigates to cities", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByText("Turn heat data into a plan people can trust.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Make heat visible. Make action possible." })).toBeVisible();
 
-  await page.getByRole("link", { name: "Browse cities" }).click();
+  await page.getByRole("link", { name: "Explore Boston" }).click();
+  await expect(page).toHaveURL(/\/cities\/boston$/);
+  await page.getByRole("link", { name: "Back to cities" }).click();
   await expect(page).toHaveURL(/\/cities$/);
   await expect(page.getByText("Onboard a city")).toBeVisible();
+});
+
+test("landing page keeps its primary path usable on a narrow phone", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+
+  await expect(page.getByRole("heading", { name: "Make heat visible. Make action possible." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Explore Boston" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose your path" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
 test("workspace switcher is visible and editable", async ({ page }) => {
@@ -393,12 +405,14 @@ test("five persona journeys persist mode and route guidance", async ({ page }) =
   ] as const;
 
   for (const modeCase of modeCases) {
-    await page.goto("/");
-    await page.getByRole("button", { name: modeCase.label }).click();
-    await expect(page.getByText(`Active mode: ${modeCase.label}.`)).toBeVisible();
-    await page.getByRole("link", { name: "Choose your mode" }).click();
+    await page.goto("/modes");
+    const modeCard = page.locator(".persona-card").filter({ hasText: modeCase.label });
+    await modeCard.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
     await expect(page).toHaveURL(/\/modes$/);
-    await page.locator(".persona-flow-next a").first().click();
+    const matchingRoute = modeCase.expectedNextRoute === "/cities" ? /Explore cities|Inspect city|Browse cities/i
+      : modeCase.expectedNextRoute === "/exports" ? /Review exports|Download artifacts|Download exports/i
+        : /Try scenarios|Open scenarios|Review scenarios/i;
+    await modeCard.getByRole("link", { name: matchingRoute }).first().click();
     await expect(page).toHaveURL(new RegExp(`${modeCase.expectedNextRoute}$`));
 
     const storedMode = await page.evaluate(() => window.localStorage.getItem("uhd.active-persona-mode"));
@@ -407,25 +421,28 @@ test("five persona journeys persist mode and route guidance", async ({ page }) =
 });
 
 test("scenario defaults change with active persona mode", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Researcher" }).click();
-  await page.getByRole("link", { name: "Test scenarios" }).click();
+  await page.goto("/modes");
+  let modeCard = page.locator(".persona-card").filter({ hasText: "Researcher" });
+  await modeCard.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
+  await page.goto("/scenarios");
   await expect(page).toHaveURL(/\/scenarios$/);
   await expect(page.getByText("Researcher defaults for scenario science")).toBeVisible();
   await expect(page.getByLabel("Budget USD")).toHaveValue("500000");
   await expect(page.getByLabel("Planning mode")).toHaveValue("evidence_first");
 
-  await page.goto("/");
-  await page.getByRole("button", { name: "Community advocate" }).click();
-  await page.getByRole("link", { name: "Test scenarios" }).click();
+  await page.goto("/modes");
+  modeCard = page.locator(".persona-card").filter({ hasText: "Community advocate" });
+  await modeCard.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
+  await page.goto("/scenarios");
   await expect(page.getByLabel("Budget USD")).toHaveValue("200000");
   await expect(page.getByLabel("Planning mode")).toHaveValue("benchmark_share");
 });
 
 test("planner persona can complete the city-detail journey", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Planner" }).click();
-  await page.getByRole("link", { name: "Browse cities" }).click();
+  await page.goto("/modes");
+  const modeCard = page.locator(".persona-card").filter({ hasText: "Planner" });
+  await modeCard.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
+  await modeCard.getByRole("link", { name: /Inspect city layers/i }).first().click();
   await expect(page).toHaveURL(/\/cities$/);
 
   await page.getByRole("link", { name: "Open Boston" }).click();
