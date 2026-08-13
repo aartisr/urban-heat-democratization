@@ -5,6 +5,7 @@ import { RouterProvider } from "@tanstack/react-router";
 
 import { ApiError } from "./lib/api";
 import { router } from "./router";
+import { defaultSeo, setPageSeo } from "./lib/seo";
 import "katex/dist/katex.min.css";
 import "./styles.css";
 
@@ -29,6 +30,8 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+setPageSeo(defaultSeo);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>

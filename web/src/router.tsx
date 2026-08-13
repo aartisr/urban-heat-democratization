@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import { AccessWorkspaceSwitcher } from "./components/access-workspace-switcher";
+import { defaultSeo, setPageSeo } from "./lib/seo";
 const HomePage = lazy(() => import("./routes/home").then((module) => ({ default: module.HomePage })));
 const CitiesPage = lazy(() => import("./routes/cities").then((module) => ({ default: module.CitiesPage })));
 const CityDetailPage = lazy(() => import("./routes/city-detail").then((module) => ({ default: module.CityDetailPage })));
@@ -105,6 +106,44 @@ function RootLayout() {
   const [focusMode, setFocusMode] = useState(false);
   const appShellRef = useRef<HTMLDivElement | null>(null);
   const resizeStateRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
+
+  useEffect(() => {
+    const pages: Record<string, { title: string; description: string; keywords: string[] }> = {
+      "/": defaultSeo,
+      "/cities": {
+        title: "Cities and heat evidence | Urban Heat Democratization",
+        description: "Explore city heat evidence, data readiness, and transparent public-interest urban heat workflows.",
+        keywords: ["city heat maps", "urban heat data", "heat equity"],
+      },
+      "/scenarios": {
+        title: "Urban heat mitigation scenarios | Urban Heat Democratization",
+        description: "Explore transparent, cost-aware urban heat mitigation scenarios and their stated assumptions.",
+        keywords: ["heat mitigation scenarios", "urban cooling", "climate adaptation"],
+      },
+      "/modes": {
+        title: "Urban heat learning paths | Urban Heat Democratization",
+        description: "Choose an accessible learning and planning path for understanding local heat, evidence, and action.",
+        keywords: ["urban heat education", "heat resilience", "climate literacy"],
+      },
+      "/exports": {
+        title: "Urban heat data exports | Urban Heat Democratization",
+        description: "Access transparent urban heat planning exports and supporting evidence artifacts.",
+        keywords: ["urban heat data", "open climate data", "heat planning"],
+      },
+    };
+    const page = pathname.startsWith("/cities/")
+      ? {
+          title: "Boston urban heat study | Urban Heat Democratization",
+          description: "Inspect Boston urban heat and cooling-access evidence with source context, caveats, and transparent planning tools.",
+          keywords: ["Boston urban heat", "Boston heat map", "cooling access Boston", "heat equity"],
+        }
+      : pages[pathname] ?? {
+          title: "Urban heat planning workspace | Urban Heat Democratization",
+          description: "A transparent public-interest workspace for urban heat evidence and climate-resilient planning.",
+          keywords: defaultSeo.keywords,
+        };
+    setPageSeo({ ...page, path: pathname });
+  }, [pathname]);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("uhd.sidebar.collapsed");
@@ -368,6 +407,12 @@ function RootLayout() {
               <p>{currentView.description}</p>
             </div>
             <div className="app-main-toolbar-actions">
+              <a
+                href="https://github.com/aartisr/urban-heat-democratization/tree/main/docs/wiki"
+                className="button-link secondary"
+              >
+                Read the Wiki
+              </a>
               <button
                 type="button"
                 className={`button-link secondary toolbar-focus-toggle ${focusMode ? "active" : ""}`}

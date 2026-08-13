@@ -1,0 +1,11 @@
+/* TEAM */
+Creator: Aarti S Ravikumar
+Project: Urban Heat Democratization
+Site: https://ai-aarti.com/
+Repository: https://github.com/aartisr/urban-heat-democratization
+
+/* PURPOSE */
+Open, public-interest urban heat evidence and planning tools.
+
+/* TECHNOLOGY */
+React, TanStack, Vite, FastAPI, Python, MapLibre GL
