@@ -25,11 +25,6 @@ export function CityAtlasShell({ data, scenarios, cityName, loading, summary, on
             <div className="eyebrow">Interactive atlas</div>
             <h2>{cityName} map analysis</h2>
             <p className="muted">{summary}</p>
-            <div className="premium-badge-cloud atlas-badge-cloud">
-              <span className="premium-badge">Spectral-first decision layer</span>
-              <span className="premium-badge">Observed thermal context</span>
-              <span className="premium-badge">Plain-language intervention story</span>
-            </div>
           </div>
           {!activated ? (
             <div className="atlas-shell-actions">
@@ -62,20 +57,10 @@ export function CityAtlasShell({ data, scenarios, cityName, loading, summary, on
           ) : activated ? (
             <p className="muted">Map data is not available for this city yet.</p>
           ) : (
-            <div className="atlas-shell-preview">
-              <div className="atlas-preview-card">
-                <strong>Spectral-first flow</strong>
-                <p>Open the atlas to begin with mathematically derived bottlenecks and cooling gaps, then use thermal evidence as supporting context.</p>
-              </div>
-              <div className="atlas-preview-card">
-                <strong>Map-led investigation</strong>
-                <p>Select a polygon, see why the math ranked it highly, and move directly into a what-if scenario with carried-over context.</p>
-              </div>
-              <div className="atlas-preview-card">
-                <strong>Honest planning story</strong>
-                <p>The atlas separates observed inputs, derived analysis, and planning simplifications so people can trust what is being shown.</p>
-              </div>
-            </div>
+            <details className="atlas-shell-preview">
+              <summary>How the atlas works</summary>
+              <p>Start with the map, inspect a selected area, then open a scenario only when you are ready to compare options. The atlas keeps observed inputs, derived analysis, and planning simplifications distinct.</p>
+            </details>
           )}
         </div>
       </div>

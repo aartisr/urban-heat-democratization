@@ -6,8 +6,6 @@ import { artifactDownloadUrl, getCity, getCityDataRegistration, getCityExperienc
 import { CityAtlasShell } from "../components/city-atlas-shell";
 import { CityDetailSectionGrid } from "../components/city-detail-section-grid";
 import { CityIntelligenceOverview } from "../components/city-intelligence-overview";
-import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
-import { StoryJourneyStrip } from "../components/story-journey-strip";
 import { buildCityDetailViewConfig, buildRegistrationStatusCards } from "../lib/city-detail-config";
 
 export function CityDetailPage() {
@@ -126,14 +124,6 @@ export function CityDetailPage() {
       <CityIntelligenceOverview
         {...detailConfig.overview}
       />
-
-      <StoryJourneyStrip
-        title={detailConfig.storyJourney.title}
-        subtitle={detailConfig.storyJourney.subtitle}
-        items={detailConfig.storyJourney.items}
-      />
-
-      <ScienceDemocratizationBanner />
 
       <CityAtlasShell
         cityName={cityName}

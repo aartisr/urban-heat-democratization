@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import sqlite3
 import threading
@@ -54,9 +55,23 @@ app = FastAPI(title="Urban Heat Democratization API")
 APP_STARTED_AT = time.time()
 _ACCESS_CONTROL = AccessControl.from_env()
 
+
+def cors_origins_from_env() -> list[str]:
+    """Return explicit browser origins; wildcard credentials are never valid."""
+    configured = os.getenv("UHD_CORS_ORIGINS", "")
+    if configured.strip():
+        return [origin.strip() for origin in configured.split(",") if origin.strip()]
+    # Local-first defaults. Production deployments must set UHD_CORS_ORIGINS.
+    return [
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://127.0.0.1:4173",
+        "http://localhost:4173",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins_from_env(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -2841,7 +2856,11 @@ async def artifact_download(artifact_id: str):
     path = _artifact_path_by_id(artifact_id)
     if path is None:
         raise HTTPException(status_code=404, detail="Artifact not found")
-    return FileResponse(path, filename=path.name)
+    return FileResponse(
+        path,
+        filename=path.name,
+        headers={"cache-control": "public, max-age=3600"},
+    )
 
 
 @app.get("/api/v1/robustness/lab", response_model=RobustnessLabResponse)
