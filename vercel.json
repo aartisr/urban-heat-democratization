@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
   "buildCommand": "cd web && npm ci && npm run build",
   "outputDirectory": "web/dist",
   "functions": {
@@ -11,7 +12,7 @@
   },
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/api/:path*",
       "destination": "/api/main.py"
     },
     {

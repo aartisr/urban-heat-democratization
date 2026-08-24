@@ -32,6 +32,8 @@ that serverless scratch state is a persistent research record.
 2. Set the Vercel project **Root Directory** to the repository root. Do not set
    it to `web/`: the API, data, and `vercel.json` live at the root.
 3. Vercel reads the committed configuration:
+   - framework: Vite, explicitly selected so `/` is served by the static web
+     application rather than being inferred as a FastAPI-only project;
    - build command: `cd web && npm ci && npm run build`
    - static output: `web/dist`
    - Python entry point: `api/main.py`; its targeted `includeFiles` glob keeps
