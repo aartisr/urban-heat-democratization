@@ -34,7 +34,10 @@ that serverless scratch state is a persistent research record.
 3. Vercel reads the committed configuration:
    - build command: `cd web && npm ci && npm run build`
    - static output: `web/dist`
-   - Python entry point: `api/main.py`
+   - Python entry point: `api/main.py`; its single `includeFiles` glob keeps
+     runtime-read research assets in the function bundle while `.vercelignore`
+     excludes caches, local environments, frontend dependencies, and mutable
+     runtime files.
    - API routing: `/api/*`
    - SPA fallback: every non-API route resolves to `index.html`, including
    direct links such as `/cities/boston`.
