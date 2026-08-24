@@ -10,7 +10,7 @@ The analysis uses the same raster graph as the Cheeger layer. Each edge has cond
 
 ## Cooling sinks
 
-The pipeline identifies candidate cooling sinks from the overlap of relatively green and relatively cool cells. A zero-cost super-sink is connected to every identified cooling sink. This selective rule prevents the map from treating most of the city as a sink and collapsing access into a binary label.
+When NDVI is supplied, the pipeline defines candidate cooling sinks as valid cells at or above the 95th percentile of normalized NDVI. Without NDVI, it uses the coolest 5% of valid normalized LST cells. A zero-cost super-sink is connected to every selected sink. This is an explicit proxy rule: it does **not** establish that a cell is publicly accessible, shaded at a particular time, or a cooling center.
 
 ## Access score
 
@@ -18,7 +18,7 @@ For each cell `i`, Dijkstra's algorithm finds the least accumulated network cost
 
 `cooling_access(i) = normalize(-d(i, sink))`.
 
-Thus higher values mean easier modeled access. The map inverts that display into a **relative constraint score**: higher constraint means lower modeled access. The full 0–100 surface is ranked within this layer only; it is not combined with Cheeger priority, observed temperature, or a funding recommendation.
+Thus higher values mean easier modeled access. The exported implementation retains the legacy filename `resistance_proxy`, but the **returned 0–100 value is an access score**, not a resistance value: higher score means lower least-cost distance. The map may display the inverse as a relative constraint score, where higher constraint means lower modeled access. The surface is ranked within this layer only; it is not combined with Cheeger priority, observed temperature, or a funding recommendation.
 
 Cells can tie when the graph gives them the same modeled least-resistance path. A tie is shown as a tie, not broken with an invented secondary score.
 
