@@ -10,6 +10,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "build:seo": "node ../scripts/build-github-pages.mjs",
+    "indexnow": "node ../scripts/submit-indexnow.mjs",
     "check:lockfile": "node scripts/check-lockfile-registry.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",
     "check:contrast": "node scripts/check-contrast-tokens.mjs",
