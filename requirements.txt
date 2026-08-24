@@ -9,4 +9,6 @@ uvicorn[standard]==0.27.1
 numpy==1.26.4
 scipy==1.11.4
 networkx==3.2.1
-pydantic==2.6.1
+# 2.6.1 pins pydantic-core 2.16.2, which has no compatible wheel for current
+# Vercel Python builders and falls back to a failing Rust source build.
+pydantic==2.13.4
