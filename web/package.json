@@ -7,6 +7,7 @@
     "build": "tsc --noEmit && vite build",
     "build:seo": "node ../scripts/build-github-pages.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",
+    "check:contrast": "node scripts/check-contrast-tokens.mjs",
     "preview": "vite preview",
     "test": "vitest run src",
     "test:e2e": "playwright test",
@@ -24,6 +25,7 @@
     "@tanstack/react-table": "^8.20.5",
     "katex": "^0.17.0",
     "maplibre-gl": "^5.24.0",
+    "posthog-js": "^1.418.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-katex": "^3.1.0"

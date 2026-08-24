@@ -312,4 +312,3 @@ Not just a graph theory demo.
 
 A decision studio for urban cooling, designed so that a student, a planner,
 and a researcher can all look at the same city and understand what to do next.
-

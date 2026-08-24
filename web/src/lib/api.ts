@@ -1,8 +1,10 @@
 import type { ArtifactRecord, AuthSession, BenchmarkSuite, BundledPackage, CityDataRegistration, CityExperience, CityLiveThermalAdapter, CityMapData, CityOnboardingInput, CityOnboardingResult, CityProfile, CitySpectral, CostSource, InterventionRecord, PackageValidation, PlannerValidation, PlanningMode, PlanningReadiness, RobustnessLab, RunDetail, RunRecord, ScenarioRecord, TrustAudit, WorkspaceMembership } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
-const API_TIMEOUT_MS = 12000;
-const MAX_RETRIES = 2;
+// Keep the app responsive when a local or remote service is unavailable.
+// A single, brief retry catches transient failures without trapping people on a spinner.
+const API_TIMEOUT_MS = 8000;
+const MAX_RETRIES = 1;
 const RETRYABLE_STATUS = new Set([408, 425, 429, 500, 502, 503, 504]);
 const API_KEY_STORAGE_KEY = "uhd.api-key";
 const WORKSPACE_STORAGE_KEY = "uhd.workspace-id";
@@ -119,7 +121,7 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
           body = null;
         }
         if (shouldRetry(method, response.status, attempt)) {
-          await sleep(150 * (attempt + 1));
+          await sleep(120 * (attempt + 1));
           continue;
         }
         throw new ApiError(
@@ -136,7 +138,7 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
       const normalized = error instanceof Error ? error : new Error("Unknown fetch error");
       if (shouldRetry(method, normalized, attempt)) {
         lastError = normalized;
-        await sleep(150 * (attempt + 1));
+        await sleep(120 * (attempt + 1));
         continue;
       }
       throw normalized;

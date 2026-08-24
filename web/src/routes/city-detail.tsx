@@ -6,6 +6,7 @@ import { artifactDownloadUrl, getCity, getCityDataRegistration, getCityExperienc
 import { CityAtlasShell } from "../components/city-atlas-shell";
 import { CityDetailSectionGrid } from "../components/city-detail-section-grid";
 import { CityIntelligenceOverview } from "../components/city-intelligence-overview";
+import { CityScienceSpotlight } from "../components/city-science-spotlight";
 import { buildCityDetailViewConfig, buildRegistrationStatusCards } from "../lib/city-detail-config";
 
 export function CityDetailPage() {
@@ -103,6 +104,13 @@ export function CityDetailPage() {
   });
   const registrationStatusCards = buildRegistrationStatusCards(cityDataRegistrationQuery.data);
 
+  const openAtlas = () => {
+    setAtlasActivated(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById("city-atlas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  };
+
   useEffect(() => {
     if (!cityDataRegistrationQuery.data) {
       return;
@@ -123,6 +131,7 @@ export function CityDetailPage() {
     <section className="page-stack city-detail-page">
       <CityIntelligenceOverview
         {...detailConfig.overview}
+        onOpenAtlas={openAtlas}
       />
 
       <CityAtlasShell
@@ -132,11 +141,19 @@ export function CityDetailPage() {
         loading={cityMapQuery.isLoading}
         summary={cityMapQuery.data?.narrative ?? citySpectralQuery.data?.summary ?? "Open the atlas to inspect bottlenecks, cooling gaps, and study-layer evidence."}
         onActivate={() => setAtlasActivated(true)}
+        forceActivated={atlasActivated}
         onMapRefresh={() => {
           void cityMapQuery.refetch();
           void cityLiveThermalQuery.refetch();
           void cityTrustAuditQuery.refetch();
         }}
+      />
+
+      <CityScienceSpotlight
+        cityName={cityName}
+        spectral={citySpectralQuery.data}
+        robustness={robustnessQuery.data}
+        trustAudit={cityTrustAuditQuery.data}
       />
 
       {cityMapQuery.data ? (
@@ -155,18 +172,23 @@ export function CityDetailPage() {
                 ...card,
                 children: (
                   <div className="quick-links">
-                    <Link to="/scenarios" search={detailConfig.scenarioSearch} className="button-link">Build what-if</Link>
-                    <Link to="/exports" className="button-link secondary">Export bundle</Link>
-                    <Link to="/runs" className="button-link secondary">Inspect runs</Link>
-                    <Link to="/cities" className="button-link secondary">Back to cities</Link>
-                    <button
-                      className="button-link secondary"
-                      type="button"
-                      onClick={() => queueRunMutation.mutate()}
-                      disabled={queueRunMutation.isPending}
-                    >
-                      {queueRunMutation.isPending ? "Queuing..." : "Queue baseline run"}
-                    </button>
+                    <Link to="/scenarios" search={detailConfig.scenarioSearch} preload="intent" className="button-link">Build a what-if</Link>
+                    <details className="city-secondary-actions">
+                      <summary>More ways to work with this city</summary>
+                      <div className="quick-links">
+                        <Link to="/exports" preload="intent" className="button-link secondary">Export evidence</Link>
+                        <Link to="/runs" preload="intent" className="button-link secondary">Inspect runs</Link>
+                        <Link to="/cities" preload="intent" className="button-link secondary">Back to cities</Link>
+                        <button
+                          className="button-link secondary"
+                          type="button"
+                          onClick={() => queueRunMutation.mutate()}
+                          disabled={queueRunMutation.isPending}
+                        >
+                          {queueRunMutation.isPending ? "Queuing…" : "Queue a baseline run"}
+                        </button>
+                      </div>
+                    </details>
                   </div>
                 ),
               }

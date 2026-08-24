@@ -58,55 +58,35 @@ export function AccessWorkspaceSwitcher() {
   });
 
   return (
-    <div className="access-switcher">
+    <details className="access-switcher">
       <div className="access-switcher-head">
-        <strong>Workspace Access</strong>
-        <span>{authSessionQuery.data?.displayName ?? "Guest session"}</span>
+        <summary>Workspace access</summary>
+        <span>{authSessionQuery.data?.displayName ?? "Guest"}</span>
       </div>
-
-      <label>
-        API key
-        <input
-          value={apiKey}
-          onChange={(event) => setApiKey(event.target.value)}
-          placeholder="demo-admin"
-          spellCheck={false}
-        />
-      </label>
-
-      <label>
-        Workspace
-        <input
-          value={workspaceId}
-          onChange={(event) => setWorkspaceId(event.target.value)}
-          placeholder="default"
-          spellCheck={false}
-        />
-      </label>
-
-      <div className="access-switcher-actions">
-        <button type="button" className="button-link secondary" onClick={() => applyMutation.mutate()} disabled={applyMutation.isPending}>
-          {applyMutation.isPending ? "Applying..." : "Apply"}
-        </button>
-        <button type="button" className="button-link secondary" onClick={() => clearMutation.mutate()} disabled={clearMutation.isPending}>
-          {clearMutation.isPending ? "Clearing..." : "Clear"}
-        </button>
-      </div>
-
-      <div className="access-switcher-meta">
-        <span>Auth {authSessionQuery.data?.authEnforced ? "enforced" : "optional"}</span>
-        <span>Role {authSessionQuery.data?.memberships.find((entry) => entry.id === (workspaceId || "default"))?.role ?? "n/a"}</span>
-      </div>
-
-      {workspacesQuery.data?.length ? (
-        <div className="access-switcher-workspaces">
-          {workspacesQuery.data.map((workspace) => (
-            <span key={workspace.id} className="premium-badge">{workspace.id}: {workspace.role}</span>
-          ))}
+      <div className="access-switcher-content">
+        <label>
+          API key
+          <input value={apiKey} onChange={(event) => setApiKey(event.target.value)} placeholder="demo-admin" spellCheck={false} />
+        </label>
+        <label>
+          Workspace
+          <input value={workspaceId} onChange={(event) => setWorkspaceId(event.target.value)} placeholder="default" spellCheck={false} />
+        </label>
+        <div className="access-switcher-actions">
+          <button type="button" className="button-link secondary" onClick={() => applyMutation.mutate()} disabled={applyMutation.isPending}>{applyMutation.isPending ? "Applying..." : "Apply"}</button>
+          <button type="button" className="button-link secondary" onClick={() => clearMutation.mutate()} disabled={clearMutation.isPending}>{clearMutation.isPending ? "Clearing..." : "Clear"}</button>
         </div>
-      ) : null}
-
-      {statusMessage ? <p className="muted access-switcher-status">{statusMessage}</p> : null}
-    </div>
+        <div className="access-switcher-meta">
+          <span>Auth {authSessionQuery.data?.authEnforced ? "enforced" : "optional"}</span>
+          <span>Role {authSessionQuery.data?.memberships.find((entry) => entry.id === (workspaceId || "default"))?.role ?? "n/a"}</span>
+        </div>
+        {workspacesQuery.data?.length ? (
+          <div className="access-switcher-workspaces">
+            {workspacesQuery.data.map((workspace) => <span key={workspace.id} className="premium-badge">{workspace.id}: {workspace.role}</span>)}
+          </div>
+        ) : null}
+        {statusMessage ? <p className="muted access-switcher-status">{statusMessage}</p> : null}
+      </div>
+    </details>
   );
 }

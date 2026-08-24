@@ -59,3 +59,7 @@ A structured, benchmark-based what-if comparison of interventions, budgets, and 
 ## Spectral analysis
 
 A family of mathematical techniques that uses properties of a graph or matrix to characterize structure such as partitions and weak connectivity.
+
+## Put the terms to work
+
+The definitions above are designed to travel with the experience. Open the [Urban Heat Democratization platform](https://ai-aarti.com/), inspect the [Boston study](https://ai-aarti.com/cities/boston), and use [scenarios](https://ai-aarti.com/scenarios) with this glossary nearby whenever a technical term needs a plain-language check.

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { ScienceDemocratizationBanner } from "../components/science-democratization-banner";
 import { StoryJourneyStrip } from "../components/story-journey-strip";
+import { WorkflowHeader } from "../components/workflow-header";
 import { getRobustnessLab } from "../lib/api";
 
 function Bar({ value, color }: { value: number; color: string }) {
@@ -18,14 +19,17 @@ export function RobustnessPage() {
   const data = robustnessQuery.data;
 
   return (
-    <section className="page-stack">
-      <header className="section-heading">
-        <div>
-          <div className="eyebrow">Robustness lab</div>
-          <h1>See the percolation and reliability math in a real demo.</h1>
-        </div>
-        <p>{data?.summary ?? "This page will show the toy robustness lab once the API loads."}</p>
-      </header>
+    <section className="page-stack robustness-page">
+      <WorkflowHeader
+        eyebrow="Robustness lab"
+        title="See the percolation and reliability math in a transparent demonstration."
+        description={data?.summary ?? "This laboratory uses a synthetic network to explain the model mechanics. It is not a measured city outcome, a forecast, or an intervention guarantee."}
+      />
+
+      <aside className="honesty-callout" aria-label="How to read this laboratory">
+        <strong>How to read this</strong>
+        <span>This is a synthetic teaching model. It illustrates how metrics move under defined conditions; it does not establish a result for Boston or any other city.</span>
+      </aside>
 
       <StoryJourneyStrip
         title="Robustness proof narrative"

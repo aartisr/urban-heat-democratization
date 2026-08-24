@@ -1,6 +1,6 @@
 # City Page Pattern Synthesis
 
-This note captures the design direction for a generic bundled-city page in `urban_heat_democratization`.
+This note captures the design direction for a generic bundled-city page in Urban Heat Democratization.
 
 ## Goal
 

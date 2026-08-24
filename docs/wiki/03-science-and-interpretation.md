@@ -42,3 +42,7 @@ Before sharing an output as a finding, use this sequence:
 The current system cannot determine an individual’s health risk, prove that a specific investment will reduce a city’s temperature by a stated amount, or establish that one intervention is equitable without locally appropriate data and partnership. It cannot replace public-health surveillance, environmental review, engineering design, procurement, or community consent.
 
 Those are not footnotes. They are the conditions that keep a useful analytical tool from becoming a misleading authority.
+
+## Explore the science with the evidence beside it
+
+The [Boston study](https://ai-aarti.com/cities/boston) makes the bundled overlays inspectable. The [scenario workspace](https://ai-aarti.com/scenarios) presents the project’s mathematical and planning reasoning as a guided exploration; use both alongside this interpretation guide.

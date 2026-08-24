@@ -1,6 +1,6 @@
 # Boston Study Guide
 
-Boston is the flagship example city in `urban_heat_democratization`.
+Boston is the flagship example city in Urban Heat Democratization.
 
 This guide is meant for educators, planners, students, researchers, and community advocates who want one concrete city they can study end to end without guessing where to begin.
 
