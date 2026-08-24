@@ -2503,9 +2503,9 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           type: "line",
           source: fillSourceId,
           paint: {
-            "line-color": "rgba(255,255,255,0.28)",
-            "line-width": 0.45,
-            "line-opacity": 0.72,
+            "line-color": "rgba(15, 23, 42, 0.34)",
+            "line-width": 0.55,
+            "line-opacity": 0.7,
           },
         });
         map.addSource(corridorSourceId, {
@@ -2518,7 +2518,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           source: corridorSourceId,
           paint: {
             "fill-color": theme.corridor,
-            "fill-opacity": 0.18,
+            "fill-opacity": 0.38,
           },
         });
         map.addLayer({
@@ -2527,7 +2527,8 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           source: corridorSourceId,
           paint: {
             "line-color": theme.corridor,
-            "line-width": 0.9,
+            "line-width": 1.3,
+            "line-opacity": 0.92,
           },
         });
       }
@@ -3223,6 +3224,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const chooseMapLens = (lens: Exclude<MapLens, "custom">) => {
     setMapLens(lens);
     setShowStudyArea(true);
+    // A lens is a decision, not another modal step. Once a person chooses one,
+    // return their attention to the map so the changed evidence is immediately
+    // visible—particularly on phones, where the tray otherwise covers most of it.
+    setFullPageLayerTrayOpen(false);
     if (lens === "priority") {
       setShowHeat(true);
       setShowCooling(true);
@@ -3237,6 +3242,11 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       setShowThermalSurface(true);
       setShowThermalCorridors(true);
       setShowScenarioInterventions(false);
+      // The former default was intentionally subtle, but it made a full-city
+      // thermal study easy to mistake for an unchanged basemap. Preserve a
+      // user's stronger setting while ensuring this explicit evidence view is
+      // legible at a glance.
+      setThermalOpacity((current) => Math.max(current, 0.32));
       return;
     }
     setShowHeat(true);

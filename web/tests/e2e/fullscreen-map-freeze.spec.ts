@@ -489,6 +489,14 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
   await page.getByRole("button", { name: "Layers & evidence" }).click();
   await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toBeVisible({ timeout: 10_000 });
 
+  await page.getByRole("button", { name: /What does the satellite see\?/ }).click();
+  await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toHaveCount(0, { timeout: 10_000 });
+  await expect(page.getByRole("button", { name: "Observed heat" })).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator(".maplibre-stage canvas")).toBeVisible({ timeout: 10_000 });
+
+  await page.getByRole("button", { name: "Observed heat" }).click();
+  await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toBeVisible({ timeout: 10_000 });
+
   await page.keyboard.press("Escape");
   await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toHaveCount(0, { timeout: 10_000 });
   await expect(page.locator("article.map-card-fullpage")).toBeVisible();
