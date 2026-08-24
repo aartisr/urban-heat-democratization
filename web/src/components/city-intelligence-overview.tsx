@@ -64,15 +64,10 @@ export function CityIntelligenceOverview({
   heroMetrics,
   liveCue,
   journeyCards,
-  whyTitle,
-  whyBody,
-  whyCards,
-  nextTitle,
-  nextBody,
-  nextCards,
   nextAction,
   onOpenAtlas,
 }: CityIntelligenceOverviewProps) {
+  const primaryJourney = journeyCards.slice(0, 3);
   return (
     <>
       <header className="hero-card city-hero premium-city-hero">
@@ -120,59 +115,24 @@ export function CityIntelligenceOverview({
         </div>
       </header>
 
-      <section className="city-value-brief" aria-labelledby="city-value-title">
-        <div className="city-value-brief-intro">
-          <span className="eyebrow">Why this city matters</span>
-          <h2 id="city-value-title">From a city-wide signal to a clear next conversation.</h2>
-          <p>Start with one visible pattern. Then decide whether to inspect the evidence, compare a budget, or bring the story into a meeting.</p>
-        </div>
-        <div className="city-value-brief-steps">
-          {journeyCards.map((card) => (
-            <article key={card.title} className="city-value-step">
+      <nav className="city-journey-nav" aria-label="How to use this city page">
+        {primaryJourney.map((card, index) => {
+          const action = index === 0
+            ? <button type="button" onClick={onOpenAtlas}>Open the atlas</button>
+            : index === 1
+              ? <a href="#evidence">Read the evidence</a>
+              : nextAction
+                ? <Link to={nextAction.to} search={nextAction.search}>Test a scenario</Link>
+                : null;
+          return (
+            <div key={card.title} className="city-journey-nav-step">
               <span>{card.eyebrow}</span>
-              <h3>{card.title}</h3>
-              <p>{card.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <details className="progressive-details panel-card premium-section-card">
-        <summary>Understand the evidence behind this city</summary>
-        <div className="progressive-details-content">
-          <div className="journey-grid">
-            {journeyCards.map((card) => (
-              <div key={card.title} className="panel-card nested-card journey-card premium-journey-card">
-                <div className="eyebrow">{card.eyebrow}</div>
-                <h3>{card.title}</h3>
-                <p>{card.description}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="panel-grid two-col">
-            <article className="panel-card premium-section-card">
-              <h2>{whyTitle}</h2>
-              <p>{whyBody}</p>
-              <div className="info-list">
-                {whyCards.map((card) => <div key={card.title}><strong>{card.title}</strong><span>{card.body}</span></div>)}
-              </div>
-            </article>
-            <article className="panel-card premium-section-card">
-              <h2>{nextTitle}</h2>
-              <p>{nextBody}</p>
-              <div className="info-list">
-                {nextCards.map((card) => <div key={card.title}><strong>{card.title}</strong><span>{card.body}</span></div>)}
-              </div>
-              {nextAction ? (
-                <div className="quick-links">
-                  <Link to={nextAction.to} search={nextAction.search} className={nextAction.className ?? "button-link"}>{nextAction.label}</Link>
-                </div>
-              ) : null}
-            </article>
-          </div>
-        </div>
-      </details>
+              <div><strong>{card.title}</strong><p>{card.description}</p></div>
+              {action}
+            </div>
+          );
+        })}
+      </nav>
     </>
   );
 }

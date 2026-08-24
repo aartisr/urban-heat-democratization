@@ -9367,6 +9367,50 @@ summary:focus-visible,
   box-shadow: 0 24px 64px rgba(4, 39, 53, 0.18);
 }
 
+/* City Detail: one visible next step per stage keeps the page calm and scannable. */
+.city-journey-nav {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--surface) 92%, #dff7f0);
+  box-shadow: var(--shadow-soft);
+}
+
+.city-journey-nav-step {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--surface-raised);
+}
+
+.city-journey-nav-step > span {
+  color: var(--brand-strong);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.city-journey-nav-step strong { color: var(--ink-strong); }
+.city-journey-nav-step p { margin: 4px 0 0; color: var(--ink-muted); font-size: 14px; line-height: 1.45; }
+.city-journey-nav-step :is(button, a) {
+  width: fit-content;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--brand-strong);
+  font: inherit;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+.city-journey-nav-step :is(button, a):hover { color: var(--ink-strong); text-decoration: underline; }
+
 .city-value-brief .eyebrow { color: #f5d985; }
 .city-value-brief h2 { margin: 8px 0 12px; color: #fff; font-size: clamp(28px, 3vw, 44px); line-height: 1.04; text-wrap: balance; }
 .city-value-brief-intro > p { margin: 0; color: rgba(236, 250, 246, 0.86); line-height: 1.6; }
@@ -9455,6 +9499,10 @@ summary:focus-visible,
 }
 
 @media (max-width: 720px) {
+  .city-journey-nav { grid-template-columns: 1fr; padding: 8px; border-radius: 16px; }
+  .city-journey-nav-step { grid-template-columns: auto 1fr; align-items: start; padding: 14px; }
+  .city-journey-nav-step > span { grid-column: 1 / -1; }
+  .city-journey-nav-step :is(button, a) { grid-column: 2; }
   .city-value-brief, .city-science-spotlight { padding: 22px 18px; border-radius: 20px; }
   .city-value-brief-steps { grid-template-columns: 1fr; }
   .city-science-spotlight h2 { font-size: clamp(32px, 11vw, 46px); }
