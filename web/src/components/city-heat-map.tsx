@@ -3256,6 +3256,11 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     setShowScenarioInterventions(true);
   };
 
+  const openFocusedMap = (lens: Exclude<MapLens, "custom">) => {
+    chooseMapLens(lens);
+    setFullPageMap(true);
+  };
+
   return (
     <article className={`panel-card map-card map-card-geographic${fullPageMap ? " map-card-fullpage" : ""}`}>
       {fullPageMap ? (
@@ -3375,6 +3380,30 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
       <div className={`map-layout ${shellCollapsed ? "map-layout-shell-collapsed" : ""}${fullPageMap ? " map-layout-fullpage" : ""}`}>
         <div className={`map-main-column ${shellCollapsed ? "map-main-column-shell-collapsed" : ""}${fullPageMap ? " map-main-column-fullpage" : ""}`}>
+          <section className="map-mobile-launchpad" aria-label="Explore the city map">
+            <div>
+              <p className="map-mobile-launchpad-kicker">Explore the map</p>
+              <h3>Start with one clear question.</h3>
+              <p>The map opens first. Details appear only when you ask for them.</p>
+            </div>
+            <div className="map-mobile-lens-actions">
+              <button type="button" className="map-mobile-lens is-priority" onClick={() => openFocusedMap("priority")}>
+                <span aria-hidden="true">1</span>
+                <strong>Where is help needed?</strong>
+                <small>Heat priorities and cooling gaps</small>
+              </button>
+              <button type="button" className="map-mobile-lens is-evidence" onClick={() => openFocusedMap("evidence")}>
+                <span aria-hidden="true">2</span>
+                <strong>What does the satellite see?</strong>
+                <small>Observed surface heat and corridors</small>
+              </button>
+              <button type="button" className="map-mobile-lens is-action" onClick={() => openFocusedMap("action")}>
+                <span aria-hidden="true">3</span>
+                <strong>What could improve it?</strong>
+                <small>Priorities with possible actions</small>
+              </button>
+            </div>
+          </section>
           <div className="map-inline-controls">
             <div className="map-toolbar map-toolbar-inline">
               <div className="map-control-group">
