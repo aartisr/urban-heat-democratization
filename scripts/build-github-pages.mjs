@@ -137,6 +137,7 @@ await copyFile(resolve(root, "docs/wiki/assets/cheeger-cut-walkthrough.svg"), re
 await writeFile(resolve(out, ".nojekyll"), "");
 await copyFile(resolve(root, "web/public/UHD-INDEXNOW-2026-AARTI-7F3C9D2E5B8A1C4D.txt"), resolve(out, "UHD-INDEXNOW-2026-AARTI-7F3C9D2E5B8A1C4D.txt"));
 await copyFile(resolve(root, "web/public/BingSiteAuth.xml"), resolve(out, "BingSiteAuth.xml"));
+await copyFile(resolve(root, "web/public/google7801621f642d3e9c.html"), resolve(out, "google7801621f642d3e9c.html"));
 await writeFile(resolve(out, "assets/field-guide.css"), `${css}.process-figure{margin:2rem 0}.process-figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:1rem;background:#f6f7f1}.process-figure figcaption{margin-top:.7rem;color:var(--muted);font-size:.86rem}`);
 await writeFile(resolve(out, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${pages}sitemap.xml\n`);
 await writeFile(resolve(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${[...guides.map((page) => absolute(page.slug)), ...wikiArticles.map((article) => `${wikiHome}${article.slug ? `${article.slug}/` : ""}`)].map((url) => `<url><loc>${url}</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>`).join("")}</urlset>\n`);
