@@ -56,6 +56,11 @@ research runs, raster exports, and tests use `requirements-research.txt`, so
 their large optional geospatial and visualization dependencies do not inflate
 the public serverless bundle.
 
+The runtime pins a current Pydantic 2 release so Vercel can install its
+prebuilt `pydantic-core` wheel. Do not downgrade it to Pydantic 2.6.x: that
+series can trigger an unsupported source build on current Vercel Python
+builders.
+
 ## Required environment variables
 
 Set these in Vercel for Production, Preview, and Development as appropriate:
