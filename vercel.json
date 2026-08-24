@@ -4,14 +4,7 @@
   "outputDirectory": "web/dist",
   "functions": {
     "api/main.py": {
-      "includeFiles": [
-        "api/**",
-        "core/**",
-        "data/**",
-        "docs/**",
-        "01_master_plan.md",
-        "03_phase_roadmap.md"
-      ],
+      "includeFiles": "**/*",
       "maxDuration": 60
     }
   },
