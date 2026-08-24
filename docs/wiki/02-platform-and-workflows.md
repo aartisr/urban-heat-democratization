@@ -48,4 +48,6 @@ The platform can asynchronously refresh configured, city-ready thermal adapter p
 
 ## Open the living workflow
 
-Go directly to the [Urban Heat Democratization platform](https://ai-aarti.com/) to follow this sequence. Start with the [Boston atlas](https://ai-aarti.com/cities/boston), then move to [transparent scenarios](https://ai-aarti.com/scenarios) only after you have inspected the evidence and limits.
+Go directly to the [Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/) to follow this sequence. Start with the [Boston atlas](https://urban-heat.ai-aarti.com/cities/boston), then move to [transparent scenarios](https://urban-heat.ai-aarti.com/scenarios) only after you have inspected the evidence and limits.
+
+*Authored by [Aarti S Ravikumar](https://ai-aarti.com).*

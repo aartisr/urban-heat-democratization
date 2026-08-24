@@ -1,7 +1,7 @@
 /* TEAM */
 Creator: Aarti S Ravikumar
 Project: Urban Heat Democratization
-Site: https://ai-aarti.com/
+Site: https://urban-heat.ai-aarti.com/
 Repository: https://github.com/aartisr/urban-heat-democratization
 
 /* PURPOSE */

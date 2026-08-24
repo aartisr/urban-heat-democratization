@@ -46,4 +46,6 @@ The aspiration is a world in which a resident does not need privileged access to
 
 ## Continue in the workspace
 
-See these principles in action in the [Urban Heat Democratization platform](https://ai-aarti.com/). The [Boston study](https://ai-aarti.com/cities/boston) is the best place to begin with a real bundled city, and the [scenario workspace](https://ai-aarti.com/scenarios) makes tradeoffs available for inspection.
+See these principles in action in the [Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/). The [Boston study](https://urban-heat.ai-aarti.com/cities/boston) is the best place to begin with a real bundled city, and the [scenario workspace](https://urban-heat.ai-aarti.com/scenarios) makes tradeoffs available for inspection.
+
+*Authored by [Aarti S Ravikumar](https://ai-aarti.com).*
