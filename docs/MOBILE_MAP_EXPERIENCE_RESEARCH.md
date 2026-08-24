@@ -2,13 +2,13 @@
 
 ## Decision
 
-The mobile atlas uses **question-led map lenses** rather than exposing every technical layer at once.
+The mobile atlas uses a **map-first, question-led entry** rather than exposing every technical layer and dashboard panel at once.
 
 1. **Where is help needed?** — priority and cooling-gap analysis.
 2. **What does the satellite see?** — observed surface heat and corridors.
 3. **What could improve it?** — priorities and proposed actions.
 
-Each lens is a deliberate, reversible view. Fine-grained layer controls remain available under **Fine-tune individual layers**. This preserves research capability without making every visitor learn the layer model before they can read the map.
+Each lens is a deliberate, reversible view. On a phone, choosing a question opens the focused map immediately; the surrounding dashboard is not placed in the scrolling path. Fine-grained layer controls remain available under **Fine-tune individual layers**, and detailed scientific material remains under **Research details & sources**. This preserves research capability without making every visitor learn the layer model before they can read the map.
 
 ## Comparative reference set
 
@@ -34,7 +34,8 @@ This is a representative reference set, not a claim that these are the universal
 ## Implemented experience
 
 - **Calm default:** the initial map shows the decision-facing priority lens, not every available overlay.
-- **One choice, three outcomes:** a person can enter the layer experience by choosing a question in plain language, with a short evidence description underneath.
+- **One choice, three outcomes:** on a phone, a compact entry card asks a person to choose one plain-language question, then opens the focused map directly.
+- **Map before dashboard:** the embedded mobile preview intentionally omits the long analysis dock, control rail, and metric strip. The map remains visible and interactive; deeper material is available only from the focused map.
 - **Visible state:** the compact map button names the active lens, so a demo facilitator and a first-time visitor can immediately explain what the map shows.
 - **Power without clutter:** the existing six individual layers stay available in a native disclosure element. Changing one marks the view as **Custom** instead of pretending it is still a preset.
 - **Touch safety:** lens cards are large, separated controls; mobile fine-tune controls stack in one column rather than compressing labels into two narrow columns.
@@ -42,8 +43,8 @@ This is a representative reference set, not a claim that these are the universal
 
 ## Validation checklist
 
-1. On a narrow phone, open **Full page map** and ensure the priority lens is readable without opening controls.
+1. On a narrow phone, choose each of the three questions from the compact entry card; each choice must open the focused map without a long intermediate scroll.
 2. Open the current-view button and switch among all three lenses. The map should update immediately and the button label should change.
 3. Open **Fine-tune individual layers**, toggle one layer, and confirm the button reads **Custom view**.
-4. Verify every primary control is usable with a thumb and the map remains visible while the sheet is open.
+4. Verify every primary control is usable with a thumb and the map remains visible after a question is chosen.
 5. Test portrait, landscape, Chrome Android, Safari iPhone, keyboard navigation, and a screen reader before public release.

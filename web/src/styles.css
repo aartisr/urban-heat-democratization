@@ -2764,6 +2764,13 @@ th {
   max-width: 100%;
 }
 
+/* The embedded map is a desktop workbench. On phones, people begin with one
+   question and enter the focused map, rather than scrolling through the whole
+   workbench before they can understand what the map is for. */
+.map-mobile-launchpad {
+  display: none;
+}
+
 .map-stage {
   position: relative;
   border-radius: 22px;
@@ -2873,7 +2880,8 @@ body.map-fullpage-lock .sidebar-restore {
 .map-card-fullpage .map-header,
 .map-card-fullpage .truth-banner,
 .map-card-fullpage .map-analysis-dock,
-.map-card-fullpage .district-grid-inline {
+.map-card-fullpage .district-grid-inline,
+.map-card-fullpage .map-mobile-launchpad {
   display: none;
 }
 
@@ -8099,6 +8107,116 @@ body.map-fullpage-lock .sidebar-restore {
 
   .app-main {
     padding: 14px 12px 28px;
+  }
+
+  /* Mobile map flow: choose a question, then keep the map in view. The
+     supporting dashboard remains available from the focused map's Research
+     details control instead of becoming a long, competing page below it. */
+  .map-card:not(.map-card-fullpage) .map-mobile-launchpad {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid rgba(15, 118, 110, 0.16);
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(240, 253, 250, 0.94), rgba(239, 246, 255, 0.94));
+  }
+
+  .map-mobile-launchpad p,
+  .map-mobile-launchpad h3 {
+    margin: 0;
+  }
+
+  .map-mobile-launchpad h3 {
+    margin-top: 3px;
+    color: #10303e;
+    font-size: 20px;
+    line-height: 1.15;
+  }
+
+  .map-mobile-launchpad > div:first-child > p:last-child {
+    margin-top: 7px;
+    color: #49656f;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .map-mobile-launchpad-kicker {
+    color: #0f766e;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .map-mobile-lens-actions {
+    display: grid;
+    gap: 8px;
+  }
+
+  .map-mobile-lens {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    column-gap: 10px;
+    width: 100%;
+    min-height: 58px;
+    padding: 11px 12px;
+    border: 1px solid rgba(15, 118, 110, 0.18);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #10303e;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .map-mobile-lens > span {
+    grid-row: 1 / span 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #dff7f1;
+    color: #0f5d59;
+    font-size: 12px;
+    font-weight: 850;
+  }
+
+  .map-mobile-lens strong {
+    align-self: end;
+    font-size: 13px;
+    line-height: 1.2;
+  }
+
+  .map-mobile-lens small {
+    align-self: start;
+    margin-top: 3px;
+    color: #49656f;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .map-mobile-lens:focus-visible {
+    outline: 3px solid #0f766e;
+    outline-offset: 2px;
+  }
+
+  .map-mobile-lens.is-evidence > span { background: #ffedd5; color: #9a3412; }
+  .map-mobile-lens.is-action > span { background: #e0e7ff; color: #4338ca; }
+
+  .map-card:not(.map-card-fullpage) .map-inline-controls,
+  .map-card:not(.map-card-fullpage) .map-analysis-dock,
+  .map-card:not(.map-card-fullpage) .map-sidebar {
+    display: none;
+  }
+
+  .map-card:not(.map-card-fullpage) .map-stage-geographic {
+    min-height: min(48dvh, 360px);
+  }
+
+  .map-card:not(.map-card-fullpage) .maplibre-stage {
+    min-height: min(48dvh, 360px);
+    height: min(48dvh, 360px);
   }
 
   .map-card-fullpage {
