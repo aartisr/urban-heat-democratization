@@ -58,8 +58,9 @@ npm run check:performance
 formula and disclosure treatments. `check:performance` protects the lazy map
 boundary and route-size budgets; it does not make a claim about real-world
 network performance on every device. `check:lockfile` ensures the committed
-lockfile uses only the public npm registry, keeping contributor and deployment
-installs reproducible without depending on a private registry.
+lockfile uses only the public npm registry and includes declared optional
+cross-platform packages, keeping contributor and deployment installs
+reproducible without depending on a private registry.
 
 ## Notes
 

@@ -16,4 +16,19 @@ if (invalidEntries.length > 0) {
   process.exit(1);
 }
 
-console.log(`Lockfile registry check passed (${Object.keys(lockfile.packages ?? {}).length} packages).`);
+const packages = lockfile.packages ?? {};
+const missingOptionalEntries = Object.entries(packages).flatMap(([name, pkg]) =>
+  Object.keys(pkg?.optionalDependencies ?? {}).flatMap((dependency) =>
+    packages[`node_modules/${dependency}`]
+      ? []
+      : [`${name || "root"} -> ${dependency}`]
+  )
+);
+
+if (missingOptionalEntries.length > 0) {
+  console.error("package-lock.json is missing optional cross-platform packages:");
+  console.error(missingOptionalEntries.join("\n"));
+  process.exit(1);
+}
+
+console.log(`Lockfile registry and optional-package checks passed (${Object.keys(packages).length} packages).`);
