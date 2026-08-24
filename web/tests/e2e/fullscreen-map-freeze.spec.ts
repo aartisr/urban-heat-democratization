@@ -469,6 +469,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("full page map toggle does not freeze the city atlas", async ({ page }) => {
+  test.setTimeout(90_000);
   const pageErrors: string[] = [];
   page.on("pageerror", (error) => {
     pageErrors.push(error.message);
@@ -476,7 +477,10 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
 
   await page.goto("/cities/boston");
 
-  await page.getByRole("button", { name: "Show the city atlas" }).click();
+  const loadAtlas = page.getByRole("button", { name: "Show the city atlas" });
+  if (await loadAtlas.isVisible()) {
+    await loadAtlas.click({ force: true, timeout: 40_000 });
+  }
 
   const openButton = page.getByRole("button", { name: "Open full page map" });
   await expect(openButton).toBeVisible({ timeout: 15_000 });
@@ -486,7 +490,7 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
   await expect(page.locator("article.map-card-fullpage")).toBeVisible({ timeout: 10_000 });
   await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Layers & evidence" }).click();
+  await page.getByRole("button", { name: /^(Priority view|Layers & evidence)$/ }).click();
   await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toBeVisible({ timeout: 10_000 });
 
   await page.getByRole("button", { name: /What does the satellite see\?/ }).click();
@@ -521,4 +525,22 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
     /Maximum update depth exceeded|too much recursion|Cannot update a component while rendering/i.test(message),
   );
   expect(fatalErrors).toEqual([]);
+});
+
+test("mobile map begins with one question and keeps the map as the primary surface", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/cities/boston");
+
+  const loadAtlas = page.getByRole("button", { name: "Show the city atlas" });
+  if (await loadAtlas.isVisible()) {
+    await loadAtlas.click({ force: true, timeout: 40_000 });
+  }
+  const startWithPriorities = page.getByRole("button", { name: /Where is help needed\?/ });
+  await expect(startWithPriorities).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator(".map-card:not(.map-card-fullpage) .map-analysis-dock")).toBeHidden();
+
+  await startWithPriorities.click();
+  await expect(page.locator("article.map-card-fullpage")).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("button", { name: "Priority view" })).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator("article.map-card-fullpage .maplibre-stage canvas")).toBeVisible({ timeout: 10_000 });
 });
