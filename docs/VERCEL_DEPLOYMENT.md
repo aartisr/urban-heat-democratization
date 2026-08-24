@@ -50,6 +50,8 @@ Use Node.js 22 or newer for the Vercel build. The frontend package declares
 this requirement so the deployment uses a runtime supported by its resolved
 dependencies. The repository pins Python 3.12 in `.python-version`; this is
 the oldest Python version currently supported by Vercel's Python runtime.
+`pyproject.toml` repeats that requirement as `==3.12.*`, which makes the
+constraint explicit to Vercel's `uv` dependency resolver.
 
 The Vercel Function installs the lean `requirements.txt` runtime set. Local
 research runs, raster exports, and tests use `requirements-research.txt`, so
@@ -60,6 +62,11 @@ The runtime pins a current Pydantic 2 release so Vercel can install its
 prebuilt `pydantic-core` wheel. Do not downgrade it to Pydantic 2.6.x: that
 series can trigger an unsupported source build on current Vercel Python
 builders.
+
+If a Vercel log shows Meson or Cython compiling NumPy or SciPy, redeploy with
+**Use existing Build Cache** disabled. The checked-in Python 3.12 constraints
+resolve those packages to prebuilt Linux wheels; a source compile indicates a
+stale cache or an overridden project setting.
 
 ## Required environment variables
 
