@@ -32,13 +32,13 @@ export function RobustnessPage() {
       </aside>
 
       <StoryJourneyStrip
-        title="Robustness proof narrative"
-        subtitle="This lab explains why interventions are considered structurally meaningful by tracing graph metrics and percolation response."
+        title="Robustness demonstration narrative"
+        subtitle="This lab shows how graph metrics respond to a defined synthetic edge change; it does not validate an intervention in a city."
         items={[
           { label: "Baseline", detail: "Establish pre-intervention lambda2, conductance, and reliability values." },
           { label: "Intervene", detail: "Measure post-intervention shifts under the same synthetic network conditions." },
           { label: "Stress", detail: "Run percolation scans to evaluate degradation resilience." },
-          { label: "Interpret", detail: "Translate metric movement into planning-relevant robustness insights." },
+          { label: "Interpret", detail: "Translate metric movement into questions for local evidence and design review." },
         ]}
       />
 

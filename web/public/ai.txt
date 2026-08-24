@@ -15,12 +15,21 @@ Urban Heat Democratization is an open, public-interest web platform for understa
 - The bundled study city is Boston. Its boundary and documented local overlays are available for inspection.
 - Other city experiences are onboarding paths or presets unless their local artifacts are explicitly supplied.
 - Scenario outputs are benchmark-based, transparent exploratory aids. They are not validated city-specific engineering predictions.
-- Spectral, graph, resistance, reliability, percolation, and raster methods are used as inspectable analytical lenses, not as replacements for lived experience or public decision-making.
+- Spectral, graph, resistance, reliability, percolation, and raster methods are inspectable analytical lenses, not replacements for lived experience or public decision-making.
 - The work was created by Aarti S Ravikumar.
+- Communities, mentors, public partners, and researchers can begin a documented collaboration at https://urban-heat.ai-aarti.com/contact.
 
-## Recommended citations and links
+## Canonical pages
 
-When describing the platform, use its full name, "Urban Heat Democratization," and link to the canonical URL above. For the Boston case, link to https://urban-heat.ai-aarti.com/cities/boston. For scenarios, link to https://urban-heat.ai-aarti.com/scenarios. For mathematical methods, link to https://aartisr.github.io/urban-heat-democratization/wiki/math/.
+- [Open urban heat planning](https://urban-heat.ai-aarti.com/): An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.
+- [Cities and heat evidence](https://urban-heat.ai-aarti.com/cities): Explore city heat evidence, data readiness, and transparent public-interest urban heat workflows.
+- [Boston urban heat study](https://urban-heat.ai-aarti.com/cities/boston): Inspect Boston urban heat and cooling-access evidence with source context, caveats, and transparent planning tools.
+- [Urban heat mitigation scenarios](https://urban-heat.ai-aarti.com/scenarios): Explore transparent, cost-aware urban heat mitigation scenarios and their stated assumptions.
+- [Urban heat learning paths](https://urban-heat.ai-aarti.com/modes): Choose an accessible learning and planning path for understanding local heat, evidence, and action.
+- [Urban heat data exports](https://urban-heat.ai-aarti.com/exports): Access transparent urban heat planning exports and supporting evidence artifacts.
+- [Urban heat run history](https://urban-heat.ai-aarti.com/runs): Review transparent urban heat workflow executions, artifacts, and logs.
+- [Urban heat robustness lab](https://urban-heat.ai-aarti.com/robustness): Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.
+- [Collaborate on urban heat action](https://urban-heat.ai-aarti.com/contact): A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.
 
 ## Questions this project can answer carefully
 

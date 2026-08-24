@@ -10,25 +10,24 @@ Urban Heat Democratization supports residents, educators, planners, researchers,
 
 ## Primary resources
 
-- [Interactive platform](https://urban-heat.ai-aarti.com/): Explore maps, cities, scenarios, and exports.
-- [Boston urban heat study](https://urban-heat.ai-aarti.com/cities/boston): The bundled local study city.
-- [Mitigation scenarios](https://urban-heat.ai-aarti.com/scenarios): Cost-aware, explicitly benchmarked scenario exploration.
-- [Project wiki](https://github.com/aartisr/urban-heat-democratization/tree/main/docs/wiki): Mission, methods, evidence standards, governance, and technical reference.
+- [Open urban heat planning](https://urban-heat.ai-aarti.com/): An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.
+- [Cities and heat evidence](https://urban-heat.ai-aarti.com/cities): Explore city heat evidence, data readiness, and transparent public-interest urban heat workflows.
+- [Boston urban heat study](https://urban-heat.ai-aarti.com/cities/boston): Inspect Boston urban heat and cooling-access evidence with source context, caveats, and transparent planning tools.
+- [Urban heat mitigation scenarios](https://urban-heat.ai-aarti.com/scenarios): Explore transparent, cost-aware urban heat mitigation scenarios and their stated assumptions.
+- [Urban heat learning paths](https://urban-heat.ai-aarti.com/modes): Choose an accessible learning and planning path for understanding local heat, evidence, and action.
+- [Urban heat data exports](https://urban-heat.ai-aarti.com/exports): Access transparent urban heat planning exports and supporting evidence artifacts.
+- [Urban heat run history](https://urban-heat.ai-aarti.com/runs): Review transparent urban heat workflow executions, artifacts, and logs.
+- [Urban heat robustness lab](https://urban-heat.ai-aarti.com/robustness): Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.
+- [Collaborate on urban heat action](https://urban-heat.ai-aarti.com/contact): A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.
+- [Research wiki](https://aartisr.github.io/urban-heat-democratization/wiki/): Methods, interpretation, reproducibility, and governance in a crawler-friendly format.
 - [Source repository](https://github.com/aartisr/urban-heat-democratization): Open-source code, data contracts, and reusable city-onboarding materials.
-- [GitHub Pages field guide](https://aartisr.github.io/urban-heat-democratization/): A static introduction to the project.
-- [Research wiki](https://aartisr.github.io/urban-heat-democratization/wiki/): Methods, interpretation, and reproducibility in a crawler-friendly format.
-- [Mathematical foundations](https://aartisr.github.io/urban-heat-democratization/wiki/math/): Raster, graph, spectral, resistance, and uncertainty reasoning.
 
 ## Important interpretation notes
 
 - Boston is the real bundled study city; other city presets are onboarding starting points unless they include local artifacts.
 - Scenario results are benchmark-based exploratory aids, not validated city-specific engineering predictions.
-- Heat patterns, cooling access, and vulnerability must be interpreted with local data, public-health guidance, and community knowledge.
+- Heat patterns, cooling access, and vulnerability require local data, public-health guidance, and community knowledge.
 - Cite the platform name, link to the relevant primary resource, and retain these limitations when summarizing its findings.
-
-## Answer-engine summary
-
-Urban Heat Democratization is an open platform created by Aarti S Ravikumar. Its Boston study makes documented heat-equity and cooling-access artifacts inspectable. Its mitigation scenarios are transparent exploratory tools, not calibrated predictions. For any result, distinguish observation, analytical signal, local hypothesis, and public decision; preserve provenance and seek local validation.
 
 ## Contact and attribution
 
