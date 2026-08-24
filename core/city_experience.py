@@ -129,10 +129,10 @@ CITY_ARTIFACTS: dict[str, tuple[ArtifactSpec, ...]] = {
         ),
         ArtifactSpec(
             id="low-cooling-access",
-            name="Low cooling access overlay",
+            name="Cooling access surface",
             kind="geojson",
-            description="Real exported low cooling access polygons from the pipeline.",
-            relative_path="data/boston_research_low_cooling_access_zones.geojson",
+            description="Full exported cooling-access surface from the validated Boston pipeline; lower access means a higher access constraint.",
+            relative_path="data/boston_research_cooling_access_cells.geojson",
         ),
         ArtifactSpec(
             id="boston-study-guide",

@@ -560,7 +560,7 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
         access_overlays.append(
             {
                 "id": str(feature.get("id", f"cooling-{index}")),
-                "label": f"Low-access severity {score:.1f}",
+                "label": f"Cooling-access constraint {score:.1f}",
                 "score": score,
                 "scoreClass": str(properties.get("access_class", properties.get(spectral_bundle.cooling_score_class_key, "Unknown"))),
                 "points": _normalize_points(points, boundary_bounds),
@@ -590,7 +590,7 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
     display_bounds = _merge_bounds(heat_bounds, cooling_bounds, thermal_bounds) or boundary_bounds
     narrative = (
         f"{city_name}'s bundled analysis has {len(heat_overlays)} bottleneck cells, "
-        f"{len(access_overlays)} low-access zones, and "
+        f"{len(access_overlays)} cooling-access cells, and "
         f"{len(thermal_sources)} full thermal source surfaces available for study."
     )
 
@@ -603,7 +603,7 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
         "accessZones": access_overlays,
         "legend": [
             {"label": "Cheeger priority", "color": "#b91c1c", "description": "Actual bottleneck polygons exported by the spectral pipeline."},
-            {"label": "Low cooling access", "color": "#0ea5e9", "description": "Actual weak-access polygons exported by the pipeline."},
+            {"label": "Cooling-access constraint", "color": "#0ea5e9", "description": "A derived, relative constraint surface: higher values mean lower modeled access to inferred cooling sinks."},
             {"label": "Municipal boundary", "color": "#0f172a", "description": f"{city_name} boundary from the workspace GeoJSON file."},
         ],
         "highlights": [
@@ -644,7 +644,7 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
             "caution": "These thermal surfaces are source-backed study artifacts, not live streaming feeds. They should be read as the currently bundled Boston thermal observations available in this workspace, not as minute-by-minute real-time telemetry.",
             "notes": [
                 "Observed geography: OpenStreetMap basemap and Boston boundary geometry.",
-                "Derived overlays: Cheeger bottleneck and low cooling access polygons exported by the pipeline.",
+                "Derived overlays: Cheeger bottlenecks and the full cooling-access constraint surface exported by the pipeline.",
                 "Thermal study surfaces: Landsat and ECOSTRESS arrays documented in the sibling Boston research repository and rendered here as full-city cell layers.",
                 "Not yet shown here: direct live NASA or USGS fetching, run-level uncertainty rasters, and the full Boston execution workbench.",
             ],
@@ -678,11 +678,11 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
             },
             {
                 "id": "cooling-access",
-                "label": "Low cooling access overlay",
+                "label": "Cooling-access constraint surface",
                 "truthStatus": "derived",
                 "sourceType": "spectral_pipeline_geojson",
                 "filePath": _public_artifact_path(repo_root, cooling_path),
-                "method": "Loaded from bundled spectral pipeline output and colored by the exported cooling-access field.",
+                "method": "Loaded from the full bundled cooling-access surface and colored by inverse modeled access to inferred cooling sinks.",
                 "primaryFields": ["cooling_access", "access_class"],
                 **cooling_score_status,
                 "limitations": [
