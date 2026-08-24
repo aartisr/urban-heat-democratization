@@ -15,7 +15,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT_DOCX = ROOT / "docs" / "Urban_Thermal_Math_Deep_Dive_Picturized.docx"
-TMP_DIR = Path(tempfile.mkdtemp(prefix="picturized_deep_dive_", dir="/private/tmp"))
+TMP_DIR = Path(tempfile.mkdtemp(prefix="picturized_deep_dive_"))
 
 ASSETS = {
     "boston_map": ROOT / "boston_heatmap.png",

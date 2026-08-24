@@ -178,7 +178,8 @@ flowchart LR
 
 ## Quickstart
 
-Requirements: Python `3.11` and Node.js `18+`.
+Requirements: Python `3.11` and Node.js `22+` (the frontend lockfile includes
+dependencies that require the current Node 22 runtime).
 
 ```bash
 make setup
@@ -212,6 +213,18 @@ make test
 make build
 make validate-packages
 ```
+
+## Deploy on Vercel
+
+The repository includes a single-project Vercel configuration for the Vite web
+application and FastAPI endpoints under `/api`. It is ready for a public,
+serverless demonstration and keeps its runtime limits visible: scratch state is
+not presented as durable research storage, interval workers are not assumed to
+survive, and lightweight demonstration runs complete inline.
+
+Follow the [Vercel Deployment Guide](docs/VERCEL_DEPLOYMENT.md) for exact
+environment variables, routing behavior, verification, and the path to durable
+production storage and jobs.
 
 ## Current capability boundaries
 

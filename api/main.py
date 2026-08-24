@@ -56,6 +56,18 @@ APP_STARTED_AT = time.time()
 _ACCESS_CONTROL = AccessControl.from_env()
 
 
+def is_serverless_runtime() -> bool:
+    """Return whether this process is running in a short-lived function host.
+
+    Vercel functions may reuse an instance, but neither its process lifetime nor
+    writable filesystem is durable. The serverless mode therefore uses `/tmp`
+    only as scratch space and never depends on background threads for a user
+    visible result.
+    """
+    configured_mode = os.getenv("UHD_RUNTIME_MODE", "").strip().lower()
+    return configured_mode == "serverless" or os.getenv("VERCEL", "") == "1"
+
+
 def cors_origins_from_env() -> list[str]:
     """Return explicit browser origins; wildcard credentials are never valid."""
     configured = os.getenv("UHD_CORS_ORIGINS", "")
@@ -82,12 +94,16 @@ install_http_middleware(app, logger)
 
 @app.on_event("startup")
 async def resume_live_thermal_workers_on_startup() -> None:
+    if is_serverless_runtime():
+        return
     _RUN_QUEUE.start()
     _resume_live_thermal_workers()
 
 
 @app.on_event("shutdown")
 async def stop_background_workers_on_shutdown() -> None:
+    if is_serverless_runtime():
+        return
     _RUN_QUEUE.stop()
     for city_id in list(_LIVE_THERMAL_WORKERS.keys()):
         _stop_live_thermal_worker(city_id)
@@ -584,7 +600,11 @@ def _repo_data_path(filename: str) -> Path:
 
 
 def _runtime_data_path(filename: str) -> Path:
-    path = Path(__file__).resolve().parents[1] / "data" / "runtime"
+    path = (
+        Path("/tmp") / "urban_heat_democratization_runtime"
+        if is_serverless_runtime()
+        else Path(__file__).resolve().parents[1] / "data" / "runtime"
+    )
     path.mkdir(parents=True, exist_ok=True)
     return path / filename
 
@@ -2160,6 +2180,10 @@ def _live_thermal_worker(city_id: str, stop_event: threading.Event) -> None:
 
 
 def _start_live_thermal_worker(city_id: str) -> None:
+    if is_serverless_runtime():
+        # The caller performs one explicit refresh. A serverless function cannot
+        # promise to keep an interval worker alive after the response finishes.
+        return
     normalized = normalize_city_key(city_id)
     if normalized in _LIVE_THERMAL_WORKERS:
         return
@@ -2410,6 +2434,12 @@ _RUN_QUEUE = DurableRunQueue(_RUNTIME_DB_PATH, _process_run_execution_job)
 
 
 def _enqueue_run_execution_job(run_id: str, city_id: str, scenario: str) -> str:
+    if is_serverless_runtime():
+        # This is a deliberately small demonstration workflow. Running it in
+        # the request keeps the visible state truthful on a host that has no
+        # durable worker process. Production-scale jobs need an external queue.
+        _process_run_execution_job({"runId": run_id, "cityId": city_id, "scenario": scenario})
+        return f"inline-{uuid4().hex[:16]}"
     return _RUN_QUEUE.enqueue(
         job_type="run-execution",
         payload={
@@ -2842,6 +2872,7 @@ app.include_router(
         access_control=_ACCESS_CONTROL,
         workspace_id_from_request=_workspace_id_from_request,
         enqueue_run_execution=_enqueue_run_execution_job,
+        serverless_runtime=is_serverless_runtime,
     )
 )
 

@@ -19,7 +19,8 @@ def create_runs_router(
     utc_now: Callable[[], str],
     access_control: AccessControl,
     workspace_id_from_request: Callable[[Request], str],
-    enqueue_run_execution: Callable[[str, str, str], None],
+    enqueue_run_execution: Callable[[str, str, str], str],
+    serverless_runtime: Callable[[], bool],
 ) -> APIRouter:
     router = APIRouter()
 
@@ -67,6 +68,16 @@ def create_runs_router(
         output_artifact_ids = list(getattr(experience, "run_seed_artifact_ids", []))
         now = utc_now()
         run_id = f"run-{city_id}-{uuid4().hex[:10]}"
+        runtime_note = (
+            "This serverless demonstration run completes inline. Its scratch-state record is not durable across function instances."
+            if serverless_runtime()
+            else "Current runs are processed by a durable local async queue."
+        )
+        runtime_log = (
+            "Runtime mode: serverless inline demonstration execution; use durable external jobs for production records."
+            if serverless_runtime()
+            else "Runtime mode: local TanStack + FastAPI durable queue worker."
+        )
         validation_notes = (
             [
                 f"Validation: {len(output_artifact_ids)} bundled seed artifact(s) attached from the city experience.",
@@ -95,19 +106,19 @@ def create_runs_router(
             "notes": (
                 [
                     f"{city_name} runs are seeded with the bundled study artifacts available in this workspace.",
-                    "Current runs are processed by a durable local async queue.",
+                    runtime_note,
                 ]
                 if output_artifact_ids
                 else [
                     "This run was queued from the city detail page.",
-                    "Current runs are processed by a durable local async queue.",
+                    runtime_note,
                 ]
             ),
             "outputArtifactIds": output_artifact_ids,
             "logs": [
                 f"[{now}] Run created for {city_name}.",
                 f"[{now}] Scenario selected: {scenario}.",
-                f"[{now}] Runtime mode: local TanStack + FastAPI durable queue worker.",
+                f"[{now}] {runtime_log}",
                 *[f"[{now}] {note}" for note in validation_notes],
             ],
         }
@@ -118,7 +129,12 @@ def create_runs_router(
         job_id = enqueue_run_execution(run_id, city_id, scenario)
         with runtime_state_lock:
             record["queueJobId"] = job_id
-            record["logs"] = list(record.get("logs", [])) + [f"[{utc_now()}] Durable queue job queued: {job_id}."]
+            completion_note = (
+                f"[{utc_now()}] Serverless inline run completed: {job_id}."
+                if serverless_runtime()
+                else f"[{utc_now()}] Durable queue job queued: {job_id}."
+            )
+            record["logs"] = list(record.get("logs", [])) + [completion_note]
             persist_runtime_runs()
         return record
 
