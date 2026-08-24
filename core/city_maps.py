@@ -339,15 +339,18 @@ def _geometry_points(geometry: dict[str, Any]) -> list[tuple[float, float]]:
 
 
 def _normalize_points(points: list[tuple[float, float]], bounds: tuple[float, float, float, float]) -> list[dict[str, float]]:
-    min_x, min_y, max_x, max_y = bounds
-    span_x = max_x - min_x or 1.0
-    span_y = max_y - min_y or 1.0
-    normalized = []
+    """Return geographic points for the interactive MapLibre map.
+
+    `CityMapPoint` uses the legacy names ``x`` and ``y``, but this endpoint is
+    consumed as longitude and latitude. The former 10–90 screen-space
+    normalization was appropriate for an SVG preview only; passing it to
+    MapLibre made a selected Boston polygon pan to Europe or Asia.
+    """
+    del bounds
+    geographic_points = []
     for lon, lat in points:
-        x = 10 + ((lon - min_x) / span_x) * 80
-        y = 90 - ((lat - min_y) / span_y) * 80
-        normalized.append(_point(x, y))
-    return normalized
+        geographic_points.append(_point(lon, lat))
+    return geographic_points
 
 
 def _feature_bounds(features: list[dict[str, Any]]) -> tuple[float, float, float, float]:
