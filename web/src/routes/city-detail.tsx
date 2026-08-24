@@ -163,11 +163,13 @@ export function CityDetailPage() {
       />
 
       {cityMapQuery.data ? (
-        <CityDetailSectionGrid
-          title="Evidence and honesty"
-          description="This page distinguishes what is observed, what is derived by the spectral workflow, and what is still simplified for planning use."
-          cards={detailConfig.sections.evidenceCards}
-        />
+        <div id="evidence" tabIndex={-1}>
+          <CityDetailSectionGrid
+            title="Evidence and honesty"
+            description="This page distinguishes what is observed, what is derived by the spectral workflow, and what is still simplified for planning use."
+            cards={detailConfig.sections.evidenceCards}
+          />
+        </div>
       ) : null}
 
       <CityDetailSectionGrid
