@@ -1,0 +1,20 @@
+{
+  "landsat": {
+    "source": "Landsat Collection 2 Surface Temperature",
+    "provider": "USGS/NASA",
+    "sensor": "Thermal Infrared Sensor (TIRS)",
+    "resolution_m": 100,
+    "mean_temp_c": 28.344951629638672,
+    "std_temp_c": 2.3746914863586426,
+    "file": "data/thermal/landsat_lst.npy"
+  },
+  "ecostress": {
+    "source": "ECOSTRESS Land Surface Temperature",
+    "provider": "NASA JPL",
+    "sensor": "ECOSTRESS",
+    "resolution_m": 70,
+    "mean_temp_c": 28.274620056152344,
+    "std_temp_c": 2.382326364517212,
+    "file": "data/thermal/ecostress_lst.npy"
+  }
+}
