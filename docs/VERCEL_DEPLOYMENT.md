@@ -34,10 +34,10 @@ that serverless scratch state is a persistent research record.
 3. Vercel reads the committed configuration:
    - build command: `cd web && npm ci && npm run build`
    - static output: `web/dist`
-   - Python entry point: `api/main.py`; its single `includeFiles` glob keeps
-     runtime-read research assets in the function bundle while `.vercelignore`
-     excludes caches, local environments, frontend dependencies, and mutable
-     runtime files.
+   - Python entry point: `api/main.py`; its targeted `includeFiles` glob keeps
+     only runtime-read research assets in the function bundle, while
+     `excludeFiles` excludes local environments, frontend assets, tests,
+     screenshots, and mutable runtime files.
    - API routing: `/api/*`
    - SPA fallback: every non-API route resolves to `index.html`, including
    direct links such as `/cities/boston`.
@@ -48,6 +48,11 @@ Use Node.js 22 or newer for the Vercel build. The frontend package declares
 this requirement so the deployment uses a runtime supported by its resolved
 dependencies. The repository pins Python 3.12 in `.python-version`; this is
 the oldest Python version currently supported by Vercel's Python runtime.
+
+The Vercel Function installs the lean `requirements.txt` runtime set. Local
+research runs, raster exports, and tests use `requirements-research.txt`, so
+their large optional geospatial and visualization dependencies do not inflate
+the public serverless bundle.
 
 ## Required environment variables
 
