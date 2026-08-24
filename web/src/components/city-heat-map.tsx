@@ -116,11 +116,14 @@ function normalizeScoreClass(value: string) {
   return value.trim().toLowerCase();
 }
 
-function overlayNarrative(entry: OverlayEntry) {
+function overlayNarrative(entry: OverlayEntry, isRanked: boolean) {
   const primaryClass = entry.layer === "heat"
     ? entry.overlay.properties?.cheeger_priority_class ?? entry.overlay.properties?.priority_class
     : entry.overlay.properties?.cooling_access_class ?? entry.overlay.properties?.access_class;
   const classLabel = typeof primaryClass === "string" && primaryClass.trim() ? primaryClass : entry.overlay.scoreClass;
+  if (!isRanked) {
+    return `${entry.layerLabel} polygon flagged as ${classLabel.toLowerCase()}. The bundled analysis identifies this as a low-access condition, but does not provide enough variation to rank it against the other flagged zones.`;
+  }
   return `${entry.layerLabel} polygon with ${classLabel.toLowerCase()} severity and score ${entry.overlay.score.toFixed(1)}.`;
 }
 
@@ -542,18 +545,20 @@ function thermalSourceTheme(sourceId: string) {
 
 function spectralAnalysisNarrative(data: CityMapData, heatVisibleCount: number, coolingVisibleCount: number, severityFilter: SeverityFilter) {
   const filterLabel = severityFilter === "all" ? "all severity bands" : `${severityFilter} severity`;
-  return `The highlighted story is the spectral analysis itself: ${heatVisibleCount} Cheeger bottlenecks and ${coolingVisibleCount} low-cooling-access zones are currently visible under ${filterLabel}. The highest-value areas come from rigorous mathematical ranking of circulation failure and cooling disadvantage, while thermal sources serve as supporting evidence for why those patterns appear.`;
+  return `The highlighted story is the spectral analysis itself: ${heatVisibleCount} Cheeger bottlenecks and ${coolingVisibleCount} low-cooling-access zones are currently visible under ${filterLabel}. Cheeger values are ranked; the bundled cooling-access export identifies flagged zones but does not currently distinguish a rank within that set. Thermal sources provide supporting context for why these patterns appear.`;
 }
 
 function spectralMathNarrative(heatVisibleCount: number, coolingVisibleCount: number) {
-  return `This workflow does not guess. It uses graph-based spectral structure to find where urban heat movement pinches, then combines that with cooling-access scoring to rank the ${heatVisibleCount} visible bottlenecks and ${coolingVisibleCount} visible low-cooling zones by intervention value.`;
+  return `This workflow does not guess. It uses graph-based spectral structure to rank the ${heatVisibleCount} visible bottlenecks where urban heat movement pinches. The ${coolingVisibleCount} visible low-cooling zones are retained as a flagged access condition; this bundled export does not yet support a trustworthy within-layer ranking for them.`;
 }
 
-function plainMathExplanation(entry: OverlayEntry) {
+function plainMathExplanation(entry: OverlayEntry, isRanked: boolean) {
   if (entry.layer === "heat") {
     return "In plain English: the math is looking for places where heat flow gets squeezed through a narrow urban pathway. A higher score means this spot behaves more like a choke point, so cooling action here can influence a wider surrounding area.";
   }
-  return "In plain English: the math is looking for places with less access to cooling relief. A higher score means people here are more exposed to heat without enough nearby cooling benefit, so mitigation here can close a bigger gap.";
+  return isRanked
+    ? "In plain English: the math is looking for places with less access to cooling relief. A higher score means people here are more exposed to heat without enough nearby cooling benefit, so mitigation here can close a bigger gap."
+    : "In plain English: this area is flagged for low cooling access. The current bundled export does not contain enough variation to say it ranks above or below another flagged zone, so the interface does not invent a score difference.";
 }
 
 function interventionValueBreakdown(entry: OverlayEntry) {
@@ -1478,14 +1483,28 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
   const visibleEntries = useMemo(() => {
     const entries = [
-      ...(showCooling ? coolingEntries : []),
       ...(showHeat ? heatEntries : []),
+      ...(showCooling ? coolingEntries : []),
     ];
     return entries.filter((entry) => visibleUnderFilter(entry.overlay, severityFilter));
   }, [coolingEntries, heatEntries, severityFilter, showCooling, showHeat]);
 
   const visibleKeys = useMemo(() => new Set(visibleEntries.map((entry) => entry.key)), [visibleEntries]);
-  const selectedEntry = visibleEntries.find((entry) => entry.key === selectedKey) ?? visibleEntries[0] ?? null;
+  const coolingScoresAreRanked = useMemo(() => {
+    const distinctScores = new Set(coolingEntries.map((entry) => entry.overlay.score.toFixed(6)));
+    return distinctScores.size > 1;
+  }, [coolingEntries]);
+  const isRankedEntry = (entry: OverlayEntry | null) => {
+    if (!entry) return false;
+    return entry.layer === "heat" || coolingScoresAreRanked;
+  };
+  const rankedEntries = useMemo(
+    () => visibleEntries
+      .filter((entry) => entry.layer === "heat")
+      .sort((left, right) => right.overlay.score - left.overlay.score),
+    [visibleEntries],
+  );
+  const selectedEntry = visibleEntries.find((entry) => entry.key === selectedKey) ?? rankedEntries[0] ?? visibleEntries[0] ?? null;
   const cityScenarios = useMemo(
     () => (scenarios ?? []).filter((scenario) => scenario.cityId === data.cityId),
     [data.cityId, scenarios],
@@ -1499,7 +1518,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         .filter(([, value]) => ["string", "number", "boolean"].includes(typeof value))
         .slice(0, 8)
     : [];
-  const researchQueue = visibleEntries.slice(0, 8);
+  const researchQueue = rankedEntries.slice(0, 8);
   const heatVisibleCount = visibleEntries.filter((entry) => entry.layer === "heat").length;
   const coolingVisibleCount = visibleEntries.filter((entry) => entry.layer === "cooling").length;
   const activeThermalSource = data.thermalSources.find((source) => source.id === selectedThermalSourceId) ?? data.thermalSources[0] ?? null;
@@ -1517,8 +1536,9 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const thermalCellCount = activeThermalSource?.surfaceGeojson.features.length ?? 0;
   const thermalCorridorCount = activeThermalSource?.corridorGeojson.features.length ?? 0;
   const selectedFeature = selectedEntry ? overlayFeature(selectedEntry.overlay) : null;
+  const selectedEntryIsRanked = isRankedEntry(selectedEntry);
   const selectedBounds = featureBounds(selectedFeature);
-  const selectedBreakdown = selectedEntry ? interventionValueBreakdown(selectedEntry) : [];
+  const selectedBreakdown = selectedEntry && selectedEntryIsRanked ? interventionValueBreakdown(selectedEntry) : [];
   const selectedCentroid = selectedEntry ? overlayCentroid(selectedEntry.overlay) : null;
   const selectedMitigations = selectedEntry ? mitigationSuggestions(selectedEntry) : [];
   const selectedScenarioBudget = selectedEntry ? suggestedScenarioBudget(selectedEntry) : 250000;
@@ -2998,10 +3018,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     popup
       .setLngLat([selectedCentroid.lng, selectedCentroid.lat])
       .setHTML(
-        `<strong>${selectedEntry.layerLabel}</strong><br/>${selectedEntry.overlay.scoreClass} priority<br/>Score ${selectedEntry.overlay.score.toFixed(1)}`,
+        `<strong>${selectedEntry.layerLabel}</strong><br/>${selectedEntry.overlay.scoreClass} ${selectedEntryIsRanked ? `priority<br/>Score ${selectedEntry.overlay.score.toFixed(1)}` : "flagged condition<br/>Not ranked within this layer"}`,
       )
       .addTo(map);
-  }, [mapReady, selectedCentroid, selectedEntry]);
+  }, [mapReady, selectedCentroid, selectedEntry, selectedEntryIsRanked]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -3470,8 +3490,8 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <p>visible cooling gaps</p>
               </div>
               <div className="map-badge">
-                <strong>{selectedEntry ? selectedEntry.overlay.score.toFixed(1) : "-"}</strong>
-                <p>selected score</p>
+                <strong>{selectedEntry ? selectedEntryIsRanked ? selectedEntry.overlay.score.toFixed(1) : "Flagged" : "-"}</strong>
+                <p>{selectedEntryIsRanked ? "selected score" : "selected status"}</p>
               </div>
               <div className="map-badge">
                 <strong>{severityFilter === "all" ? "All" : severityFilter}</strong>
@@ -3491,27 +3511,29 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <div className="map-focus-card">
                   <div className="eyebrow">{selectedEntry.layerLabel}</div>
                   <strong>{selectedEntry.overlay.label}</strong>
-                  <p>{overlayNarrative(selectedEntry)}</p>
+                  <p>{overlayNarrative(selectedEntry, selectedEntryIsRanked)}</p>
                   <div className="metric-list compact">
-                    <div><span>Score</span><strong>{selectedEntry.overlay.score.toFixed(1)}</strong></div>
+                    <div><span>{selectedEntryIsRanked ? "Score" : "Status"}</span><strong>{selectedEntryIsRanked ? selectedEntry.overlay.score.toFixed(1) : "Flagged, not ranked"}</strong></div>
                     <div><span>Class</span><strong>{selectedEntry.overlay.scoreClass}</strong></div>
                   </div>
-                  <div className="value-bars">
-                    {selectedBreakdown.map((item) => (
-                      <div key={item.label} className="value-bar-row">
-                        <div className="value-bar-label">
-                          <span>{item.label}</span>
-                          <strong>{item.value.toFixed(0)}</strong>
+                  {selectedEntryIsRanked ? (
+                    <div className="value-bars">
+                      {selectedBreakdown.map((item) => (
+                        <div key={item.label} className="value-bar-row">
+                          <div className="value-bar-label">
+                            <span>{item.label}</span>
+                            <strong>{item.value.toFixed(0)}</strong>
+                          </div>
+                          <div className="value-bar-track">
+                            <progress className={`value-bar-meter ${item.tone}`} max={100} value={Math.max(8, Math.min(100, item.value))} />
+                          </div>
                         </div>
-                        <div className="value-bar-track">
-                          <progress className={`value-bar-meter ${item.tone}`} max={100} value={Math.max(8, Math.min(100, item.value))} />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : null}
                   <div className="math-explainer-card">
                     <strong>Why this area matters</strong>
-                    <p>{plainMathExplanation(selectedEntry)}</p>
+                    <p>{plainMathExplanation(selectedEntry, selectedEntryIsRanked)}</p>
                   </div>
                   <div className="mitigation-strip">
                     {selectedMitigations.map((item) => (
@@ -3548,7 +3570,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             </div>
 
             <div className="map-legend">
-              <h3>Research queue</h3>
+              <h3>Ranked research queue</h3>
               {researchQueue.length ? researchQueue.map((entry, index) => (
                 <button
                   key={entry.key}
@@ -3560,12 +3582,15 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                     <span className={`legend-chip map-chip-inline ${entry.layer === "heat" ? "heat" : "cooling"}`} />
                     <strong>{index + 1}. {entry.layerLabel}</strong>
                   </div>
-                  <p>{overlayNarrative(entry)}</p>
+                  <p>{overlayNarrative(entry, true)}</p>
                   <p>Class: {entry.overlay.scoreClass} | Score: {entry.overlay.score.toFixed(1)}</p>
                 </button>
               )) : (
-                <p className="muted">No polygons match the current layer and severity filters.</p>
+                <p className="muted">No ranked polygons match the current layer and severity filters. Low cooling access remains visible as a flagged condition, without a fabricated within-layer rank.</p>
               )}
+              {!coolingScoresAreRanked && coolingVisibleCount > 0 ? (
+                <p className="map-layer-summary">{coolingVisibleCount} low-cooling-access zones are flagged, but the bundled values are identical. They are intentionally excluded from this ranked queue.</p>
+              ) : null}
             </div>
 
             <div className="map-legend">
