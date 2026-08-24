@@ -58,6 +58,11 @@ research runs, raster exports, and tests use `requirements-research.txt`, so
 their large optional geospatial and visualization dependencies do not inflate
 the public serverless bundle.
 
+Boston's deployed map reads its boundary and derived overlay GeoJSON files
+from this repository's `data/` directory. It does not depend on a sibling
+local research checkout; that keeps the public atlas portable and reproducible
+on Vercel.
+
 The runtime pins a current Pydantic 2 release so Vercel can install its
 prebuilt `pydantic-core` wheel. Do not downgrade it to Pydantic 2.6.x: that
 series can trigger an unsupported source build on current Vercel Python
