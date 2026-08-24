@@ -2,10 +2,15 @@
   "name": "urban-heat-democratization-web",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "build:seo": "node ../scripts/build-github-pages.mjs",
+    "check:lockfile": "node scripts/check-lockfile-registry.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",
     "check:contrast": "node scripts/check-contrast-tokens.mjs",
     "preview": "vite preview",

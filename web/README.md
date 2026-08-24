@@ -49,6 +49,7 @@ Run these before handing off visual or interaction work:
 ```bash
 npm run build
 npm test
+npm run check:lockfile
 npm run check:contrast
 npm run check:performance
 ```
@@ -56,7 +57,9 @@ npm run check:performance
 `check:contrast` protects the central text tokens as well as the dark science
 formula and disclosure treatments. `check:performance` protects the lazy map
 boundary and route-size budgets; it does not make a claim about real-world
-network performance on every device.
+network performance on every device. `check:lockfile` ensures the committed
+lockfile uses only the public npm registry, keeping contributor and deployment
+installs reproducible without depending on a private registry.
 
 ## Notes
 

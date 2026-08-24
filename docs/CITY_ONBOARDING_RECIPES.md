@@ -7,9 +7,16 @@ This document gives copy-friendly onboarding patterns for common city cases.
 Start the API:
 
 ```bash
-cd /Users/rraviku2/aarti/urban_heat_democratization
+cd "$(git rev-parse --show-toplevel)"
 source .venv/bin/activate
 PYTHONPATH=. uvicorn api.main:app --reload
+```
+
+For public or Vercel deployments, set the public API address before using the
+examples below:
+
+```bash
+export UHD_API_URL="https://your-public-domain.example"
 ```
 
 ## Recipe: Cambridge from a local GeoJSON upload
@@ -48,7 +55,7 @@ payload = {
 print(json.dumps(payload))
 PY
 
-curl -X POST http://127.0.0.1:8000/api/v1/cities/onboard \
+curl -X POST "$UHD_API_URL/api/v1/cities/onboard" \
   -H "Content-Type: application/json" \
   --data @/tmp/cambridge-onboard.json
 ```
@@ -88,7 +95,7 @@ payload = {
 print(json.dumps(payload))
 PY
 
-curl -X POST http://127.0.0.1:8000/api/v1/cities/onboard \
+curl -X POST "$UHD_API_URL/api/v1/cities/onboard" \
   -H "Content-Type: application/json" \
   --data @/tmp/nyc-onboard.json
 ```
@@ -114,7 +121,7 @@ cat > /tmp/chicago-onboard.json <<'JSON'
 }
 JSON
 
-curl -X POST http://127.0.0.1:8000/api/v1/cities/onboard \
+curl -X POST "$UHD_API_URL/api/v1/cities/onboard" \
   -H "Content-Type: application/json" \
   --data @/tmp/chicago-onboard.json
 ```
@@ -144,7 +151,7 @@ payload = {
 print(json.dumps(payload))
 PY
 
-curl -X POST http://127.0.0.1:8000/api/v1/cities/onboard \
+curl -X POST "$UHD_API_URL/api/v1/cities/onboard" \
   -H "Content-Type: application/json" \
   --data @/tmp/la-onboard.json
 ```
@@ -198,7 +205,7 @@ payload = {
 print(json.dumps(payload))
 PY
 
-curl -X POST http://127.0.0.1:8000/api/v1/cities/onboard \
+curl -X POST "$UHD_API_URL/api/v1/cities/onboard" \
   -H "Content-Type: application/json" \
   --data @/tmp/custom-city-onboard.json
 ```
