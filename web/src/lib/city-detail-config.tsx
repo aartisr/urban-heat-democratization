@@ -149,21 +149,19 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
   ];
 
   const heroActions: HeroAction[] = [
-    { label: cityExperience?.bundled ? "Open guided scenarios" : "Finish readiness registration", to: "/scenarios", search: scenarioSearch, className: "button-link" },
-    { label: "Export evidence brief", to: "/exports", className: "button-link secondary" },
-    { label: "Inspect runs", to: "/runs", className: "button-link secondary" },
+    { label: cityExperience?.bundled ? "Try a budget scenario" : "Finish readiness registration", to: "/scenarios", search: scenarioSearch, className: "button-link secondary" },
   ];
 
   const overview: CityIntelligenceOverviewProps = {
     eyebrow: cityExperience?.bundled ? "Bundled city intelligence page" : "City intelligence page",
-    title: cityName,
+    title: `${cityName}: heat evidence you can use`,
     narrative: pageNarrative,
     heroActions,
     heroMetrics: [
-      { value: String(cityExperience?.availablePackageIds.length ?? 0), label: "bundled packages" },
-      { value: String(citySpectral?.cheegerFeatureCount ?? 0), label: "bottleneck areas" },
-      { value: String(citySpectral?.coolingZoneCount ?? 0), label: "cooling-gap areas" },
-      { value: String((scenarios?.length ?? 0) + (runs?.length ?? 0)), label: "planning artifacts and runs" },
+      { value: String(cityExperience?.availablePackageIds.length ?? 0), label: "study packages" },
+      { value: String(citySpectral?.cheegerFeatureCount ?? 0), label: "priority heat areas" },
+      { value: String(citySpectral?.coolingZoneCount ?? 0), label: "cooling-access gaps" },
+      { value: String((scenarios?.length ?? 0) + (runs?.length ?? 0)), label: "saved planning records" },
     ],
     liveCue,
     journeyCards,

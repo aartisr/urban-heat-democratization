@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import { AccessWorkspaceSwitcher } from "./components/access-workspace-switcher";
+import { capturePageView } from "./lib/analytics";
 import { defaultSeo, setPageSeo } from "./lib/seo";
 const HomePage = lazy(() => import("./routes/home").then((module) => ({ default: module.HomePage })));
 const CitiesPage = lazy(() => import("./routes/cities").then((module) => ({ default: module.CitiesPage })));
@@ -18,10 +19,11 @@ const ModesPage = lazy(() => import("./routes/modes").then((module) => ({ defaul
 const ScenariosPage = lazy(() => import("./routes/scenarios").then((module) => ({ default: module.ScenariosPage })));
 const RunsPage = lazy(() => import("./routes/runs").then((module) => ({ default: module.RunsPage })));
 const RunDetailPage = lazy(() => import("./routes/run-detail").then((module) => ({ default: module.RunDetailPage })));
+const RobustnessPage = lazy(() => import("./routes/robustness").then((module) => ({ default: module.RobustnessPage })));
 
 function withPageSuspense(node: JSX.Element) {
   return (
-    <Suspense fallback={<section className="panel-card premium-section-card"><p className="muted">Loading view...</p></section>}>
+    <Suspense fallback={<section className="panel-card premium-section-card route-loading" aria-live="polite"><span className="route-loading-orb" aria-hidden="true" /><p>Opening your workspace…</p></section>}>
       {node}
     </Suspense>
   );
@@ -62,12 +64,13 @@ const navItems: Array<{
 
 const secondaryNavItems: Array<{
   label: string;
-  to: "/modes" | "/exports" | "/runs";
+  to: "/modes" | "/exports" | "/runs" | "/robustness";
   search?: typeof baseScenarioSearch;
 }> = [
   { label: "Choose a path", to: "/modes" },
   { label: "Exports", to: "/exports" },
   { label: "Run history", to: "/runs" },
+  { label: "Robustness lab", to: "/robustness" },
 ];
 
 const SIDEBAR_MIN_WIDTH = 240;
@@ -103,7 +106,6 @@ function RootLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(280);
-  const [focusMode, setFocusMode] = useState(false);
   const appShellRef = useRef<HTMLDivElement | null>(null);
   const resizeStateRef = useRef<{ pointerId: number; startX: number; startWidth: number } | null>(null);
 
@@ -130,6 +132,11 @@ function RootLayout() {
         description: "Access transparent urban heat planning exports and supporting evidence artifacts.",
         keywords: ["urban heat data", "open climate data", "heat planning"],
       },
+      "/robustness": {
+        title: "Urban heat robustness lab | Urban Heat Democratization",
+        description: "Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.",
+        keywords: ["urban heat science", "network robustness", "percolation analysis"],
+      },
     };
     const page = pathname.startsWith("/cities/")
       ? {
@@ -143,19 +150,16 @@ function RootLayout() {
           keywords: defaultSeo.keywords,
         };
     setPageSeo({ ...page, path: pathname });
+    capturePageView(pathname);
   }, [pathname]);
 
   useEffect(() => {
     const stored = window.localStorage.getItem("uhd.sidebar.collapsed");
     const storedWidth = window.localStorage.getItem("uhd.sidebar.width");
     const storedTouched = window.localStorage.getItem("uhd.sidebar.user-touched");
-    const storedFocusMode = window.localStorage.getItem("uhd.focus.mode");
     if (stored === "true") setSidebarCollapsed(true);
     if (storedWidth && Number.isFinite(Number(storedWidth))) {
       setSidebarWidth(clampSidebarWidth(Number(storedWidth)));
-    }
-    if (storedFocusMode === "true") {
-      setFocusMode(true);
     }
     if (!storedTouched && pathname.startsWith("/cities/")) {
       setSidebarCollapsed(true);
@@ -195,10 +199,6 @@ function RootLayout() {
   useEffect(() => {
     window.localStorage.setItem("uhd.sidebar.width", String(sidebarWidth));
   }, [sidebarWidth]);
-
-  useEffect(() => {
-    window.localStorage.setItem("uhd.focus.mode", focusMode ? "true" : "false");
-  }, [focusMode]);
 
   useEffect(() => {
     const onPointerMove = (event: PointerEvent) => {
@@ -289,7 +289,7 @@ function RootLayout() {
     <AppShellLayoutContext.Provider value={shellLayoutValue}>
       <div
         ref={appShellRef}
-        className={`app-shell ${sidebarCollapsed ? "app-shell-collapsed" : ""} ${focusMode ? "app-shell-focus" : ""} app-shell-editorial`.trim()}
+        className={`app-shell ${sidebarCollapsed ? "app-shell-collapsed" : ""} app-shell-editorial`.trim()}
       >
         <aside className={`app-sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
           <div className="app-sidebar-top">
@@ -298,7 +298,7 @@ function RootLayout() {
               {!sidebarCollapsed ? (
                 <div>
                   <div className="brand-title">Urban Heat Democratization</div>
-                  <div className="brand-subtitle">TanStack-first planning cockpit</div>
+                  <div className="brand-subtitle">Heat planning, made clear</div>
                 </div>
               ) : null}
             </div>
@@ -318,6 +318,7 @@ function RootLayout() {
                 key={item.to}
                 to={item.to}
                 search={item.search}
+                preload="intent"
                 activeProps={{ "aria-current": "page" }}
                 className={sidebarCollapsed ? "nav-link-collapsed" : undefined}
                 title={sidebarCollapsed ? item.label : undefined}
@@ -330,7 +331,7 @@ function RootLayout() {
                 <summary>More tools</summary>
                 <div>
                   {secondaryNavItems.map((item) => (
-                    <Link key={item.to} to={item.to} search={item.search} activeProps={{ "aria-current": "page" }}>
+                    <Link key={item.to} to={item.to} search={item.search} preload="intent" activeProps={{ "aria-current": "page" }}>
                       {item.label}
                     </Link>
                   ))}
@@ -338,11 +339,6 @@ function RootLayout() {
               </details>
             ) : null}
           </nav>
-          {!sidebarCollapsed ? (
-            <div className="app-sidebar-note">
-              Pick a city, inspect heat traps, test what-if budgets, and export a plan that people can actually use.
-            </div>
-          ) : null}
           {!sidebarCollapsed ? <AccessWorkspaceSwitcher /> : null}
         </aside>
         {!sidebarCollapsed ? (
@@ -402,29 +398,14 @@ function RootLayout() {
           ) : null}
           <section className="app-main-toolbar" aria-label="Current workflow context">
             <div className="app-main-toolbar-copy">
-              <span className="app-main-toolbar-kicker">Workflow context</span>
+              <span className="app-main-toolbar-kicker">You are here</span>
               <strong>{currentView.title}</strong>
-              <p>{currentView.description}</p>
             </div>
             <div className="app-main-toolbar-actions">
-              <a
-                href="https://github.com/aartisr/urban-heat-democratization/tree/main/docs/wiki"
-                className="button-link secondary"
-              >
-                Read the Wiki
-              </a>
-              <button
-                type="button"
-                className={`button-link secondary toolbar-focus-toggle ${focusMode ? "active" : ""}`}
-                onClick={() => setFocusMode((value) => !value)}
-                aria-pressed={focusMode}
-                title={focusMode ? "Disable focus mode" : "Enable focus mode"}
-              >
-                {focusMode ? "Focus mode on" : "Focus mode off"}
-              </button>
               {cityIdFromPath ? (
                 <Link
                   to="/scenarios"
+                  preload="intent"
                   search={{
                     cityId: cityIdFromPath,
                     budgetUsd: undefined,
@@ -438,11 +419,20 @@ function RootLayout() {
                 </Link>
               ) : null}
               {pathname.startsWith("/runs/") ? (
-                <Link to="/runs" className="button-link secondary">Back to run registry</Link>
+                <Link to="/runs" preload="intent" className="button-link secondary">Back to run registry</Link>
               ) : null}
             </div>
           </section>
           <Outlet />
+          <footer className="app-attribution">
+            <p className="app-mission">A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.</p>
+            <div className="app-attribution-credit">
+              <span>Urban Heat Democratization</span>
+              <span aria-hidden="true">·</span>
+              <span>Created by</span>
+              <a href="https://ai-aarti.com/">Aarti S Ravikumar</a>
+            </div>
+          </footer>
         </main>
       </div>
     </AppShellLayoutContext.Provider>
@@ -482,6 +472,7 @@ const runDetailRoute = createRoute({
   path: "runs/$runId",
   component: () => withPageSuspense(<RunDetailPage />),
 });
+const robustnessRoute = createRoute({ getParentRoute: () => rootRoute, path: "robustness", component: () => withPageSuspense(<RobustnessPage />) });
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -492,6 +483,7 @@ const routeTree = rootRoute.addChildren([
   exportsRoute,
   runsRoute,
   runDetailRoute,
+  robustnessRoute,
 ]);
 
 export const router = createRouter({ routeTree });

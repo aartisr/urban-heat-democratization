@@ -46,3 +46,7 @@ Read [Artifact Strategy](../ARTIFACT_STRATEGY.md) for repository data rules and 
 ## The standard we are aiming for
 
 The most meaningful recognition for this work would not be a prize. It would be evidence that more people can participate substantively in heat-resilience decisions, that public institutions can explain their reasoning more honestly, and that investments better reflect local knowledge and need. That standard is high enough to guide the project—and concrete enough to be tested.
+
+## Experience the work, then improve it
+
+Explore the current [Urban Heat Democratization platform](https://ai-aarti.com/), its [Boston study](https://ai-aarti.com/cities/boston), and [transparent scenarios](https://ai-aarti.com/scenarios). Contributions should make these public experiences more truthful, legible, accessible, and accountable—not merely more elaborate.

@@ -21,7 +21,7 @@ def create_system_router(
     async def health():
         return {
             "status": "ok",
-            "product": "urban_heat_democratization",
+            "product": "Urban Heat Democratization",
             "uptimeSec": round(time.time() - app_started_at, 2),
         }
 
@@ -29,7 +29,7 @@ def create_system_router(
     async def health_v1():
         return {
             "status": "ok",
-            "product": "urban_heat_democratization",
+            "product": "Urban Heat Democratization",
             "timestamp": utc_now(),
             "uptimeSec": round(time.time() - app_started_at, 2),
             "apiVersion": "v1",

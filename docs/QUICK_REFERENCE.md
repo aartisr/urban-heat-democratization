@@ -1,6 +1,6 @@
 # Quick Reference
 
-This is the shortest practical guide to running and using `urban_heat_democratization`.
+This is the shortest practical guide to running and using Urban Heat Democratization.
 
 ## Start the stack
 

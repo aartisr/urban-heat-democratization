@@ -94,3 +94,7 @@ Relevant test suites include [`tests/test_benchmark_suite.py`](../../tests/test_
 ## Documentation gaps
 
 This hub makes existing material navigable. It does not replace the next technical-documentation milestone: generated API schemas, module-level docstrings/API reference, explicit data schemas, algorithm parameter documentation, and reproducible end-to-end method notebooks. Until those are added, the combination of source code, tests, and the references above is the authoritative implementation record.
+
+## See the technical system in context
+
+The public [Urban Heat Democratization platform](https://ai-aarti.com/) is the user-facing counterpart to these contracts. Use the [Boston study](https://ai-aarti.com/cities/boston) and [scenario workspace](https://ai-aarti.com/scenarios) to see how the API, evidence artifacts, and scientific core appear in the actual experience.

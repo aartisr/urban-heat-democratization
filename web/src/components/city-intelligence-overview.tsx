@@ -53,6 +53,7 @@ export type CityIntelligenceOverviewProps = {
   nextBody: string;
   nextCards: InfoCard[];
   nextAction?: HeroAction | null;
+  onOpenAtlas?: () => void;
 };
 
 export function CityIntelligenceOverview({
@@ -70,6 +71,7 @@ export function CityIntelligenceOverview({
   nextBody,
   nextCards,
   nextAction,
+  onOpenAtlas,
 }: CityIntelligenceOverviewProps) {
   return (
     <>
@@ -79,6 +81,11 @@ export function CityIntelligenceOverview({
           <h1>{title}</h1>
           <p>{narrative}</p>
           <div className="quick-links">
+            {onOpenAtlas ? (
+              <button type="button" className="button-link" onClick={onOpenAtlas}>
+                See where heat needs attention
+              </button>
+            ) : null}
             {heroActions.map((action) => (
               <Link
                 key={`${action.to}-${action.label}`}
@@ -113,55 +120,59 @@ export function CityIntelligenceOverview({
         </div>
       </header>
 
-      <article className="panel-card premium-section-card">
-        <div className="journey-grid">
+      <section className="city-value-brief" aria-labelledby="city-value-title">
+        <div className="city-value-brief-intro">
+          <span className="eyebrow">Why this city matters</span>
+          <h2 id="city-value-title">From a city-wide signal to a clear next conversation.</h2>
+          <p>Start with one visible pattern. Then decide whether to inspect the evidence, compare a budget, or bring the story into a meeting.</p>
+        </div>
+        <div className="city-value-brief-steps">
           {journeyCards.map((card) => (
-            <div key={card.title} className="panel-card nested-card journey-card premium-journey-card">
-              <div className="eyebrow">{card.eyebrow}</div>
+            <article key={card.title} className="city-value-step">
+              <span>{card.eyebrow}</span>
               <h3>{card.title}</h3>
               <p>{card.description}</p>
-            </div>
+            </article>
           ))}
         </div>
-      </article>
+      </section>
 
-      <div className="panel-grid two-col">
-        <article className="panel-card premium-section-card">
-          <h2>{whyTitle}</h2>
-          <p>{whyBody}</p>
-          <div className="info-list">
-            {whyCards.map((card) => (
-              <div key={card.title}>
-                <strong>{card.title}</strong>
-                <span>{card.body}</span>
+      <details className="progressive-details panel-card premium-section-card">
+        <summary>Understand the evidence behind this city</summary>
+        <div className="progressive-details-content">
+          <div className="journey-grid">
+            {journeyCards.map((card) => (
+              <div key={card.title} className="panel-card nested-card journey-card premium-journey-card">
+                <div className="eyebrow">{card.eyebrow}</div>
+                <h3>{card.title}</h3>
+                <p>{card.description}</p>
               </div>
             ))}
           </div>
-        </article>
-        <article className="panel-card premium-section-card">
-          <h2>{nextTitle}</h2>
-          <p>{nextBody}</p>
-          <div className="info-list">
-            {nextCards.map((card) => (
-              <div key={card.title}>
-                <strong>{card.title}</strong>
-                <span>{card.body}</span>
+
+          <div className="panel-grid two-col">
+            <article className="panel-card premium-section-card">
+              <h2>{whyTitle}</h2>
+              <p>{whyBody}</p>
+              <div className="info-list">
+                {whyCards.map((card) => <div key={card.title}><strong>{card.title}</strong><span>{card.body}</span></div>)}
               </div>
-            ))}
+            </article>
+            <article className="panel-card premium-section-card">
+              <h2>{nextTitle}</h2>
+              <p>{nextBody}</p>
+              <div className="info-list">
+                {nextCards.map((card) => <div key={card.title}><strong>{card.title}</strong><span>{card.body}</span></div>)}
+              </div>
+              {nextAction ? (
+                <div className="quick-links">
+                  <Link to={nextAction.to} search={nextAction.search} className={nextAction.className ?? "button-link"}>{nextAction.label}</Link>
+                </div>
+              ) : null}
+            </article>
           </div>
-          {nextAction ? (
-            <div className="quick-links">
-              <Link
-                to={nextAction.to}
-                search={nextAction.search}
-                className={nextAction.className ?? "button-link"}
-              >
-                {nextAction.label}
-              </Link>
-            </div>
-          ) : null}
-        </article>
-      </div>
+        </div>
+      </details>
     </>
   );
 }

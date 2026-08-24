@@ -373,17 +373,17 @@ test("landing page keeps its primary path usable on a narrow phone", async ({ pa
 
   await expect(page.getByRole("heading", { name: "Make heat visible. Make action possible." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore Boston" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Choose your path" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Choose a path/ })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-test("workspace switcher is visible and editable", async ({ page }) => {
+test("workspace controls stay available on demand", async ({ page }) => {
   await page.goto("/");
   const expandButton = page.getByRole("button", { name: "Expand menu" });
   if (await expandButton.isVisible()) {
     await expandButton.click();
   }
-  await expect(page.getByText("Workspace Access")).toBeVisible();
+  await page.locator("details.access-switcher > .access-switcher-head > summary").click();
   await expect(page.getByText("default: admin")).toBeVisible();
 
   const workspaceInput = page.getByLabel("Workspace");
@@ -447,9 +447,12 @@ test("planner persona can complete the city-detail journey", async ({ page }) =>
 
   await page.getByRole("link", { name: "Open Boston" }).click();
   await expect(page).toHaveURL(/\/cities\/boston$/);
+  await expect(page.getByRole("heading", { name: "A city is more than a hot-coloured map." })).toBeVisible();
+  await expect(page.getByRole("button", { name: "See where heat needs attention" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planning readiness" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Queue baseline run" })).toBeVisible();
-  await expect(page.getByText("Workflow context")).toBeVisible();
+  await page.getByText("More ways to work with this city").click();
+  await expect(page.getByRole("button", { name: "Queue a baseline run" })).toBeVisible();
+  await expect(page.getByText("You are here")).toBeVisible();
   await expect(page.getByText("City Detail")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open scenarios for this city" })).toBeVisible();
 });

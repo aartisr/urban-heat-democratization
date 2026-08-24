@@ -16,10 +16,11 @@ export function WorkflowHeader({ eyebrow, title, description, className = "", ac
         <div className="eyebrow">{eyebrow}</div>
         <h1>{title}</h1>
       </div>
-      <div className="workflow-header-support">
+      <details className="workflow-header-support">
+        <summary>Why this page?</summary>
         <p>{description}</p>
         {actions ? <div className="workflow-header-actions">{actions}</div> : null}
-      </div>
+      </details>
     </header>
   );
 }

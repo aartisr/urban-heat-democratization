@@ -43,3 +43,7 @@ The platform can contribute when it helps someone move from a vague concern to a
 | “The model says this is best.” | “What evidence supports that ranking, and which local experts must test it?” |
 
 The aspiration is a world in which a resident does not need privileged access to understand why their block is hotter, a student can learn how evidence is made, and a public agency can make its assumptions visible before spending public resources. The project will earn trust only by staying clear about what it knows, what it estimates, and what it has not yet built.
+
+## Continue in the workspace
+
+See these principles in action in the [Urban Heat Democratization platform](https://ai-aarti.com/). The [Boston study](https://ai-aarti.com/cities/boston) is the best place to begin with a real bundled city, and the [scenario workspace](https://ai-aarti.com/scenarios) makes tradeoffs available for inspection.

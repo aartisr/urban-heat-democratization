@@ -476,7 +476,7 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
 
   await page.goto("/cities/boston");
 
-  await page.getByRole("button", { name: "Load interactive atlas" }).click();
+  await page.getByRole("button", { name: "Show the city atlas" }).click();
 
   const openButton = page.getByRole("button", { name: "Open full page map" });
   await expect(openButton).toBeVisible({ timeout: 15_000 });
@@ -484,6 +484,14 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
 
   await openButton.click();
   await expect(page.locator("article.map-card-fullpage")).toBeVisible({ timeout: 10_000 });
+  await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Layers & evidence" }).click();
+  await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toBeVisible({ timeout: 10_000 });
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("complementary", { name: "Layers and evidence" })).toHaveCount(0, { timeout: 10_000 });
+  await expect(page.locator("article.map-card-fullpage")).toBeVisible();
 
   await page.keyboard.press("Escape");
   await expect(page.locator("article.map-card-fullpage")).toHaveCount(0, { timeout: 10_000 });

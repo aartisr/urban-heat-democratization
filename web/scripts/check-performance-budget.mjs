@@ -6,7 +6,7 @@ const budgets = [
   { label: "application shell", pattern: /^index-.*\.js$/, maxBytes: 90 * 1024 },
   { label: "application CSS", pattern: /^index-.*\.css$/, maxBytes: 220 * 1024 },
   { label: "scenario route", pattern: /^scenarios-.*\.js$/, maxBytes: 430 * 1024 },
-  { label: "hero image", pattern: /^urban-heat-hero-city-optimized-.*\.png$/, maxBytes: 2_500 * 1024 },
+  { label: "hero image", pattern: /^urban-heat-hero-civic-atlas-.*\.jpg$/, maxBytes: 650 * 1024 },
   { label: "route images", pattern: /^route-.*\.jpg$/, maxBytes: 260 * 1024, expectedCount: 4 },
   // MapLibre is lazy-loaded only after a user opens the atlas.
   { label: "lazy map runtime", pattern: /^maplibre-core-.*\.js$/, maxBytes: 1_150 * 1024 },

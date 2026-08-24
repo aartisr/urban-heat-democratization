@@ -45,3 +45,7 @@ The platform can asynchronously refresh configured, city-ready thermal adapter p
 4. Compare a small, medium, and stretch budget scenario as discussion prompts.
 5. Create a run, then inspect the resulting record and artifacts.
 6. Read the [Boston Study Guide](../BOSTON_STUDY_GUIDE.md) before treating an output as decision-ready.
+
+## Open the living workflow
+
+Go directly to the [Urban Heat Democratization platform](https://ai-aarti.com/) to follow this sequence. Start with the [Boston atlas](https://ai-aarti.com/cities/boston), then move to [transparent scenarios](https://ai-aarti.com/scenarios) only after you have inspected the evidence and limits.

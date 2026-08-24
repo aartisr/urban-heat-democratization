@@ -250,9 +250,10 @@ function shortInterventionLabel(label: string) {
   return `${cleaned.slice(0, 21).trimEnd()}…`;
 }
 
-type HeatProjectionResult = {
-  featureCollection: GeoJsonFeatureCollection | null;
-  estimatedReductionC: number;
+type ScenarioInfluenceResult = {
+  available: boolean;
+  affectedZoneCount: number;
+  averagePriorityShift: number;
   beforeAveragePriority: number;
   afterAveragePriority: number;
 };
@@ -345,15 +346,16 @@ function scenarioComparisonAmplitude(marker: ScenarioMapMarker) {
   return scenarioKindHeatImpact(marker.icon) * budgetScale * emphasisScale;
 }
 
-function projectedHeatComparison(
+function scenarioInfluencePreview(
   heatGeojson: GeoJsonFeatureCollection | null | undefined,
   markers: ScenarioMapMarker[],
   bounds: CityMapData["bounds"],
-): HeatProjectionResult {
-  if (!heatGeojson || !heatGeojson.features.length) {
+): ScenarioInfluenceResult {
+  if (!heatGeojson || !heatGeojson.features.length || !markers.length) {
     return {
-      featureCollection: null,
-      estimatedReductionC: 0,
+      available: false,
+      affectedZoneCount: 0,
+      averagePriorityShift: 0,
       beforeAveragePriority: 0,
       afterAveragePriority: 0,
     };
@@ -366,9 +368,10 @@ function projectedHeatComparison(
   const heatReductionCap = 14 + (budgetIntensity * 32);
   let beforeTotal = 0;
   let afterTotal = 0;
+  let affectedZoneCount = 0;
 
-  const projectedFeatures = heatGeojson.features.map((feature) => {
-    const priority = Number(feature.properties?.priority ?? 0);
+  for (const feature of heatGeojson.features) {
+    const priority = Number(feature.properties?.priority ?? feature.properties?.score ?? 0);
     beforeTotal += priority;
     const centroid = geometryCentroid(feature);
     let reduction = 0;
@@ -382,23 +385,13 @@ function projectedHeatComparison(
     }
     const projectedPriority = Math.max(0, Math.min(100, priority - Math.min(heatReductionCap, reduction)));
     afterTotal += projectedPriority;
-    return {
-      ...feature,
-      properties: {
-        ...(feature.properties ?? {}),
-        projected_priority: Number(projectedPriority.toFixed(2)),
-        projected_priority_class: scoreLabel(projectedPriority),
-        projected_delta: Number((priority - projectedPriority).toFixed(2)),
-      },
-    };
-  });
+    if (priority - projectedPriority >= 1) affectedZoneCount += 1;
+  }
 
   return {
-    featureCollection: {
-      type: "FeatureCollection",
-      features: projectedFeatures,
-    },
-    estimatedReductionC: Number(Math.max(0, ((beforeTotal - afterTotal) / Math.max(1, heatGeojson.features.length)) * (0.12 + (budgetIntensity * 0.16))).toFixed(1)),
+    available: affectedZoneCount > 0,
+    affectedZoneCount,
+    averagePriorityShift: Number(((beforeTotal - afterTotal) / Math.max(1, heatGeojson.features.length)).toFixed(1)),
     beforeAveragePriority: beforeTotal / heatGeojson.features.length,
     afterAveragePriority: afterTotal / heatGeojson.features.length,
   };
@@ -1335,7 +1328,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   );
   const renderCountRef = useRef(0);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const comparisonDividerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const maplibreRef = useRef<any>(null);
   const popupRef = useRef<MapLibrePopup | null>(null);
@@ -1363,11 +1355,9 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const [scenarioPlanningMode, setScenarioPlanningMode] = useState<PlanningMode>("best_under_budget");
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [showScenarioInterventions, setShowScenarioInterventions] = useState(true);
-  const [showHeatComparison, setShowHeatComparison] = useState(true);
-  const [heatComparisonReveal, setHeatComparisonReveal] = useState(50);
   const [liveThermalBusy, setLiveThermalBusy] = useState<"enable" | "disable" | "refresh" | null>(null);
   const [sidebarTrayOpen, setSidebarTrayOpen] = useState(true);
-  const [fullPageLayerTrayOpen, setFullPageLayerTrayOpen] = useState(true);
+  const [fullPageLayerTrayOpen, setFullPageLayerTrayOpen] = useState(false);
   const [liveScenePulse, setLiveScenePulse] = useState(false);
   const [fullPageMap, setFullPageMap] = useState(false);
   const fullPageMapRef = useRef(false);
@@ -1409,27 +1399,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       mapPresent: Boolean(mapRef.current),
     });
   }
-
-  const heatComparisonMode = heatComparisonReveal <= 34 ? "before" : heatComparisonReveal >= 66 ? "after" : "both";
-  const allLayersVisible = showHeat
-    && showCooling
-    && showThermalSurface
-    && showThermalCorridors
-    && showStudyArea
-    && showBoundary
-    && showScenarioInterventions
-    && showHeatComparison;
-
-  const setAllLayerVisibility = (nextVisible: boolean) => {
-    setShowHeat(nextVisible);
-    setShowCooling(nextVisible);
-    setShowThermalSurface(nextVisible);
-    setShowThermalCorridors(nextVisible);
-    setShowStudyArea(nextVisible);
-    setShowBoundary(nextVisible);
-    setShowScenarioInterventions(nextVisible);
-    setShowHeatComparison(nextVisible);
-  };
 
   const heatEntries = useMemo<OverlayEntry[]>(
     () =>
@@ -1531,21 +1500,14 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     selectedEntry,
     selectedScenario?.id,
   ]);
-  const heatComparison = useMemo(
-    () => projectedHeatComparison(data.heatGeojson as GeoJsonFeatureCollection | null | undefined, scenarioMapMarkers, data.bounds),
+  const scenarioInfluence = useMemo(
+    () => scenarioInfluencePreview(data.heatGeojson as GeoJsonFeatureCollection | null | undefined, scenarioMapMarkers, data.bounds),
     [data.bounds, data.heatGeojson, scenarioMapMarkers],
   );
   const selectedScenarioPlacementNotes = useMemo(
     () => new Map(scenarioMapMarkers.map((marker) => [marker.label, marker.detail])),
     [scenarioMapMarkers],
   );
-
-  useEffect(() => {
-    if (!comparisonDividerRef.current) {
-      return;
-    }
-    comparisonDividerRef.current.style.setProperty("--comparison-reveal", `${heatComparisonReveal}%`);
-  }, [heatComparisonReveal]);
 
   useEffect(() => {
     if (!cityScenarios.length) {
@@ -1560,14 +1522,20 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   }, [cityScenarios, selectedScenarioId]);
   const sidebarContent = (
     <>
-      <div className="map-legend map-layer-rail">
+      <div className={`map-legend map-layer-rail${fullPageMap ? " map-layer-rail-fullpage" : ""}`}>
         <div className="map-layer-rail-header">
           <div>
-            <h3 className="map-layer-rail-title">Spectral analysis rail</h3>
-            <p className="map-layer-rail-subtitle">Start with the derived analysis layers, which are ranked by rigorous spectral math, then use the bundled thermal studies as supporting context for why those bottlenecks and cooling gaps appear.</p>
-            <p className="map-layer-summary">
-              The primary claim here is the spectral interpretation and prioritization logic. Bundled thermal sources shown here are real repository artifacts, but they support the mathematics rather than replacing it.
+            <h3 className="map-layer-rail-title">{fullPageMap ? "Choose what you see" : "Spectral analysis rail"}</h3>
+            <p className="map-layer-rail-subtitle">
+              {fullPageMap
+                ? "Turn on the evidence you need. Start with Spectral for the prioritization result; use the other tabs when you want its thermal context, geographic context, or possible actions."
+                : "Start with the derived analysis layers, which are ranked by rigorous spectral math, then use the bundled thermal studies as supporting context for why those bottlenecks and cooling gaps appear."}
             </p>
+            {!fullPageMap ? (
+              <p className="map-layer-summary">
+                The primary claim here is the spectral interpretation and prioritization logic. Bundled thermal sources shown here are real repository artifacts, but they support the mathematics rather than replacing it.
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -1809,10 +1777,25 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <input type="checkbox" checked={showScenarioInterventions} onChange={() => setShowScenarioInterventions((value) => !value)} />
                 <span>Show intervention layers on map</span>
               </label>
-              <label className="map-switch">
-                <input type="checkbox" checked={showHeatComparison} onChange={() => setShowHeatComparison((value) => !value)} />
-                <span>Show before / after heat comparison</span>
-              </label>
+              <div className="map-layer-section-title">Impact evidence</div>
+              <div className="scenario-impact-evidence">
+                <div className="scenario-impact-evidence-row">
+                  <div><span className="truth-badge derived">Planning</span><strong>Scenario influence</strong></div>
+                  <p>
+                    {scenarioInfluence.available
+                      ? `${scenarioInfluence.affectedZoneCount} priority zones have a modeled local influence; mean priority shift ${scenarioInfluence.averagePriorityShift.toFixed(1)} points.`
+                      : "Choose a scenario with mapped actions to generate a planning influence preview."}
+                  </p>
+                </div>
+                <div className="scenario-impact-evidence-row">
+                  <div><span className="truth-badge illustrative">Measured</span><strong>Observed impact</strong></div>
+                  <p>Not available yet. This requires matched field or satellite observations after implementation.</p>
+                </div>
+                <div className="scenario-impact-evidence-row">
+                  <div><span className="truth-badge illustrative">Causal</span><strong>Attributable effect</strong></div>
+                  <p>Not available yet. This requires a pre-registered comparison design, controls, and uncertainty analysis.</p>
+                </div>
+              </div>
               {cityScenarios.length ? (
                 <>
                   <div className="map-layer-section-title">Saved scenarios</div>
@@ -1857,7 +1840,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                         </div>
                         <div className="map-badge">
                           <strong>{selectedScenario.heatReductionC === null ? "—" : `${selectedScenario.heatReductionC.toFixed(1)}°C`}</strong>
-                          <p>Heat reduction</p>
+                          <p>Planning estimate · unverified</p>
                         </div>
                         <div className="map-badge">
                           <strong>{selectedScenario.equityScore === null ? "—" : selectedScenario.equityScore.toFixed(1)}</strong>
@@ -1881,34 +1864,14 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                       <p className="map-layer-summary">
                         Placement math: 30% overlay evidence, 22% action priority, 18% layer fit, 15% slot fit, and 15% separation from already placed interventions.
                       </p>
-                      {heatComparison.featureCollection ? (
+                      {scenarioInfluence.available ? (
                         <div className="scenario-comparison-card">
                           <div className="scenario-comparison-head">
-                            <strong>Before / after heat comparison</strong>
-                            <span>{heatComparison.estimatedReductionC > 0 ? `Projected drop ${heatComparison.estimatedReductionC.toFixed(1)}°C` : "Projected comparison only"}</span>
-                          </div>
-                          <div className="scenario-comparison-bars">
-                            <div className="scenario-comparison-row">
-                              <div className="scenario-comparison-label">
-                                <span>Before</span>
-                                <strong>{heatComparison.beforeAveragePriority.toFixed(1)}</strong>
-                              </div>
-                              <div className="scenario-comparison-track">
-                                <progress className="scenario-comparison-meter is-before" max={100} value={Math.max(10, Math.min(100, heatComparison.beforeAveragePriority))} />
-                              </div>
-                            </div>
-                            <div className="scenario-comparison-row">
-                              <div className="scenario-comparison-label">
-                                <span>After</span>
-                                <strong>{heatComparison.afterAveragePriority.toFixed(1)}</strong>
-                              </div>
-                              <div className="scenario-comparison-track">
-                                <progress className="scenario-comparison-meter is-after" max={100} value={Math.max(10, Math.min(100, heatComparison.afterAveragePriority))} />
-                              </div>
-                            </div>
+                            <strong>Scenario influence preview</strong>
+                            <span>Planning model · not a temperature forecast</span>
                           </div>
                           <p className="scenario-comparison-note">
-                            This is a projected scenario field, not a measured forecast. It uses the current heat polygons as the before state and attenuates them around the placed intervention markers using a distance-weighted influence model.
+                            {scenarioInfluence.affectedZoneCount} priority zones are within the modelled local influence of this scenario. The average priority shift is {scenarioInfluence.averagePriorityShift.toFixed(1)} points; this ranks planning attention and does not estimate degrees Celsius.
                           </p>
                         </div>
                       ) : null}
@@ -1925,11 +1888,9 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                                 <span className="scenario-action-placement-note">{selectedScenarioPlacementNotes.get(action.name) ?? action.rationale}</span>
                               </div>
                             </div>
-                            <div className="scenario-action-meta">
+                            <div className="scenario-action-footer">
                               <span className={`scenario-action-chip ${action.costStatus}`}>{scenarioActionStatusLabel(action.costStatus)}</span>
-                            </div>
-                            <div className="scenario-action-cost-row">
-                              <strong>{scenarioActionCostLabel(action)}</strong>
+                              <span className="scenario-action-cost">{scenarioActionCostLabel(action)}</span>
                             </div>
                           </div>
                         ))}
@@ -1993,34 +1954,14 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                           <strong>${scenarioBudget.toLocaleString()}</strong>
                         </div>
                       </div>
-                      {heatComparison.featureCollection ? (
+                      {scenarioInfluence.available ? (
                         <div className="scenario-comparison-card">
                           <div className="scenario-comparison-head">
-                            <strong>Before / after heat comparison</strong>
-                            <span>{heatComparison.estimatedReductionC > 0 ? `Projected drop ${heatComparison.estimatedReductionC.toFixed(1)}°C` : "Projected comparison only"}</span>
-                          </div>
-                          <div className="scenario-comparison-bars">
-                            <div className="scenario-comparison-row">
-                              <div className="scenario-comparison-label">
-                                <span>Before</span>
-                                <strong>{heatComparison.beforeAveragePriority.toFixed(1)}</strong>
-                              </div>
-                              <div className="scenario-comparison-track">
-                                <progress className="scenario-comparison-meter is-before" max={100} value={Math.max(10, Math.min(100, heatComparison.beforeAveragePriority))} />
-                              </div>
-                            </div>
-                            <div className="scenario-comparison-row">
-                              <div className="scenario-comparison-label">
-                                <span>After</span>
-                                <strong>{heatComparison.afterAveragePriority.toFixed(1)}</strong>
-                              </div>
-                              <div className="scenario-comparison-track">
-                                <progress className="scenario-comparison-meter is-after" max={100} value={Math.max(10, Math.min(100, heatComparison.afterAveragePriority))} />
-                              </div>
-                            </div>
+                            <strong>Scenario influence preview</strong>
+                            <span>Planning model · not a temperature forecast</span>
                           </div>
                           <p className="scenario-comparison-note">
-                            This comparison is intentionally conservative: it preserves the observed hot field as the baseline and applies a scenario-weighted projection around the active markers.
+                            {scenarioInfluence.affectedZoneCount} priority zones are within the modelled local influence of this scenario. The average priority shift is {scenarioInfluence.averagePriorityShift.toFixed(1)} points; this ranks planning attention and does not estimate degrees Celsius.
                           </p>
                         </div>
                       ) : null}
@@ -2041,11 +1982,9 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                                     <span>{item.detail}</span>
                                   </div>
                                 </div>
-                                <div className="scenario-action-meta">
+                                <div className="scenario-action-footer">
                                   <span className="scenario-action-chip derived">Preview</span>
-                                </div>
-                                <div className="scenario-action-cost-row">
-                                  <strong>${item.budgetUsd.toLocaleString()}</strong>
+                                  <span className="scenario-action-cost">Budget ${item.budgetUsd.toLocaleString()}</span>
                                 </div>
                               </div>
                             ))}
@@ -2340,6 +2279,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && fullPageMapRef.current) {
+        if (fullPageLayerTrayOpen) {
+          setFullPageLayerTrayOpen(false);
+          return;
+        }
         if (document.fullscreenElement === fullPageHostRef.current) {
           void document.exitFullscreen().catch(() => {
             // Ignore browser-level fullscreen exit errors and continue fallback mode.
@@ -2351,7 +2294,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [fullPageLayerTrayOpen]);
 
   useEffect(() => {
     const onFullscreenChange = () => {
@@ -2366,8 +2309,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   }, []);
 
   useEffect(() => {
+    const enteringFullPageMap = fullPageMap && !fullPageMapRef.current;
     fullPageMapRef.current = fullPageMap;
     document.body.classList.toggle("map-fullpage-lock", fullPageMap);
+    if (enteringFullPageMap) {
+      setFullPageLayerTrayOpen(false);
+    }
     if (mapDebugEnabled) {
       const container = mapContainerRef.current;
       console.log("[city-heat-map] fullscreen state changed", {
@@ -2574,97 +2521,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           },
         });
       }
-      map.addSource("heat-comparison", {
-        type: "geojson",
-        data: (heatComparison.featureCollection ?? { type: "FeatureCollection", features: [] }) as GeoJSON.FeatureCollection,
-      });
-      map.addLayer({
-        id: "heat-comparison-fill",
-        type: "fill",
-        source: "heat-comparison",
-        layout: {
-          visibility: "none",
-        },
-        paint: {
-          "fill-color": [
-            "interpolate",
-            ["linear"],
-            ["coalesce", ["to-number", ["get", "projected_priority"]], 0],
-            0, "#ecfeff",
-            25, "#cffafe",
-            50, "#7dd3fc",
-            75, "#14b8a6",
-            100, "#0f766e",
-          ],
-          "fill-opacity": 0.44,
-        },
-      });
-      map.addLayer({
-        id: "heat-comparison-delta-fill",
-        type: "fill",
-        source: "heat-comparison",
-        layout: {
-          visibility: "none",
-        },
-        paint: {
-          "fill-color": [
-            "interpolate",
-            ["linear"],
-            ["coalesce", ["to-number", ["get", "projected_delta"]], 0],
-            0, "rgba(255,255,255,0)",
-            2, "rgba(167,243,208,0.22)",
-            6, "rgba(45,212,191,0.34)",
-            10, "rgba(13,148,136,0.46)",
-            16, "rgba(8,145,178,0.56)",
-          ],
-          "fill-opacity": 0.78,
-        },
-      });
-      map.addLayer({
-        id: "heat-comparison-line",
-        type: "line",
-        source: "heat-comparison",
-        layout: {
-          visibility: "none",
-        },
-        paint: {
-          "line-color": "#0f766e",
-          "line-width": 1.2,
-          "line-opacity": 0.78,
-          "line-dasharray": [1.2, 1.2],
-        },
-      });
-      map.addLayer({
-        id: "heat-comparison-delta-line",
-        type: "line",
-        source: "heat-comparison",
-        layout: {
-          visibility: "none",
-        },
-        paint: {
-          "line-color": [
-            "interpolate",
-            ["linear"],
-            ["coalesce", ["to-number", ["get", "projected_delta"]], 0],
-            0, "rgba(15,23,42,0.08)",
-            2, "#14b8a6",
-            6, "#0f766e",
-            10, "#0ea5e9",
-            16, "#0369a1",
-          ],
-          "line-width": [
-            "interpolate",
-            ["linear"],
-            ["coalesce", ["to-number", ["get", "projected_delta"]], 0],
-            0, 0.5,
-            4, 1.2,
-            8, 1.9,
-            16, 2.8,
-          ],
-          "line-opacity": 0.9,
-        },
-      });
-
       if (data.accessGeojson) {
         map.addSource("cooling", { type: "geojson", data: data.accessGeojson as GeoJSON.FeatureCollection });
         map.addLayer({
@@ -2830,25 +2686,17 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     updateLayerVisibility("boundary-line", showBoundary);
     updateLayerVisibility("heat-fill", showHeat);
     updateLayerVisibility("heat-line", showHeat);
-    const showComparisonLayer = showHeat && showHeatComparison && heatComparisonReveal > 0 && Boolean(heatComparison.featureCollection);
-    updateLayerVisibility("heat-comparison-fill", showComparisonLayer);
-    updateLayerVisibility("heat-comparison-line", showComparisonLayer);
-    updateLayerVisibility("heat-comparison-delta-fill", showComparisonLayer);
-    updateLayerVisibility("heat-comparison-delta-line", showComparisonLayer);
     updateLayerVisibility("cooling-fill", showCooling);
     updateLayerVisibility("cooling-line", showCooling);
     updateLayerVisibility("scenario-interventions-circle", showScenarioInterventions && scenarioInterventions.length > 0);
   }, [
     data.thermalSources,
-    heatComparison.featureCollection,
     mapReady,
     scenarioInterventions.length,
     selectedThermalSourceId,
     showBoundary,
     showCooling,
     showHeat,
-    showHeatComparison,
-    heatComparisonReveal,
     showStudyArea,
     showThermalCorridors,
     showThermalSurface,
@@ -2897,35 +2745,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       }
     }
     if (safeHasLayer(map, "heat-fill")) {
-      const comparisonProgress = Math.max(0, Math.min(1, heatComparisonReveal / 100));
-      const baselineOpacity = Math.max(0.12, Math.min(heatOpacity, 0.68 - comparisonProgress * 0.5));
-      map.setPaintProperty("heat-fill", "fill-opacity", showHeatComparison ? baselineOpacity : heatOpacity);
-    }
-    if (safeHasLayer(map, "heat-comparison-fill")) {
-      const comparisonProgress = Math.max(0, Math.min(1, heatComparisonReveal / 100));
-      const comparisonOpacity = Math.max(0, Math.min(0.68, comparisonProgress * 0.68));
-      map.setPaintProperty("heat-comparison-fill", "fill-opacity", showHeatComparison ? comparisonOpacity : 0.44);
-    }
-    if (safeHasLayer(map, "heat-comparison-delta-fill")) {
-      const deltaOpacity = Math.max(0, Math.min(0.9, (heatComparisonReveal / 100) * 0.9));
-      map.setPaintProperty("heat-comparison-delta-fill", "fill-opacity", showHeatComparison ? deltaOpacity : 0.78);
+      map.setPaintProperty("heat-fill", "fill-opacity", heatOpacity);
     }
     if (safeHasLayer(map, "cooling-fill")) {
       map.setPaintProperty("cooling-fill", "fill-opacity", coolingOpacity);
     }
-  }, [coolingOpacity, data.thermalSources, heatComparisonReveal, heatOpacity, mapReady, showHeatComparison, thermalOpacity]);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !mapReady || !safeHasLayer(map, "heat-comparison-fill")) {
-      return;
-    }
-    const source = map.getSource("heat-comparison") as GeoJSONSource | undefined;
-    if (!source) {
-      return;
-    }
-    source.setData((heatComparison.featureCollection ?? { type: "FeatureCollection", features: [] }) as GeoJSON.FeatureCollection);
-  }, [heatComparison.featureCollection, mapReady]);
+  }, [coolingOpacity, data.thermalSources, heatOpacity, mapReady, thermalOpacity]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -3355,16 +3180,17 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         <div className="map-fullpage-header">
           <div className="map-fullpage-header-content">
             <h2>{data.cityName} spectral atlas</h2>
-            <span className="map-fullpage-hint">Press Esc or click Back to exit fullscreen</span>
+            <span className="map-fullpage-hint">The map stays clear by default. Press Esc to close controls, then again to exit.</span>
           </div>
           <div className="map-fullpage-header-actions">
             <button
               type="button"
               className="map-fullpage-layers"
-              onClick={() => setAllLayerVisibility(!allLayersVisible)}
-              aria-label={allLayersVisible ? "Turn off all map layers" : "Turn on all map layers"}
+              onClick={() => setFullPageLayerTrayOpen((open) => !open)}
+              aria-expanded={fullPageLayerTrayOpen}
+              aria-controls="fullpage-map-layers-and-evidence"
             >
-              {allLayersVisible ? "Hide all layers" : "Show all layers"}
+              {fullPageLayerTrayOpen ? "Close layers" : "Map layers"}
             </button>
             <button
               type="button"
@@ -3384,21 +3210,53 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           </div>
         </div>
       ) : null}
-      {fullPageMap ? (
-        <details
-          className="map-sidebar map-sidebar-tray map-sidebar-fullpage-tray"
-          open={fullPageLayerTrayOpen}
-          onToggle={(event) => setFullPageLayerTrayOpen(event.currentTarget.open)}
+      {fullPageMap && fullPageLayerTrayOpen ? (
+        <aside
+          id="fullpage-map-layers-and-evidence"
+          className="map-sidebar map-sidebar-fullpage-tray"
+          aria-label="Layers and evidence"
         >
-          <summary className="map-sidebar-tray-summary">
-            <div className="map-sidebar-tray-copy">
-              <strong>Layer control tray</strong>
-              <span>Pick specific spectral, thermal, context, and action layers while staying fullscreen.</span>
+          <div className="map-sidebar-fullpage-tray-header">
+            <div>
+              <p className="map-sidebar-fullpage-kicker">Map controls</p>
+              <h3>Map layers</h3>
+              <p>Turn on only the evidence you need. The short labels below are designed for a clear demo and a clear map.</p>
             </div>
-            <span className="map-sidebar-tray-pill">{fullPageLayerTrayOpen ? "Hide" : "Show"}</span>
-          </summary>
-          {sidebarContent}
-        </details>
+            <button type="button" onClick={() => setFullPageLayerTrayOpen(false)} aria-label="Close layers and evidence">
+              Close
+            </button>
+          </div>
+          <div className="map-fullpage-layer-quick-controls" role="group" aria-label="Quick map layer controls">
+            <label className="map-fullpage-layer-switch">
+              <input type="checkbox" checked={showHeat} onChange={() => setShowHeat((value) => !value)} />
+              <span><i className="layer-swatch layer-swatch-cheeger" />Heat priority <small>derived</small></span>
+            </label>
+            <label className="map-fullpage-layer-switch">
+              <input type="checkbox" checked={showCooling} onChange={() => setShowCooling((value) => !value)} />
+              <span><i className="layer-swatch layer-swatch-resistance" />Cooling gaps <small>derived</small></span>
+            </label>
+            <label className="map-fullpage-layer-switch">
+              <input type="checkbox" checked={showThermalSurface} onChange={() => setShowThermalSurface((value) => !value)} />
+              <span><i className="layer-swatch layer-swatch-thermal" />Surface heat <small>observed</small></span>
+            </label>
+            <label className="map-fullpage-layer-switch">
+              <input type="checkbox" checked={showThermalCorridors} onChange={() => setShowThermalCorridors((value) => !value)} />
+              <span><i className="layer-swatch layer-swatch-corridor" />Heat corridors <small>observed</small></span>
+            </label>
+            <label className="map-fullpage-layer-switch">
+              <input type="checkbox" checked={showScenarioInterventions} onChange={() => setShowScenarioInterventions((value) => !value)} />
+              <span><i className="layer-swatch layer-swatch-intervention" />Actions <small>scenario</small></span>
+            </label>
+            <label className="map-fullpage-layer-switch">
+              <input type="checkbox" checked={showStudyArea} onChange={() => setShowStudyArea((value) => !value)} />
+              <span><i className="layer-swatch layer-swatch-study-area" />Study edge <small>scope</small></span>
+            </label>
+          </div>
+          <details className="map-fullpage-research-details">
+            <summary>Research details &amp; sources</summary>
+            <div className="map-fullpage-research-content">{sidebarContent}</div>
+          </details>
+        </aside>
       ) : null}
       <div className="map-header">
         <div>
@@ -3421,18 +3279,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             <div className="map-live-placement-note">
               <span className="map-live-placement-dot" aria-hidden="true" />
               <span>Blinking markers show recommended intervention placement.</span>
-            </div>
-          ) : null}
-          {showHeatComparison && heatComparison.featureCollection ? (
-            <div className="map-live-placement-note map-comparison-note">
-              <span className="map-live-placement-dot map-comparison-dot" aria-hidden="true" />
-              <span>
-                {heatComparisonMode === "before"
-                  ? "Baseline heat only. Drag the compare slider or choose Both / After to reveal the mitigation layer."
-                  : heatComparisonMode === "after"
-                    ? "Projected after-intervention heat is emphasized. Baseline is subdued behind it."
-                    : "Baseline heat is red; projected after-intervention heat is teal and layered above it."}
-              </span>
             </div>
           ) : null}
         </div>
@@ -3540,65 +3386,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
           <div className={`map-stage map-stage-geographic ${liveScenePulse ? "live-update-flash" : ""}${fullPageMap ? " map-stage-fullpage" : ""}`}>
             <div ref={mapContainerRef} className={`maplibre-stage${fullPageMap ? " maplibre-stage-fullpage" : ""}`} />
-            {showHeatComparison && heatComparison.featureCollection ? (
-              <div ref={comparisonDividerRef} className="map-comparison-divider" aria-hidden="true">
-                <span className="map-comparison-divider-label is-before">Before</span>
-                <span className="map-comparison-divider-handle" />
-                <span className="map-comparison-divider-label is-after">After</span>
-              </div>
-            ) : null}
-            <div className="map-comparison-overlay" role="group" aria-label="Heat comparison modes">
-              <div className="map-comparison-overlay-head">
-                <strong>Before / after on-map view</strong>
-                <span>
-                  {heatComparisonMode === "both"
-                    ? `Drag the slider to compare. Projected drop ${heatComparison.estimatedReductionC.toFixed(1)}°C`
-                    : heatComparisonMode === "before"
-                      ? `Observed baseline only. Projected drop ${heatComparison.estimatedReductionC.toFixed(1)}°C`
-                      : `Projected after. Estimated drop ${heatComparison.estimatedReductionC.toFixed(1)}°C`}
-                </span>
-              </div>
-              <div className="map-comparison-swipe">
-                <span>Before</span>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  value={heatComparisonReveal}
-                  onChange={(event) => setHeatComparisonReveal(Number(event.target.value))}
-                  aria-label="Heat comparison slider"
-                />
-                <span>After</span>
-              </div>
-              <div className="map-comparison-segmented">
-                <button
-                  type="button"
-                  className={heatComparisonMode === "before" ? "active" : ""}
-                  onClick={() => setHeatComparisonReveal(0)}
-                >
-                  Before
-                </button>
-                <button
-                  type="button"
-                  className={heatComparisonMode === "both" ? "active" : ""}
-                  onClick={() => setHeatComparisonReveal(50)}
-                >
-                  Both
-                </button>
-                <button
-                  type="button"
-                  className={heatComparisonMode === "after" ? "active" : ""}
-                  onClick={() => setHeatComparisonReveal(100)}
-                >
-                  After
-                </button>
-              </div>
-              <div className="map-comparison-legend">
-                <span><i className="legend-chip legend-chip-before" />Observed baseline</span>
-                <span><i className="legend-chip legend-chip-after" />Projected after</span>
-              </div>
-            </div>
           </div>
 
           <div className="map-analysis-dock">

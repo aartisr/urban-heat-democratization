@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { CSSProperties } from "react";
 
 import { artifactDownloadUrl, listCityExperiences } from "../lib/api";
-import urbanHeatHeroUrl from "../assets/urban-heat-hero-city-optimized.png";
+import urbanHeatHeroUrl from "../assets/urban-heat-hero-civic-atlas.jpg";
 
 export function HomePage() {
   const experiencesQuery = useQuery({ queryKey: ["city-experiences"], queryFn: listCityExperiences });
@@ -13,20 +13,20 @@ export function HomePage() {
     <section className="page-stack home-page calm-home-page">
       <header className="hero-card premium-hero-card calm-hero-card" style={{ "--urban-hero-image": `url(${urbanHeatHeroUrl})` } as CSSProperties}>
         <div className="premium-hero-copy">
-          <div className="hero-kicker"><span className="hero-kicker-orb" aria-hidden="true" />Urban heat planning for everyone</div>
+          <div className="hero-kicker"><span className="hero-kicker-orb" aria-hidden="true" />A public-interest climate observatory</div>
           <h1><span>Make heat</span><span className="hero-title-emphasis">visible.</span><span>Make action</span><span className="hero-title-emphasis hero-title-emphasis--cool">possible.</span></h1>
           <p>
             A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.
           </p>
           <div className="quick-links">
             {featuredExperience ? (
-              <Link to="/cities/$cityId" params={{ cityId: featuredExperience.cityId }} className="button-link">
+              <Link to="/cities/$cityId" params={{ cityId: featuredExperience.cityId }} preload="intent" className="button-link">
                 Explore {featuredExperience.cityName}
               </Link>
             ) : (
-              <Link to="/cities" className="button-link">Explore a city</Link>
+              <Link to="/cities" preload="intent" className="button-link">Explore a city</Link>
             )}
-            <Link to="/modes" className="button-link secondary">Choose your path</Link>
+            <Link to="/modes" preload="intent" className="quiet-link">Not sure where to begin? Choose a path.</Link>
           </div>
           <p className="muted calm-hero-note">Start with the map. Technical detail appears when you ask for it.</p>
         </div>
@@ -72,8 +72,8 @@ export function HomePage() {
             Boston is the real bundled study city. Scenario outputs are benchmark-based exploration aids, not city-calibrated engineering predictions. The platform keeps those distinctions visible so people can participate with confidence and care.
           </p>
           <div className="quick-links">
-            <Link to="/cities" className="button-link secondary">See city readiness</Link>
-            <Link to="/scenarios" search={{ cityId: undefined, budgetUsd: undefined, focus: undefined, sourceLayer: undefined, selectedLabel: undefined }} className="button-link secondary">Explore scenarios</Link>
+            <Link to="/cities" preload="intent" className="button-link secondary">See city readiness</Link>
+            <Link to="/scenarios" search={{ cityId: undefined, budgetUsd: undefined, focus: undefined, sourceLayer: undefined, selectedLabel: undefined }} preload="intent" className="button-link secondary">Explore scenarios</Link>
           </div>
         </article>
       </section>
@@ -86,7 +86,7 @@ export function HomePage() {
             <p className="muted">{featuredExperience?.summary ?? "Open a city to inspect available evidence and begin a guided analysis."}</p>
           </div>
           <div className="quick-links">
-            {featuredExperience ? <Link to="/cities/$cityId" params={{ cityId: featuredExperience.cityId }} className="button-link">Open atlas</Link> : null}
+            {featuredExperience ? <Link to="/cities/$cityId" params={{ cityId: featuredExperience.cityId }} preload="intent" className="button-link">Open atlas</Link> : null}
             {featuredExperience?.studyGuideArtifactId ? <a href={artifactDownloadUrl(featuredExperience.studyGuideArtifactId)} className="button-link secondary">Read the guide</a> : null}
           </div>
         </div>
