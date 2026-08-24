@@ -1,0 +1,34 @@
+{
+  "endpoint": "https://api.indexnow.org/indexnow",
+  "key": "UHD-INDEXNOW-2026-AARTI-7F3C9D2E5B8A1C4D",
+  "hosts": [
+    {
+      "host": "urban-heat.ai-aarti.com",
+      "keyLocation": "https://urban-heat.ai-aarti.com/UHD-INDEXNOW-2026-AARTI-7F3C9D2E5B8A1C4D.txt",
+      "urlList": [
+        "https://urban-heat.ai-aarti.com/",
+        "https://urban-heat.ai-aarti.com/cities",
+        "https://urban-heat.ai-aarti.com/cities/boston",
+        "https://urban-heat.ai-aarti.com/scenarios",
+        "https://urban-heat.ai-aarti.com/modes",
+        "https://urban-heat.ai-aarti.com/exports",
+        "https://urban-heat.ai-aarti.com/robustness"
+      ]
+    },
+    {
+      "host": "aartisr.github.io",
+      "keyLocation": "https://aartisr.github.io/urban-heat-democratization/UHD-INDEXNOW-2026-AARTI-7F3C9D2E5B8A1C4D.txt",
+      "urlList": [
+        "https://aartisr.github.io/urban-heat-democratization/",
+        "https://aartisr.github.io/urban-heat-democratization/boston/",
+        "https://aartisr.github.io/urban-heat-democratization/science/",
+        "https://aartisr.github.io/urban-heat-democratization/community/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/worked-example/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/math/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/interpretation/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/technical/"
+      ]
+    }
+  ]
+}
