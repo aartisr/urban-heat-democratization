@@ -4,6 +4,7 @@ import { Link, useSearch } from "@tanstack/react-router";
 import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
 import { MathBlock } from "../components/math-block";
+import { ScenarioScienceGuide } from "../components/scenario-science-guide";
 import { ScenarioPackedBubbleCard } from "../components/scenario-packed-bubble-card";
 import { ScenarioSankeyCard } from "../components/scenario-sankey-card";
 import { SunburstCard } from "../components/sunburst-card";
@@ -1070,6 +1071,8 @@ export function ScenariosPage() {
           <p>Every scenario connects a budget decision to the streets, shade, and people it is meant to serve.</p>
         </div>
       </aside>
+
+      <ScenarioScienceGuide scenario={activeSunburstScenario} robustness={robustnessLab} />
 
       <div className="scenario-visual-gallery" id="scenario-composition">
         {activeSunburstScenario ? (

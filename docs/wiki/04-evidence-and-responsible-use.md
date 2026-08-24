@@ -42,3 +42,7 @@ Prefer: “The supplied layers indicate…”, “The model highlights…”, �
 Avoid: “The model proves…”, “This intervention will reduce heat by…”, “This area is inherently vulnerable…”, or “The optimal plan is…” unless the exact claim has a source, a defined scope, and appropriate validation.
 
 The project’s ethical standard is simple: clarity should increase agency, not just confidence.
+
+## Apply this standard in the platform
+
+Use the [Urban Heat Democratization platform](https://ai-aarti.com/) to inspect the public-facing evidence. Before sharing a result from the [Boston study](https://ai-aarti.com/cities/boston) or [scenario workspace](https://ai-aarti.com/scenarios), return here to name the evidence class, provenance, and limitation.

@@ -5,7 +5,9 @@ This is a visual orientation guide to the current app experience.
 Note:
 
 - These are route maps and UI tour diagrams, not photographic screenshots.
-- They are intentionally honest because the repo does not yet check in a full real screenshot gallery.
+- A generated visual gallery is maintained separately in
+  [Screenshot Gallery](SCREENSHOT_GALLERY.md). This guide explains the job of
+  each screen and the honest boundaries of the workflow.
 
 ## How to use this guide
 
@@ -57,7 +59,7 @@ Primary job:
 
 ```mermaid
 flowchart TD
-    D[City detail] --> D1[Map and overlays]
+    D[City detail] --> D1[Open atlas and map layers]
     D --> D2[City snapshot]
     D --> D3[Planning readiness]
     D --> D4[Study workflow cards]
@@ -74,6 +76,19 @@ Use this page when:
 Primary job:
 
 - connect spatial inspection, readiness context, and action-taking in one place
+
+### Map-first interaction
+
+The city page keeps the map optional until a visitor asks to open it, which
+keeps initial reading fast. In full-page mode, the map remains visible by
+default. Select **Map layers** to reveal short layer toggles for heat priority,
+cooling gaps, surface heat, corridors, actions, and the study edge. Open
+**Research details & sources** only when source context is needed.
+
+Scenario influence is shown as a planning-only priority shift. It is not a
+before/after temperature map or a measured intervention result. See the
+[impact evidence protocol](IMPACT_EVIDENCE_PROTOCOL.md) for the requirements
+for observed and causal claims.
 
 ## Scenarios
 
@@ -146,6 +161,13 @@ Primary job:
 5. Exports
 6. Runs
 
+## Responsive navigation
+
+At desktop widths, the app uses a sidebar workspace. At tablet and phone
+widths, that same navigation becomes a full-width header so labels remain
+readable and the content column stays usable. Boston city pages can open in a
+compact state; choose **Menu** to expand the complete navigation when needed.
+
 ## Fastest credible demo path
 
 If you are showing the product to someone new, this is the cleanest story:
@@ -161,6 +183,8 @@ If you are showing the product to someone new, this is the cleanest story:
 
 - Boston is the most complete visual and data-backed experience in the app.
 - Upload-first cities will usually look sparser until you register more local data.
+- Map layer visibility, scenario costs, and impact labels should be read as the
+  evidence state shown in the interface, never inferred from visual emphasis.
 
 ## Documentation honesty rule
 

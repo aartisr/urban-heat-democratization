@@ -1,6 +1,6 @@
 # Map Stack Evaluation
 
-This note records the current frontend map-stack reality in `urban_heat_democratization`.
+This note records the current frontend map-stack reality in Urban Heat Democratization.
 
 ## Current State
 

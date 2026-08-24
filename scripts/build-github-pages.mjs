@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
@@ -7,32 +7,118 @@ const out = resolve(root, "site");
 const esc = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 const main = config.mainSiteUrl.replace(/\/$/, "") + "/";
 const pages = config.githubPagesUrl.replace(/\/$/, "") + "/";
-const schema = JSON.stringify({
-  "@context": "https://schema.org",
-  "@type": "WebPage",
-  name: `${config.projectName} Field Guide`,
-  description: config.description,
-  url: pages,
-  about: ["Urban heat", "Heat equity", "Climate resilience"],
-  author: { "@type": "Person", name: config.authorName },
-  isPartOf: { "@type": "WebSite", name: config.projectName, url: main },
-});
+const repoDocs = `${config.repositoryUrl}/tree/main/docs/wiki`;
 
-await mkdir(out, { recursive: true });
+const guides = [
+  {
+    slug: "",
+    eyebrow: "Public-interest urban heat research",
+    title: "Heat evidence belongs in public.",
+    deck: "A field guide for people who need to see local heat patterns, understand the evidence, and help shape thoughtful action on cooling, shade, and public investment.",
+    image: "screenshots/home.png",
+    imageAlt: "Urban Heat Democratization home experience",
+    primary: ["Explore the live platform", main],
+    secondary: ["Begin with Boston", `${main}cities/boston`],
+    sections: [
+      ["Begin with a question, not a conclusion", "A heat map should start a conversation—not end one. Learn where a pattern comes from, what it leaves out, and what local knowledge is needed next."],
+      ["Follow the evidence", "Move from city layers to sources, methods, caveats, and a documented record. The work distinguishes observations, proxies, and exploratory scenarios."],
+      ["Shape action openly", "Use transparent scenarios to compare questions, constraints, and tradeoffs before public resources are committed."],
+    ],
+    links: [
+      ["Live city atlas", `${main}cities/boston`, "Inspect the bundled Boston study and its caveats."],
+      ["Scenario workspace", `${main}scenarios`, "Compare transparent what-if options."],
+      ["Research wiki", repoDocs, "Read the full methods, evidence, and governance field guide."],
+      ["Boston study guide", `${config.repositoryUrl}/blob/main/docs/BOSTON_STUDY_GUIDE.md`, "Understand the city case before sharing it."],
+    ],
+  },
+  {
+    slug: "boston",
+    eyebrow: "The bundled study city",
+    title: "Boston: an invitation to investigate.",
+    deck: "See the real value of an open research workspace: an inspectable city study that makes its layers, reasoning, and limits available to everyone.",
+    image: "screenshots/city-detail.png",
+    imageAlt: "Boston city-detail experience with map and evidence panels",
+    primary: ["Open the Boston study", `${main}cities/boston`],
+    secondary: ["Read the study guide", `${config.repositoryUrl}/blob/main/docs/BOSTON_STUDY_GUIDE.md`],
+    sections: [
+      ["What is here", "Boston is the real bundled study case: a boundary plus documented bottleneck and low-cooling-access overlays. It is a strong learning and inspection environment, not a procurement-ready optimizer."],
+      ["What to ask", "Which supplied layers create this pattern? What dates, spatial resolution, and missing conditions matter? Where does community experience challenge or deepen the map?"],
+      ["What comes next", "Bring a finding into a local conversation, validate it with public-health, engineering, and community expertise, then decide what further evidence is needed."],
+    ],
+    links: [
+      ["Explore Boston interactively", `${main}cities/boston`, "Start with the visual evidence and plain-language explanation."],
+      ["Open transparent scenarios", `${main}scenarios?cityId=boston`, "Use scenario outputs as questions for discussion, never as a promise."],
+      ["Boston classroom guide", `${config.repositoryUrl}/blob/main/docs/BOSTON_CLASSROOM_GUIDE.md`, "A facilitation-ready learning path."],
+      ["Evidence and responsible use", `${config.repositoryUrl}/blob/main/docs/wiki/04-evidence-and-responsible-use.md`, "The rules for interpreting and sharing a result."],
+    ],
+  },
+  {
+    slug: "science",
+    eyebrow: "Methods without mystique",
+    title: "Rigorous math. Legible meaning.",
+    deck: "The platform makes network, spectral, resistance, reliability, percolation, and raster methods visible as reasoning tools—not as a black box that outranks local knowledge.",
+    image: "screenshots/scenarios.png",
+    imageAlt: "Scenario science and evidence experience",
+    primary: ["Explore the science in the app", `${main}scenarios`],
+    secondary: ["Read science and interpretation", `${config.repositoryUrl}/blob/main/docs/wiki/03-science-and-interpretation.md`],
+    sections: [
+      ["Model = lens", "A network depends on choices about spatial units, edges, weights, thresholds, and input layers. A result is useful when those choices are inspectable."],
+      ["Bottlenecks are signals", "A Cheeger-style bottleneck identifies a weakly connected structure in the chosen model. It is not a diagnosis of a neighborhood, a person, or the correct intervention."],
+      ["Uncertainty is part of the result", "The right response to a compelling pattern is to name the inputs, inference, gaps, and decision boundary—then test it locally."],
+    ],
+    links: [
+      ["Explore the scenario workspace", `${main}scenarios`, "See assumptions, costs, and evidence labels alongside each option."],
+      ["Science and interpretation", `${config.repositoryUrl}/blob/main/docs/wiki/03-science-and-interpretation.md`, "Read the method families and interpretation protocol."],
+      ["Technical reference", `${config.repositoryUrl}/blob/main/docs/wiki/07-technical-reference.md`, "Find source modules, tests, contracts, and validation commands."],
+      ["Research sharing strategy", `${config.repositoryUrl}/blob/main/docs/RESEARCH_SHARING_AND_PUBLICATION_STRATEGY.md`, "Learn how to cite and communicate a release responsibly."],
+    ],
+  },
+  {
+    slug: "community",
+    eyebrow: "Community knowledge is evidence",
+    title: "No heat decision without public context.",
+    deck: "A city is more than a boundary file. Responsible urban-heat work begins with local purpose, partnership, accessible communication, and a way to challenge what the model misses.",
+    image: "screenshots/cities.png",
+    imageAlt: "City evidence and readiness experience",
+    primary: ["Explore city readiness", `${main}cities`],
+    secondary: ["Read the partnership guide", `${config.repositoryUrl}/blob/main/docs/wiki/05-city-onboarding-and-partnership.md`],
+    sections: [
+      ["Partnership before deployment", "Set a public-interest purpose, identify local interpreters, agree on data governance, and create a process for residents to surface omissions and harms."],
+      ["Readiness must be visible", "A boundary-only city can support orientation. It cannot support heat conclusions. Evidence maturity should shape the confidence and use of every view."],
+      ["Accountability continues after launch", "Share what informed a decision, what was uncertain, who reviewed it, and what changed after public feedback."],
+    ],
+    links: [
+      ["Explore cities in the platform", `${main}cities`, "See what each city experience is ready to support."],
+      ["City onboarding and partnership", `${config.repositoryUrl}/blob/main/docs/wiki/05-city-onboarding-and-partnership.md`, "A practical civic and technical readiness guide."],
+      ["Evidence and responsible use", `${config.repositoryUrl}/blob/main/docs/wiki/04-evidence-and-responsible-use.md`, "Protect people, not just data."],
+      ["Community learning path", `${main}modes`, "Choose a guided way into the workspace."],
+    ],
+  },
+];
+
+const absolute = (path) => (path ? `${pages}${path}/` : pages);
+const card = ([title, text], index) => `<article class="principle-card"><span class="card-index">0${index + 1}</span><h2>${esc(title)}</h2><p>${esc(text)}</p></article>`;
+const resource = ([title, href, text]) => `<a class="resource-link" href="${esc(href)}"><span><strong>${esc(title)}</strong><small>${esc(text)}</small></span><b aria-hidden="true">↗</b></a>`;
+
+function renderPage(page) {
+  const canonical = absolute(page.slug);
+  const title = `${page.title} | ${config.projectName}`;
+  const schema = JSON.stringify({
+    "@context": "https://schema.org", "@type": "WebPage", name: title, description: page.deck, url: canonical,
+    about: ["Urban heat", "Heat equity", "Climate resilience", "Public-interest research"],
+    author: { "@type": "Person", name: config.authorName }, isPartOf: { "@type": "WebSite", name: config.projectName, url: main }, mainEntityOfPage: main,
+  });
+  const nav = guides.map((guide) => `<a ${guide.slug === page.slug ? 'aria-current="page"' : ""} href="${absolute(guide.slug)}">${guide.slug ? esc(guide.slug) : "Field guide"}</a>`).join("");
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(page.deck)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1"><link rel="canonical" href="${canonical}"><meta property="og:type" content="website"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(page.deck)}"><meta property="og:url" content="${canonical}"><script type="application/ld+json">${schema.replaceAll("<", "\\u003c")}</script><link rel="stylesheet" href="${pages}assets/field-guide.css"></head><body><a class="skip-link" href="#main">Skip to the guide</a><header class="site-header"><a class="wordmark" href="${pages}"><span>Urban Heat</span> Democratization</a><nav aria-label="Field guide">${nav}</nav><a class="header-cta" href="${main}">Open platform <span aria-hidden="true">↗</span></a></header><main id="main"><section class="hero"><div class="hero-copy"><p class="eyebrow">${esc(page.eyebrow)}</p><h1>${esc(page.title)}</h1><p class="deck">${esc(page.deck)}</p><div class="hero-actions"><a class="button primary" href="${esc(page.primary[1])}">${esc(page.primary[0])} <span aria-hidden="true">↗</span></a><a class="button quiet" href="${esc(page.secondary[1])}">${esc(page.secondary[0])}</a></div><p class="credibility-note">A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.</p></div><figure class="hero-visual"><img src="${pages}assets/${page.image}" alt="${esc(page.imageAlt)}" loading="eager"><figcaption>Explore the living workspace; cite the underlying methods and evidence.</figcaption></figure></section><section class="principles" aria-label="Key ideas">${page.sections.map(card).join("")}</section><section class="path"><div><p class="eyebrow">A clear next step</p><h2>Go from curiosity to an informed question.</h2><p>Use the interactive experience to investigate the evidence, then return to the methods and sources before treating any output as a conclusion.</p></div><a class="button primary" href="${main}">Explore Urban Heat Democratization <span aria-hidden="true">↗</span></a></section><section class="resources"><div><p class="eyebrow">Continue your research</p><h2>Primary sources, not a content maze.</h2></div><div class="resource-grid">${page.links.map(resource).join("")}</div></section></main><footer><div><a class="wordmark" href="${main}"><span>Urban Heat</span> Democratization</a><p>Created by <a href="${config.contactUrl}">${esc(config.authorName)}</a> · Open public-interest research.</p></div><div><a href="${main}">Main platform</a><a href="${repoDocs}">Research wiki</a><a href="${config.repositoryUrl}">Source repository</a></div></footer></body></html>`;
+}
+
+const css = `:root{--ink:#102728;--muted:#587174;--paper:#f6f7f1;--line:#d9e2db;--ocean:#075f72;--gold:#d99a35;--shadow:0 24px 80px rgba(13,43,43,.12)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 92% -10%,#d6eee8 0,transparent 31rem),var(--paper);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.skip-link{position:fixed;left:1rem;top:-4rem;z-index:10;background:#fff;padding:.6rem 1rem;color:var(--ink)}.skip-link:focus{top:1rem}.site-header,footer{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;max-width:1320px;margin:auto;padding:1.3rem clamp(1.2rem,4vw,4rem)}.site-header{border-bottom:1px solid var(--line)}.wordmark{color:var(--ink);font-size:.95rem;font-weight:800;letter-spacing:.025em;text-decoration:none;white-space:nowrap}.wordmark span{color:var(--ocean)}nav{display:flex;gap:1rem;align-items:center}nav a,footer a{color:var(--muted);font-size:.86rem;font-weight:700;text-decoration:none;text-transform:capitalize}nav a:hover,nav a[aria-current=page],footer a:hover{color:var(--ocean)}.header-cta{color:var(--ocean);font-size:.85rem;font-weight:800;text-decoration:none;white-space:nowrap}main{max-width:1320px;margin:auto;padding:clamp(3rem,7vw,7rem) clamp(1.2rem,4vw,4rem) 4rem}.hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(310px,.92fr);align-items:center;gap:clamp(2rem,6vw,7rem);min-height:32rem}.eyebrow{margin:0 0:.7rem;color:var(--ocean);font-size:.72rem;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.hero h1,.path h2,.resources h2{max-width:13ch;margin:0;color:#102d2d;font-family:Georgia,"Times New Roman",serif;font-size:clamp(3rem,6.4vw,6.5rem);font-weight:500;letter-spacing:-.055em;line-height:.91}.deck{max-width:39rem;margin:1.5rem 0;color:#395558;font-size:clamp(1.1rem,1.65vw,1.35rem);line-height:1.55}.hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin:1.7rem 0}.button{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:1px solid var(--ocean);border-radius:999px;padding:.78rem 1.15rem;font-weight:800;text-decoration:none}.button.primary{background:var(--ocean);color:#fff}.button.primary:hover{background:#034e60}.button.quiet{color:var(--ocean)}.credibility-note{max-width:38rem;margin:2rem 0 0;border-left:2px solid var(--gold);padding-left:.8rem;color:var(--muted);font-size:.86rem}.hero-visual{position:relative;margin:0}.hero-visual:before{position:absolute;inset:-1rem 1rem 1rem -1rem;z-index:-1;border-radius:1.3rem;background:#c4e3dc;content:""}.hero-visual img{display:block;width:100%;min-height:19rem;object-fit:cover;border:1px solid rgba(13,70,72,.12);border-radius:1rem;box-shadow:var(--shadow)}figcaption{margin-top:.7rem;color:var(--muted);font-size:.78rem}.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:6rem}.principle-card{min-height:17rem;padding:1.5rem;border:1px solid var(--line);border-radius:1rem;background:rgba(255,255,250,.8)}.card-index{color:var(--gold);font-size:.76rem;font-weight:900;letter-spacing:.12em}.principle-card h2{margin:2.2rem 0 .6rem;font-family:Georgia,serif;font-size:1.65rem;font-weight:500;line-height:1.08}.principle-card p{margin:0;color:var(--muted)}.path{display:flex;align-items:end;justify-content:space-between;gap:2rem;margin:5.5rem 0;padding:clamp(2rem,5vw,4rem);border-radius:1.2rem;background:#143b3d;color:#ecf3ed}.path h2{font-size:clamp(2.4rem,4vw,4.5rem);color:#fff}.path p:not(.eyebrow){max-width:48rem;color:#cfe0d9}.path .eyebrow{color:#f2c573}.path .button{flex:0 0 auto;border-color:#fff;background:#fff;color:#0f3b3c}.resources{display:grid;grid-template-columns:.8fr 1.2fr;gap:4rem;align-items:start;padding-bottom:2rem}.resources h2{font-size:clamp(2.2rem,3.6vw,3.6rem)}.resource-grid{display:grid;gap:.7rem}.resource-link{display:flex;justify-content:space-between;gap:1rem;padding:1.05rem 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}.resource-link strong{display:block;font-size:1.05rem}.resource-link small{display:block;margin-top:.2rem;color:var(--muted)}.resource-link b{color:var(--ocean);font-size:1.2rem}footer{margin-top:2rem;border-top:1px solid var(--line);align-items:flex-start}footer p{margin:.5rem 0 0;color:var(--muted);font-size:.8rem}footer>div:last-child{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:1rem}@media(max-width:800px){.site-header nav{display:none}.site-header{padding-top:1rem;padding-bottom:1rem}.hero,.resources{grid-template-columns:1fr}.hero{min-height:auto}.hero h1{max-width:11ch}.hero-visual{max-width:38rem}.principles{grid-template-columns:1fr;margin-top:4rem}.principle-card{min-height:0}.path{align-items:start;flex-direction:column;margin:4rem 0}.resources{gap:2rem}footer{flex-direction:column}footer>div:last-child{justify-content:flex-start}}`;
+
+await mkdir(resolve(out, "assets/screenshots"), { recursive: true });
+await Promise.all(["home.png", "city-detail.png", "scenarios.png", "cities.png"].map((file) => copyFile(resolve(root, `docs/screenshots/${file}`), resolve(out, `assets/screenshots/${file}`))));
 await writeFile(resolve(out, ".nojekyll"), "");
+await writeFile(resolve(out, "assets/field-guide.css"), css);
 await writeFile(resolve(out, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${pages}sitemap.xml\n`);
-await writeFile(resolve(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${pages}</loc><changefreq>monthly</changefreq><priority>0.6</priority></url></urlset>\n`);
-await writeFile(resolve(out, "index.html"), `<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(config.projectName)} Field Guide | Open urban heat evidence</title>
-<meta name="description" content="${esc(config.description)} Learn the questions, methods, and resources behind equitable heat action.">
-<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1"><link rel="canonical" href="${pages}">
-<meta property="og:type" content="website"><meta property="og:title" content="${esc(config.projectName)} Field Guide"><meta property="og:description" content="Open resources for understanding urban heat and equitable cooling action."><meta property="og:url" content="${pages}">
-<script type="application/ld+json">${schema.replaceAll("<", "\\u003c")}</script>
-<style>body{margin:0;background:#f6f8f7;color:#142327;font:17px/1.65 system-ui,sans-serif}main{max-width:850px;margin:auto;padding:5rem 1.5rem}h1{font-size:clamp(2.4rem,7vw,4.8rem);line-height:1.03;margin:.3rem 0 1rem}h2{margin-top:2.6rem;line-height:1.2}a{color:#075e73;font-weight:650}.tag{color:#075e73;font-weight:750;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem}.cta{display:inline-block;background:#075e73;color:#fff!important;padding:.8rem 1.1rem;border-radius:.5rem;text-decoration:none;margin:.4rem .5rem .4rem 0}.card{background:#fff;padding:1.4rem 1.6rem;border-radius:.8rem;margin:1rem 0;border:1px solid #dbe5e2}footer{margin-top:3rem;border-top:1px solid #dbe5e2;padding-top:1.5rem;font-size:.92rem}</style></head>
-<body><main><p class="tag">Open climate knowledge</p><h1>Heat evidence belongs in public.</h1><p>${esc(config.description)} This field guide gives residents, educators, planners, and researchers a clear starting point—while keeping the limits of the evidence visible.</p><p><a class="cta" href="${main}">Explore the main platform</a><a class="cta" href="${config.repositoryUrl}">Read the open repository</a></p>
-<h2>Start with useful questions</h2><div class="card"><strong>Where is heat concentrated?</strong><br>Heat is shaped by surface materials, shade, vegetation, buildings, and the surrounding urban form. A map is an invitation to investigate, not a final verdict.</div><div class="card"><strong>Who can reach relief?</strong><br>Cooling access, public space, housing, transit, and historical investment shape whether a hot day becomes a health emergency.</div><div class="card"><strong>What action is plausible?</strong><br>Compare shade, cooling, and other mitigation options transparently, with costs and assumptions made clear before commitments are made.</div>
-<h2>Use evidence responsibly</h2><p>The platform distinguishes local observations, planning proxies, and exploratory scenarios. It supports public conversation and local validation; it does not replace public-health guidance, engineering assessment, or community knowledge.</p>
-<h2>Explore further</h2><ul><li><a href="${main}cities/boston">Boston urban heat study</a></li><li><a href="${main}scenarios">Transparent mitigation scenarios</a></li><li><a href="${config.repositoryUrl}/tree/main/docs/wiki">Urban Heat Democratization Wiki: full field guide</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/01-the-case-for-democratization.md">Why urban heat must be democratized</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/02-platform-and-workflows.md">Platform and workflows</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/03-science-and-interpretation.md">Science and interpretation</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/04-evidence-and-responsible-use.md">Evidence and responsible use</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/05-city-onboarding-and-partnership.md">City onboarding and partnership</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/06-roadmap-governance-and-contribution.md">Roadmap, governance, and contribution</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/07-technical-reference.md">Technical reference</a></li><li><a href="${config.repositoryUrl}/blob/main/docs/wiki/GLOSSARY.md">Urban heat glossary</a></li><li><a href="${config.repositoryUrl}">Source code and reusable city-onboarding materials</a></li></ul>
-<footer>Maintained by <a href="${config.contactUrl}">${esc(config.authorName)}</a>. This companion page intentionally links to the primary platform and open documentation; it is not a substitute for either.</footer></main></body></html>`);
-console.log(`Generated GitHub Pages companion in ${out}`);
+await writeFile(resolve(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${guides.map((page) => `<url><loc>${absolute(page.slug)}</loc><changefreq>monthly</changefreq><priority>${page.slug ? "0.5" : "0.6"}</priority></url>`).join("")}</urlset>\n`);
+await Promise.all(guides.map(async (page) => { const directory = page.slug ? resolve(out, page.slug) : out; await mkdir(directory, { recursive: true }); await writeFile(resolve(directory, "index.html"), renderPage(page)); }));
+console.log(`Generated ${guides.length} GitHub Pages field-guide pages in ${out}`);

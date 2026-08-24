@@ -7,11 +7,29 @@
 
 > The right to understand a life-threatening heat risk should not depend on whether a neighborhood can afford a specialist study.
 
+<p align="center">
+  <strong>See the evidence. Understand the limits. Help shape the response.</strong><br />
+  A public-interest workspace for local heat, cooling access, and accountable climate action.
+</p>
+
 **Urban Heat Democratization** is an open, research-informed platform for turning urban heat from a remote technical signal into something people can inspect, question, teach, and act upon. It brings together maps, transparent scientific methods, scenario exploration, and an auditable local workflow so that a planner, student, educator, resident, or community organization can begin with the same essential question: **where is heat concentrated, who has the least access to relief, and what can be done first?**
 
 This is not a claim that software alone can solve a public-health emergency. It is a practical contribution to a broader civic effort: making the evidence and reasoning needed for better heat decisions more legible and more widely available.
 
 Official website: [ai-aarti.com](https://ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [MIT License](LICENSE)
+
+## Begin in one minute
+
+| If you are… | Start here | You will leave with… |
+| --- | --- | --- |
+| A resident, student, or first-time visitor | [Open the workspace](https://ai-aarti.com/) | A plain-language path from a local question to evidence and its limits. |
+| A planner, educator, or community organization | [Explore Boston](https://ai-aarti.com/cities/boston) | A real bundled study example with map layers, readiness context, and a guided workflow. |
+| A researcher or technical reviewer | [Read the methods and interpretation](docs/wiki/03-science-and-interpretation.md) | The reasoning, terminology, provenance expectations, and boundaries behind the interface. |
+| A potential city partner | [Read the onboarding guide](docs/wiki/05-city-onboarding-and-partnership.md) | A progressive path from a boundary to locally accountable evidence. |
+
+**The shortest credible demo:** open Boston → inspect the layers and their
+source context → compare a benchmark scenario → review what is planning-only
+and what would require local validation.
 
 ## Search, AI discovery, and GitHub Pages
 
@@ -68,6 +86,11 @@ The credibility of this work rests on limits stated plainly. This repository doe
 
 We consider this candor part of the product. It shows users where evidence is strong, where it is provisional, and where local knowledge must lead.
 
+> **A note on ambition:** this project seeks work worthy of serious public,
+> scientific, and civic scrutiny. It does not claim awards, consensus, or
+> impact that has not been independently established. Its standard is simpler
+> and more demanding: make every claim inspectable and every limitation visible.
+
 ## Why this could matter
 
 The most important innovation here is not a single algorithm. It is an institutional design choice: connect scientific reasoning to ordinary civic use without hiding either the science or its uncertainty.
@@ -105,6 +128,31 @@ Every public-facing surface—including the app toolbar, homepage, GitHub Pages 
 | Operational model | FastAPI service, local SQLite runtime queue, JSON mirrors, and CI validation |
 | Primary bundled experience | Boston research and classroom package variants |
 | Expansion model | Upload-first or catalog city onboarding with progressive data readiness |
+
+## Current experience highlights
+
+The public interface is deliberately designed as a guided research workspace,
+not a dashboard that asks people to decode everything at once.
+
+- **Start with a question.** The overview leads with the public-interest
+  purpose, a direct route into Boston, and plain-language evidence limits.
+- **Use Boston as the real bundled study city.** Its city page combines
+  spatial evidence, readiness, source context, and an explainable transition
+  into scenarios.
+- **Open the atlas when it is useful.** The full-screen map begins with an
+  unobstructed view. A compact **Map layers** control exposes short, labelled
+  toggles; deeper sources and research details are available on request.
+- **Keep impact claims honest.** Planning previews describe a shift in
+  priority geometry. They are not presented as measured cooling or causal
+  effects. See the [impact evidence protocol](docs/IMPACT_EVIDENCE_PROTOCOL.md).
+- **Make the science readable.** The city and scenario pages pair technical
+  formulas with plain-language explanations and evidence labels rather than
+  making the mathematics a gatekeeper.
+- **Work on any screen.** The shared application shell changes from a desktop
+  sidebar to a full-width mobile header, preserving readable navigation rather
+  than squeezing labels into a narrow rail.
+
+For a route-by-route explanation, see the [Screen Tour](docs/SCREEN_TOUR.md).
 
 ## Architecture
 

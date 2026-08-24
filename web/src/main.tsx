@@ -3,8 +3,9 @@ import ReactDOM from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";
 
-import { ApiError } from "./lib/api";
 import { router } from "./router";
+import { AnalyticsConsent } from "./components/analytics-consent";
+import { initializeAnalytics } from "./lib/analytics";
 import { defaultSeo, setPageSeo } from "./lib/seo";
 import "katex/dist/katex.min.css";
 import "./styles.css";
@@ -15,15 +16,9 @@ const queryClient = new QueryClient({
       staleTime: 30_000,
       gcTime: 5 * 60_000,
       refetchOnWindowFocus: false,
-      retry: (failureCount, error) => {
-        if (failureCount >= 2) {
-          return false;
-        }
-        if (error instanceof ApiError) {
-          return error.status >= 500 || error.status === 429;
-        }
-        return true;
-      },
+      // The API client already performs one fast retry for safe requests.
+      // Avoid a second retry layer that makes an unavailable service feel slow.
+      retry: false,
     },
     mutations: {
       retry: 0,
@@ -32,11 +27,13 @@ const queryClient = new QueryClient({
 });
 
 setPageSeo(defaultSeo);
+initializeAnalytics();
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
+      <AnalyticsConsent />
     </QueryClientProvider>
   </React.StrictMode>,
 );

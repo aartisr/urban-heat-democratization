@@ -48,3 +48,7 @@ For API and UI specifics, use [City Onboarding Recipes](../CITY_ONBOARDING_RECIP
 ## A practical test of success
 
 An onboarding is successful when a local group can answer: What did we put into this system? What did it show? What did it miss? Who reviewed it? What will happen because of it? If those answers are unavailable, the city is not ready for high-stakes use—regardless of how polished the map appears.
+
+## See readiness in the living platform
+
+The [Cities workspace](https://ai-aarti.com/cities) makes the difference between an onboarding path and a bundled study visible. Use the [Boston experience](https://ai-aarti.com/cities/boston) as the current reference point, then pair any new city work with the partnership process above.

@@ -1,6 +1,6 @@
 # Top 25 City Analysis References
 
-This document captures comparable public-facing products that informed the generic city-page redesign in `urban_heat_democratization`.
+This document captures comparable public-facing products that informed the generic city-page redesign in Urban Heat Democratization.
 
 The goal was not to copy any one product. The goal was to extract reusable patterns from information-dense civic, climate, hazard, and planning interfaces that still guide users naturally.
 
