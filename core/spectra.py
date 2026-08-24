@@ -1,18 +1,23 @@
 
 import numpy as np
-from scipy.sparse.linalg import eigsh
 import networkx as nx
 from .graph import normalized_laplacian
+
+try:
+    from scipy.sparse.linalg import eigsh
+except ImportError:  # The Vercel runtime uses NumPy for compact demo graphs.
+    eigsh = None
 
 def lambda2_and_fiedler(G: nx.Graph):
     L, nodes, deg = normalized_laplacian(G)
     n = L.shape[0]
     if n < 2:
         return 0.0, np.zeros(n), nodes, deg
-    if n <= 3:
-        vals, vecs = np.linalg.eigh(L.toarray())
-    else:
+    if eigsh is not None and n > 3:
         vals, vecs = eigsh(L, k=2, which='SM')
+    else:
+        dense_laplacian = L.toarray() if hasattr(L, "toarray") else L
+        vals, vecs = np.linalg.eigh(dense_laplacian)
     order = np.argsort(vals)
     vals, vecs = vals[order], vecs[:,order]
     return float(vals[1]), vecs[:,1], nodes, deg
