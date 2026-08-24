@@ -45,4 +45,6 @@ The project’s ethical standard is simple: clarity should increase agency, not 
 
 ## Apply this standard in the platform
 
-Use the [Urban Heat Democratization platform](https://ai-aarti.com/) to inspect the public-facing evidence. Before sharing a result from the [Boston study](https://ai-aarti.com/cities/boston) or [scenario workspace](https://ai-aarti.com/scenarios), return here to name the evidence class, provenance, and limitation.
+Use the [Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/) to inspect the public-facing evidence. Before sharing a result from the [Boston study](https://urban-heat.ai-aarti.com/cities/boston) or [scenario workspace](https://urban-heat.ai-aarti.com/scenarios), return here to name the evidence class, provenance, and limitation.
+
+*Authored by [Aarti S Ravikumar](https://ai-aarti.com).*

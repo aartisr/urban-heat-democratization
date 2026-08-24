@@ -5,7 +5,7 @@ type SeoPage = {
   keywords?: string[];
 };
 
-const siteUrl = (import.meta.env.VITE_SITE_URL || "https://ai-aarti.com").replace(/\/$/, "");
+const siteUrl = (import.meta.env.VITE_SITE_URL || "https://urban-heat.ai-aarti.com").replace(/\/$/, "");
 const brand = "Urban Heat Democratization";
 
 function upsertMeta(selector: string, attribute: "name" | "property", value: string, content: string) {

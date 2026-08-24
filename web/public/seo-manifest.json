@@ -4,7 +4,7 @@
     {
       "@type": "WebSite",
       "name": "Urban Heat Democratization",
-      "url": "https://ai-aarti.com/",
+      "url": "https://urban-heat.ai-aarti.com/",
       "description": "An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.",
       "inLanguage": "en-US"
     },
@@ -13,7 +13,7 @@
       "name": "Urban Heat Democratization",
       "applicationCategory": "EnvironmentalApplication",
       "operatingSystem": "Web",
-      "url": "https://ai-aarti.com/",
+      "url": "https://urban-heat.ai-aarti.com/",
       "isAccessibleForFree": true,
       "license": "https://opensource.org/license/mit/",
       "author": { "@type": "Person", "name": "Aarti S Ravikumar", "url": "https://ai-aarti.com/" },

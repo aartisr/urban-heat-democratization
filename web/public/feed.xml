@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Urban Heat Democratization</title>
-  <id>https://ai-aarti.com/</id>
+  <id>https://urban-heat.ai-aarti.com/</id>
   <updated>2026-08-13T00:00:00Z</updated>
-  <link href="https://ai-aarti.com/feed.xml" rel="self" type="application/atom+xml" />
-  <link href="https://ai-aarti.com/" rel="alternate" type="text/html" />
+  <link href="https://urban-heat.ai-aarti.com/feed.xml" rel="self" type="application/atom+xml" />
+  <link href="https://urban-heat.ai-aarti.com/" rel="alternate" type="text/html" />
   <entry>
     <title>Open urban heat planning for everyone</title>
-    <id>https://ai-aarti.com/</id>
-    <link href="https://ai-aarti.com/" />
+    <id>https://urban-heat.ai-aarti.com/</id>
+    <link href="https://urban-heat.ai-aarti.com/" />
     <updated>2026-08-13T00:00:00Z</updated>
     <summary>An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.</summary>
   </entry>

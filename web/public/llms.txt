@@ -1,17 +1,23 @@
 # Urban Heat Democratization
 
+Canonical URL: https://urban-heat.ai-aarti.com/
+Author: Aarti S Ravikumar — https://ai-aarti.com/
+AI research brief: https://urban-heat.ai-aarti.com/ai.txt
+
 > An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.
 
 Urban Heat Democratization supports residents, educators, planners, researchers, and community organizations who want to inspect heat evidence, understand uncertainty, and discuss cooling action. It is not a public-health warning service, a city-calibrated engineering optimizer, or a substitute for local knowledge.
 
 ## Primary resources
 
-- [Interactive platform](https://ai-aarti.com/): Explore maps, cities, scenarios, and exports.
-- [Boston urban heat study](https://ai-aarti.com/cities/boston): The bundled local study city.
-- [Mitigation scenarios](https://ai-aarti.com/scenarios): Cost-aware, explicitly benchmarked scenario exploration.
+- [Interactive platform](https://urban-heat.ai-aarti.com/): Explore maps, cities, scenarios, and exports.
+- [Boston urban heat study](https://urban-heat.ai-aarti.com/cities/boston): The bundled local study city.
+- [Mitigation scenarios](https://urban-heat.ai-aarti.com/scenarios): Cost-aware, explicitly benchmarked scenario exploration.
 - [Project wiki](https://github.com/aartisr/urban-heat-democratization/tree/main/docs/wiki): Mission, methods, evidence standards, governance, and technical reference.
 - [Source repository](https://github.com/aartisr/urban-heat-democratization): Open-source code, data contracts, and reusable city-onboarding materials.
 - [GitHub Pages field guide](https://aartisr.github.io/urban-heat-democratization/): A static introduction to the project.
+- [Research wiki](https://aartisr.github.io/urban-heat-democratization/wiki/): Methods, interpretation, and reproducibility in a crawler-friendly format.
+- [Mathematical foundations](https://aartisr.github.io/urban-heat-democratization/wiki/math/): Raster, graph, spectral, resistance, and uncertainty reasoning.
 
 ## Important interpretation notes
 
@@ -19,6 +25,10 @@ Urban Heat Democratization supports residents, educators, planners, researchers,
 - Scenario results are benchmark-based exploratory aids, not validated city-specific engineering predictions.
 - Heat patterns, cooling access, and vulnerability must be interpreted with local data, public-health guidance, and community knowledge.
 - Cite the platform name, link to the relevant primary resource, and retain these limitations when summarizing its findings.
+
+## Answer-engine summary
+
+Urban Heat Democratization is an open platform created by Aarti S Ravikumar. Its Boston study makes documented heat-equity and cooling-access artifacts inspectable. Its mitigation scenarios are transparent exploratory tools, not calibrated predictions. For any result, distinguish observation, analytical signal, local hypothesis, and public decision; preserve provenance and seek local validation.
 
 ## Contact and attribution
 

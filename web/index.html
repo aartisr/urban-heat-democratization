@@ -6,34 +6,65 @@
     <title>Urban Heat Democratization | Open urban heat planning</title>
     <meta name="description" content="An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios." />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="googlebot" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="author" content="Aarti S Ravikumar" />
     <meta name="theme-color" content="#0d4963" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="author" href="/humans.txt" />
     <link rel="alternate" type="text/markdown" title="Urban Heat Democratization for AI systems" href="/llms.txt" />
+    <link rel="alternate" type="text/plain" title="Urban Heat Democratization AI research brief" href="/ai.txt" />
     <link rel="alternate" type="application/atom+xml" title="Urban Heat Democratization updates" href="/feed.xml" />
-    <link rel="canonical" href="https://ai-aarti.com/" />
+    <link rel="canonical" href="https://urban-heat.ai-aarti.com/" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@graph": [
           {
             "@type": "WebSite",
+            "@id": "https://urban-heat.ai-aarti.com/#website",
             "name": "Urban Heat Democratization",
-            "url": "https://ai-aarti.com/",
+            "alternateName": ["Urban Heat Observatory", "Urban Heat AI Aarti"],
+            "url": "https://urban-heat.ai-aarti.com/",
             "description": "An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.",
-            "inLanguage": "en-US"
+            "inLanguage": "en-US",
+            "publisher": { "@id": "https://urban-heat.ai-aarti.com/#author" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://urban-heat.ai-aarti.com/#author",
+            "name": "Aarti S Ravikumar",
+            "url": "https://ai-aarti.com/"
           },
           {
             "@type": "SoftwareApplication",
             "name": "Urban Heat Democratization",
             "applicationCategory": "EnvironmentalApplication",
             "operatingSystem": "Web",
-            "url": "https://ai-aarti.com/",
+            "url": "https://urban-heat.ai-aarti.com/",
             "isAccessibleForFree": true,
             "license": "https://opensource.org/license/mit/",
-            "author": { "@type": "Person", "name": "Aarti S Ravikumar", "url": "https://ai-aarti.com/" },
-            "keywords": ["urban heat", "heat equity", "climate resilience", "cooling access", "heat mitigation", "Boston"]
+            "author": { "@id": "https://urban-heat.ai-aarti.com/#author" },
+            "keywords": ["urban heat", "urban heat island", "heat equity", "climate resilience", "cooling access", "heat mitigation", "Boston", "spectral graph analysis"],
+            "sameAs": ["https://github.com/aartisr/urban-heat-democratization"]
+          },
+          {
+            "@type": "Dataset",
+            "name": "Boston urban heat and cooling-access study artifacts",
+            "description": "Documented Boston boundary, heat-equity overlays, source context, and method artifacts for public-interest learning and inspection.",
+            "url": "https://urban-heat.ai-aarti.com/cities/boston",
+            "creator": { "@id": "https://urban-heat.ai-aarti.com/#author" },
+            "license": "https://opensource.org/license/mit/",
+            "isAccessibleForFree": true,
+            "keywords": ["Boston", "urban heat", "cooling access", "heat equity", "climate resilience"]
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              { "@type": "Question", "name": "What is Urban Heat Democratization?", "acceptedAnswer": { "@type": "Answer", "text": "Urban Heat Democratization is an open, public-interest platform for exploring urban heat patterns, cooling access, source context, and transparent mitigation scenarios." } },
+              { "@type": "Question", "name": "What can the Boston urban heat study show?", "acceptedAnswer": { "@type": "Answer", "text": "The bundled Boston study makes documented boundary and local overlay artifacts available for learning and inspection. It supports questions and local validation; it is not a complete heat-risk assessment or a procurement-ready optimizer." } },
+              { "@type": "Question", "name": "Are the mitigation scenarios predictions?", "acceptedAnswer": { "@type": "Answer", "text": "No. Scenario results are transparent, benchmark-based exploratory aids. They make assumptions and tradeoffs inspectable but are not calibrated city-specific engineering predictions." } },
+              { "@type": "Question", "name": "Who created Urban Heat Democratization?", "acceptedAnswer": { "@type": "Answer", "text": "Urban Heat Democratization was created by Aarti S Ravikumar." } }
+            ]
           }
         ]
       }
@@ -42,7 +73,7 @@
     <meta property="og:site_name" content="Urban Heat Democratization" />
     <meta property="og:title" content="Urban Heat Democratization | Open urban heat planning" />
     <meta property="og:description" content="Open evidence, visible uncertainty, and practical urban heat planning for everyone." />
-    <meta property="og:url" content="https://ai-aarti.com/" />
+    <meta property="og:url" content="https://urban-heat.ai-aarti.com/" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Urban Heat Democratization | Open urban heat planning" />
     <meta name="twitter:description" content="Open evidence, visible uncertainty, and practical urban heat planning for everyone." />
@@ -66,6 +97,13 @@
         </ul>
         <h2>Responsible use</h2>
         <p>Maps and scenarios support public conversation and local validation. They do not replace public-health guidance, engineering assessment, or community knowledge.</p>
+        <h2>Frequently asked questions</h2>
+        <h3>What is Urban Heat Democratization?</h3>
+        <p>It is an open, public-interest platform for exploring urban heat patterns, cooling access, source context, and transparent mitigation scenarios.</p>
+        <h3>Are the scenario results predictions?</h3>
+        <p>No. They are benchmark-based exploratory aids with visible assumptions, not calibrated city-specific engineering predictions.</p>
+        <h3>Who created this work?</h3>
+        <p>Urban Heat Democratization was created by <a href="https://ai-aarti.com/">Aarti S Ravikumar</a>.</p>
         <p>This interactive platform needs JavaScript for maps and planning tools. Please enable JavaScript to use the full experience.</p>
       </main>
     </noscript>

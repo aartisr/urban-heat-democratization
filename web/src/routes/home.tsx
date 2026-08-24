@@ -100,14 +100,25 @@ export function HomePage() {
             <p className="muted">The project wiki explains the mission, methods, evidence standards, city onboarding, governance, and technical terms behind the atlas.</p>
           </div>
           <div className="quick-links">
-            <a className="button-link" href="https://github.com/aartisr/urban-heat-democratization/tree/main/docs/wiki">Open the Wiki</a>
-            <a className="button-link secondary" href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/03-science-and-interpretation.md">Methods and interpretation</a>
+            <a className="button-link" href="https://aartisr.github.io/urban-heat-democratization/wiki/">Open the research Wiki</a>
+            <a className="button-link secondary" href="https://aartisr.github.io/urban-heat-democratization/wiki/math/">Mathematical foundations</a>
           </div>
         </div>
         <div className="info-list">
-          <div><strong><a href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/01-the-case-for-democratization.md">Why democratize urban heat?</a></strong><span>Understand the public-interest case for accessible climate evidence.</span></div>
-          <div><strong><a href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/04-evidence-and-responsible-use.md">Evidence and responsible use</a></strong><span>See the limits, provenance expectations, and interpretation safeguards.</span></div>
+          <div><strong><a href="https://aartisr.github.io/urban-heat-democratization/wiki/interpretation/">Evidence and responsible use</a></strong><span>See the limits, provenance expectations, and interpretation safeguards.</span></div>
+          <div><strong><a href="https://aartisr.github.io/urban-heat-democratization/wiki/technical/">Technical reference</a></strong><span>Trace public-facing claims to source modules, tests, and method artifacts.</span></div>
           <div><strong><a href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/05-city-onboarding-and-partnership.md">City onboarding and partnership</a></strong><span>Learn how a new city can contribute local evidence responsibly.</span></div>
+        </div>
+      </section>
+
+      <section className="panel-card premium-feature-card" aria-labelledby="urban-heat-faq-title">
+        <div className="eyebrow">Clear answers</div>
+        <h2 id="urban-heat-faq-title">Urban heat planning, explained without the black box.</h2>
+        <div className="info-list">
+          <div><strong>What is Urban Heat Democratization?</strong><span>An open, public-interest platform for examining urban heat patterns, cooling access, evidence sources, and transparent mitigation scenarios.</span></div>
+          <div><strong>What can the Boston study tell me?</strong><span>It makes documented local layers available for learning and investigation. It is a starting point for local validation—not a complete risk assessment or a decision by itself.</span></div>
+          <div><strong>Are the scenarios forecasts?</strong><span>No. They are benchmark-based exploratory tools that make assumptions and tradeoffs visible; they are not city-calibrated engineering predictions.</span></div>
+          <div><strong>Where can I verify the methods?</strong><span>Read the <a href="https://aartisr.github.io/urban-heat-democratization/wiki/math/">mathematical foundations</a> and the <a href="https://aartisr.github.io/urban-heat-democratization/wiki/technical/">technical reference</a>, then inspect the linked source artifacts.</span></div>
         </div>
       </section>
     </section>
