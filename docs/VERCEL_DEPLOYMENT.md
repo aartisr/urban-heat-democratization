@@ -59,9 +59,10 @@ their large optional geospatial and visualization dependencies do not inflate
 the public serverless bundle.
 
 Boston's deployed map reads its boundary and derived overlay GeoJSON files
-from this repository's `data/` directory. It does not depend on a sibling
-local research checkout; that keeps the public atlas portable and reproducible
-on Vercel.
+from this repository's `data/` directory. The `boston_research_*` overlays are
+byte-for-byte copies of the Boston research exports, retained under public,
+deployable filenames rather than being replaced with generalized examples.
+The public atlas therefore does not depend on a sibling local research checkout.
 
 The runtime pins a current Pydantic 2 release so Vercel can install its
 prebuilt `pydantic-core` wheel. Do not downgrade it to Pydantic 2.6.x: that
