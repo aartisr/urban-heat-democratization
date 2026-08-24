@@ -1490,10 +1490,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   }, [coolingEntries, heatEntries, severityFilter, showCooling, showHeat]);
 
   const visibleKeys = useMemo(() => new Set(visibleEntries.map((entry) => entry.key)), [visibleEntries]);
+  const coolingScoreStatus = data.layerProvenance.find((layer) => layer.id === "cooling-access")?.scoreStatus;
   const coolingScoresAreRanked = useMemo(() => {
+    if (coolingScoreStatus) return coolingScoreStatus === "ranked";
     const distinctScores = new Set(coolingEntries.map((entry) => entry.overlay.score.toFixed(6)));
     return distinctScores.size > 1;
-  }, [coolingEntries]);
+  }, [coolingEntries, coolingScoreStatus]);
   const isRankedEntry = (entry: OverlayEntry | null) => {
     if (!entry) return false;
     return entry.layer === "heat" || coolingScoresAreRanked;
@@ -1537,6 +1539,9 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const thermalCorridorCount = activeThermalSource?.corridorGeojson.features.length ?? 0;
   const selectedFeature = selectedEntry ? overlayFeature(selectedEntry.overlay) : null;
   const selectedEntryIsRanked = isRankedEntry(selectedEntry);
+  const selectedConditionClass = selectedEntry && !selectedEntryIsRanked
+    ? String(selectedEntry.overlay.properties?.cooling_access_class ?? selectedEntry.overlay.scoreClass).replaceAll("_", " ")
+    : selectedEntry?.overlay.scoreClass ?? "Unknown";
   const selectedBounds = featureBounds(selectedFeature);
   const selectedBreakdown = selectedEntry && selectedEntryIsRanked ? interventionValueBreakdown(selectedEntry) : [];
   const selectedCentroid = selectedEntry ? overlayCentroid(selectedEntry.overlay) : null;
@@ -2319,6 +2324,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <span>Primary fields</span>
                 <strong>{layer.primaryFields.length ? layer.primaryFields.join(", ") : "None exposed"}</strong>
               </div>
+              {layer.scoreStatus ? (
+                <div className="map-property-row">
+                  <span>Score use</span>
+                  <strong>{layer.scoreStatus === "ranked" ? "Ranked within layer" : layer.scoreStatus === "flagged_not_ranked" ? "Flagged, not ranked" : "No score available"}</strong>
+                </div>
+              ) : null}
             </div>
             {layer.limitations.length ? (
               <div className="map-property-list">
@@ -3018,10 +3029,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     popup
       .setLngLat([selectedCentroid.lng, selectedCentroid.lat])
       .setHTML(
-        `<strong>${selectedEntry.layerLabel}</strong><br/>${selectedEntry.overlay.scoreClass} ${selectedEntryIsRanked ? `priority<br/>Score ${selectedEntry.overlay.score.toFixed(1)}` : "flagged condition<br/>Not ranked within this layer"}`,
+        `<strong>${selectedEntry.layerLabel}</strong><br/>${selectedConditionClass} ${selectedEntryIsRanked ? `priority<br/>Score ${selectedEntry.overlay.score.toFixed(1)}` : "flagged condition<br/>Not ranked within this layer"}`,
       )
       .addTo(map);
-  }, [mapReady, selectedCentroid, selectedEntry, selectedEntryIsRanked]);
+  }, [mapReady, selectedCentroid, selectedConditionClass, selectedEntry, selectedEntryIsRanked]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -3514,7 +3525,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                   <p>{overlayNarrative(selectedEntry, selectedEntryIsRanked)}</p>
                   <div className="metric-list compact">
                     <div><span>{selectedEntryIsRanked ? "Score" : "Status"}</span><strong>{selectedEntryIsRanked ? selectedEntry.overlay.score.toFixed(1) : "Flagged, not ranked"}</strong></div>
-                    <div><span>Class</span><strong>{selectedEntry.overlay.scoreClass}</strong></div>
+                    <div><span>{selectedEntryIsRanked ? "Class" : "Condition"}</span><strong>{selectedConditionClass}</strong></div>
                   </div>
                   {selectedEntryIsRanked ? (
                     <div className="value-bars">
@@ -3599,7 +3610,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <div key={item.title} className="plan-card-mini">
                   <strong>{item.title}</strong>
                   <p>{item.description}</p>
-                  <p>Value: {item.value.toFixed(1)}</p>
+                  <p>{item.valueLabel === "zones" ? `${item.value} zones` : `Score: ${item.value.toFixed(1)}`}</p>
                 </div>
               ))}
             </div>
