@@ -1,0 +1,29 @@
+{
+  "updated": "2026-08-24T00:00:00Z",
+  "canonicalPages": [
+    { "path": "/", "sourceRoute": "home", "title": "Open urban heat planning", "description": "An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.", "priority": "1.0", "changefreq": "weekly" },
+    { "path": "/cities", "sourceRoute": "cities", "title": "Cities and heat evidence", "description": "Explore city heat evidence, data readiness, and transparent public-interest urban heat workflows.", "priority": "0.9", "changefreq": "weekly" },
+    { "path": "/cities/boston", "sourceRoute": "city-detail", "title": "Boston urban heat study", "description": "Inspect Boston urban heat and cooling-access evidence with source context, caveats, and transparent planning tools.", "priority": "0.9", "changefreq": "monthly" },
+    { "path": "/scenarios", "sourceRoute": "scenarios", "title": "Urban heat mitigation scenarios", "description": "Explore transparent, cost-aware urban heat mitigation scenarios and their stated assumptions.", "priority": "0.8", "changefreq": "weekly" },
+    { "path": "/modes", "sourceRoute": "modes", "title": "Urban heat learning paths", "description": "Choose an accessible learning and planning path for understanding local heat, evidence, and action.", "priority": "0.7", "changefreq": "monthly" },
+    { "path": "/exports", "sourceRoute": "exports", "title": "Urban heat data exports", "description": "Access transparent urban heat planning exports and supporting evidence artifacts.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/runs", "sourceRoute": "runs", "title": "Urban heat run history", "description": "Review transparent urban heat workflow executions, artifacts, and logs.", "priority": "0.5", "changefreq": "weekly" },
+    { "path": "/robustness", "sourceRoute": "robustness", "title": "Urban heat robustness lab", "description": "Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/contact", "sourceRoute": "contact", "title": "Collaborate on urban heat action", "description": "A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.", "priority": "0.7", "changefreq": "monthly" }
+  ],
+  "githubPagesPages": [
+    { "path": "/", "title": "Urban Heat Democratization field guide", "description": "A static field guide to public-interest urban heat research.", "priority": "0.7", "changefreq": "monthly" },
+    { "path": "/boston/", "title": "Boston field guide", "description": "A companion guide to the bundled Boston urban heat study.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/science/", "title": "Science field guide", "description": "An accessible guide to methods and interpretation.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/community/", "title": "Community field guide", "description": "A guide to local knowledge and accountable urban heat collaboration.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/", "title": "Urban Heat Research Wiki", "description": "Methods, interpretation, reproducibility, and governance.", "priority": "0.7", "changefreq": "monthly" },
+    { "path": "/wiki/contact/", "title": "Collaborate and contact", "description": "A clear path for communities, mentors, and public partners.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/participate/", "title": "Help operationalize the work", "description": "How to contribute to an accountable urban heat workflow.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/worked-example/", "title": "Graph theory worked example", "description": "A simple, practical explanation of a Cheeger-style graph cut.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/theory-contract/", "title": "Spectral Theory Contract", "description": "What graph mathematics establishes and what requires local evidence.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/repeatability/", "title": "Repeatability and real-world use", "description": "The distinction between reproducibility and field validation.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/math/", "title": "Mathematical foundations", "description": "Raster, graph, spectral, resistance, and uncertainty reasoning.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/interpretation/", "title": "Interpretation and responsible use", "description": "How to read analytical signals without overclaiming.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/wiki/technical/", "title": "Technical reference and reproducibility", "description": "Code, inputs, tests, and implementation contracts.", "priority": "0.6", "changefreq": "monthly" }
+  ]
+}

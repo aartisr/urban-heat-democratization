@@ -121,6 +121,16 @@ export function HomePage() {
           <div><strong>Where can I verify the methods?</strong><span>Read the <a href="https://aartisr.github.io/urban-heat-democratization/wiki/math/">mathematical foundations</a> and the <a href="https://aartisr.github.io/urban-heat-democratization/wiki/technical/">technical reference</a>, then inspect the linked source artifacts.</span></div>
         </div>
       </section>
+
+      <section className="panel-card premium-feature-card" aria-labelledby="operationalize-title">
+        <div className="eyebrow">An invitation to participate</div>
+        <h2 id="operationalize-title">Help operationalize the work—carefully, locally, and in public.</h2>
+        <p className="muted">Community members, mentors, practitioners, researchers, educators, and public institutions can help test assumptions, improve sources, review safeguards, and shape bounded pilots. The goal is not uncritical adoption; it is a more truthful and accountable civic workflow.</p>
+        <div className="quick-links">
+          <Link to="/contact" preload="intent" className="button-link">Collaborate with the project</Link>
+          <a className="button-link secondary" href="https://github.com/aartisr/urban-heat-democratization/blob/main/docs/wiki/11-community-and-mentor-invitation.md">Read the partnership invitation</a>
+        </div>
+      </section>
     </section>
   );
 }

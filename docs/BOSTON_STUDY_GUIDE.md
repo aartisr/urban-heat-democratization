@@ -18,7 +18,7 @@ Boston is the strongest real-data example currently bundled in this repo because
 ## What The Boston Layers Mean In Plain Language
 
 - `Cheeger bottleneck`:
-  places where the urban heat network looks pinched or weakly connected, so heat can get trapped and relief does not spread well.
+  a boundary where the chosen weighted raster graph has low conductance. It is a structural signal for investigation, not a measurement of trapped heat or a claim about how relief spreads physically.
 - `Cooling-access constraint`:
   a separately ranked, model-derived view of places with lower modeled access to inferred cooling sinks. It is not a measure of air-conditioning, safety, or lived experience.
 - `Spectral highlights`:
@@ -26,7 +26,7 @@ Boston is the strongest real-data example currently bundled in this repo because
 
 You can think of Boston as a city map with:
 
-- red shapes for the hardest heat traps,
+- red shapes for higher-priority modelled bottleneck boundaries,
 - blue cells for modeled cooling-access constraints,
 - scenario tools that ask what we should fund first.
 

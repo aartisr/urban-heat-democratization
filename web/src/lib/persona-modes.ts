@@ -42,7 +42,7 @@ export const personaModeProfiles: Record<PersonaModeId, PersonaModeProfile> = {
     title: "Teach with a map-to-story arc",
     valuePromise: "Guide learners from observed heat patterns to exportable discussion artifacts.",
     keyQuestion: "Can a student explain why one block is hotter than another and what to do first?",
-    scienceAnchor: "Convert spectral bottlenecks and cooling-access gradients into explainable cause-and-effect lessons.",
+    scienceAnchor: "Convert spectral bottlenecks and cooling-access gradients into explainable lessons about modelled relationships and assumptions.",
     evidenceThreshold: {
       minVerifiedUnitCostActions: 0,
       maxBenchmarkOnlyActions: 3,

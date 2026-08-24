@@ -63,4 +63,11 @@ def sweep_conductance(G: nx.Graph, fiedler: np.ndarray, nodes: list, deg: np.nda
     if best_t is None:
         return 0.0, set()
     S = set(node_order[:best_t])
+    # A Fiedler eigenvector is defined only up to sign. Reversing that sign
+    # produces the complementary sweep set with the same conductance. Choose a
+    # stable, node-order-based representative so repeated runs report one cut.
+    complement = set(nodes) - S
+    node_position = {node: position for position, node in enumerate(nodes)}
+    if tuple(sorted(node_position[node] for node in complement)) < tuple(sorted(node_position[node] for node in S)):
+        S = complement
     return float(best_phi), S
