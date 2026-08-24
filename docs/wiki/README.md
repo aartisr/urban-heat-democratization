@@ -34,6 +34,9 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 8. [Glossary](GLOSSARY.md)
 9. [Urban Thermal Math Deep Dive](../Urban_Thermal_Math_Deep_Dive.md) — the equation-level companion, with assumptions and interpretation notes.
 10. [A Practical Graph-Theory Worked Example](08-graph-theory-worked-example.md) — a four-cell example from map to question.
+11. [Spectral Theory Contract](09-spectral-theory-contract.md) — exact guarantees, implementation scope, and validation boundaries.
+12. [Repeatability and Real-World Validation](10-repeatability-and-real-world-validation.md) — what is repeatable now and the pathway to responsible field use.
+13. [Help Operationalize Urban Heat Democratization](11-community-and-mentor-invitation.md) — roles for community members, mentors, public agencies, and partners.
 
 ## The short version
 

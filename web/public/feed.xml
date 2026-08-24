@@ -2,14 +2,35 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Urban Heat Democratization</title>
   <id>https://urban-heat.ai-aarti.com/</id>
-  <updated>2026-08-13T00:00:00Z</updated>
+  <updated>2026-08-24T00:00:00Z</updated>
   <link href="https://urban-heat.ai-aarti.com/feed.xml" rel="self" type="application/atom+xml" />
   <link href="https://urban-heat.ai-aarti.com/" rel="alternate" type="text/html" />
   <entry>
-    <title>Open urban heat planning for everyone</title>
+    <title>Open urban heat planning</title>
     <id>https://urban-heat.ai-aarti.com/</id>
     <link href="https://urban-heat.ai-aarti.com/" />
-    <updated>2026-08-13T00:00:00Z</updated>
+    <updated>2026-08-24T00:00:00Z</updated>
     <summary>An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.</summary>
+  </entry>
+  <entry>
+    <title>Cities and heat evidence</title>
+    <id>https://urban-heat.ai-aarti.com/cities</id>
+    <link href="https://urban-heat.ai-aarti.com/cities" />
+    <updated>2026-08-24T00:00:00Z</updated>
+    <summary>Explore city heat evidence, data readiness, and transparent public-interest urban heat workflows.</summary>
+  </entry>
+  <entry>
+    <title>Boston urban heat study</title>
+    <id>https://urban-heat.ai-aarti.com/cities/boston</id>
+    <link href="https://urban-heat.ai-aarti.com/cities/boston" />
+    <updated>2026-08-24T00:00:00Z</updated>
+    <summary>Inspect Boston urban heat and cooling-access evidence with source context, caveats, and transparent planning tools.</summary>
+  </entry>
+  <entry>
+    <title>Urban heat mitigation scenarios</title>
+    <id>https://urban-heat.ai-aarti.com/scenarios</id>
+    <link href="https://urban-heat.ai-aarti.com/scenarios" />
+    <updated>2026-08-24T00:00:00Z</updated>
+    <summary>Explore transparent, cost-aware urban heat mitigation scenarios and their stated assumptions.</summary>
   </entry>
 </feed>

@@ -8,8 +8,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "build:seo": "node ../scripts/build-github-pages.mjs",
+    "build": "npm run discovery:refresh && tsc --noEmit && vite build",
+    "build:seo": "npm run discovery:refresh && node ../scripts/build-github-pages.mjs",
+    "discovery:refresh": "node ../scripts/refresh-discovery.mjs",
+    "discovery:check": "node ../scripts/refresh-discovery.mjs --check",
     "indexnow": "node ../scripts/submit-indexnow.mjs",
     "check:lockfile": "node scripts/check-lockfile-registry.mjs",
     "check:performance": "node scripts/check-performance-budget.mjs",

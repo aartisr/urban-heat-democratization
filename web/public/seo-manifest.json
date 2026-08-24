@@ -6,7 +6,12 @@
       "name": "Urban Heat Democratization",
       "url": "https://urban-heat.ai-aarti.com/",
       "description": "An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.",
-      "inLanguage": "en-US"
+      "inLanguage": "en-US",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      }
     },
     {
       "@type": "SoftwareApplication",
@@ -16,8 +21,172 @@
       "url": "https://urban-heat.ai-aarti.com/",
       "isAccessibleForFree": true,
       "license": "https://opensource.org/license/mit/",
-      "author": { "@type": "Person", "name": "Aarti S Ravikumar", "url": "https://ai-aarti.com/" },
-      "keywords": ["urban heat", "heat equity", "climate resilience", "cooling access", "heat mitigation", "Boston"]
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "keywords": [
+        "urban heat",
+        "heat equity",
+        "climate resilience",
+        "cooling access",
+        "heat mitigation",
+        "Boston"
+      ]
+    },
+    {
+      "@type": "WebPage",
+      "name": "Open urban heat planning | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/",
+      "description": "An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Cities and heat evidence | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/cities",
+      "description": "Explore city heat evidence, data readiness, and transparent public-interest urban heat workflows.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Boston urban heat study | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/cities/boston",
+      "description": "Inspect Boston urban heat and cooling-access evidence with source context, caveats, and transparent planning tools.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Urban heat mitigation scenarios | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/scenarios",
+      "description": "Explore transparent, cost-aware urban heat mitigation scenarios and their stated assumptions.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Urban heat learning paths | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/modes",
+      "description": "Choose an accessible learning and planning path for understanding local heat, evidence, and action.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Urban heat data exports | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/exports",
+      "description": "Access transparent urban heat planning exports and supporting evidence artifacts.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Urban heat run history | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/runs",
+      "description": "Review transparent urban heat workflow executions, artifacts, and logs.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Urban heat robustness lab | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/robustness",
+      "description": "Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Collaborate on urban heat action | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/contact",
+      "description": "A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
     }
   ]
 }

@@ -20,6 +20,7 @@ const ScenariosPage = lazy(() => import("./routes/scenarios").then((module) => (
 const RunsPage = lazy(() => import("./routes/runs").then((module) => ({ default: module.RunsPage })));
 const RunDetailPage = lazy(() => import("./routes/run-detail").then((module) => ({ default: module.RunDetailPage })));
 const RobustnessPage = lazy(() => import("./routes/robustness").then((module) => ({ default: module.RobustnessPage })));
+const ContactPage = lazy(() => import("./routes/contact").then((module) => ({ default: module.ContactPage })));
 
 function withPageSuspense(node: JSX.Element) {
   return (
@@ -64,13 +65,14 @@ const navItems: Array<{
 
 const secondaryNavItems: Array<{
   label: string;
-  to: "/modes" | "/exports" | "/runs" | "/robustness";
+  to: "/modes" | "/exports" | "/runs" | "/robustness" | "/contact";
   search?: typeof baseScenarioSearch;
 }> = [
   { label: "Choose a path", to: "/modes" },
   { label: "Exports", to: "/exports" },
   { label: "Run history", to: "/runs" },
   { label: "Robustness lab", to: "/robustness" },
+  { label: "Collaborate", to: "/contact" },
 ];
 
 const SIDEBAR_MIN_WIDTH = 240;
@@ -136,6 +138,11 @@ function RootLayout() {
         title: "Urban heat robustness lab | Urban Heat Democratization",
         description: "Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.",
         keywords: ["urban heat science", "network robustness", "percolation analysis"],
+      },
+      "/contact": {
+        title: "Collaborate on urban heat action | Urban Heat Democratization",
+        description: "A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.",
+        keywords: ["urban heat collaboration", "climate resilience partnership", "heat equity community", "urban heat research mentorship"],
       },
     };
     const page = pathname.startsWith("/cities/")
@@ -473,6 +480,7 @@ const runDetailRoute = createRoute({
   component: () => withPageSuspense(<RunDetailPage />),
 });
 const robustnessRoute = createRoute({ getParentRoute: () => rootRoute, path: "robustness", component: () => withPageSuspense(<RobustnessPage />) });
+const contactRoute = createRoute({ getParentRoute: () => rootRoute, path: "contact", component: () => withPageSuspense(<ContactPage />) });
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -484,6 +492,7 @@ const routeTree = rootRoute.addChildren([
   runsRoute,
   runDetailRoute,
   robustnessRoute,
+  contactRoute,
 ]);
 
 export const router = createRouter({ routeTree });

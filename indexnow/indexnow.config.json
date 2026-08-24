@@ -12,7 +12,9 @@
         "https://urban-heat.ai-aarti.com/scenarios",
         "https://urban-heat.ai-aarti.com/modes",
         "https://urban-heat.ai-aarti.com/exports",
-        "https://urban-heat.ai-aarti.com/robustness"
+        "https://urban-heat.ai-aarti.com/runs",
+        "https://urban-heat.ai-aarti.com/robustness",
+        "https://urban-heat.ai-aarti.com/contact"
       ]
     },
     {
@@ -24,7 +26,11 @@
         "https://aartisr.github.io/urban-heat-democratization/science/",
         "https://aartisr.github.io/urban-heat-democratization/community/",
         "https://aartisr.github.io/urban-heat-democratization/wiki/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/contact/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/participate/",
         "https://aartisr.github.io/urban-heat-democratization/wiki/worked-example/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/theory-contract/",
+        "https://aartisr.github.io/urban-heat-democratization/wiki/repeatability/",
         "https://aartisr.github.io/urban-heat-democratization/wiki/math/",
         "https://aartisr.github.io/urban-heat-democratization/wiki/interpretation/",
         "https://aartisr.github.io/urban-heat-democratization/wiki/technical/"

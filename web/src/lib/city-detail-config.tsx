@@ -113,7 +113,7 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
       }
     : null;
   const pageNarrative = cityMap?.thermalSources.length
-    ? `${cityMap.narrative} Compare ${thermalSourceNames} to see how observed thermal evidence supports the derived spectral story before moving into scenarios.`
+    ? `${cityMap.narrative} Compare ${thermalSourceNames} with the derived spectral layer, then inspect the stated graph assumptions and caveats before moving into scenarios.`
     : citySpectral?.summary ?? cityMap?.narrative ?? "Use this page to read the city, understand the evidence, and move naturally into planning.";
 
   const storyJourney = {
