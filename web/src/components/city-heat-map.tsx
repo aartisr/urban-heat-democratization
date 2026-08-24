@@ -3581,7 +3581,8 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             </div>
 
             <div className="map-legend">
-              <h3>Ranked research queue</h3>
+              <h3>Priority bottlenecks to inspect</h3>
+              <p className="map-layer-summary">Model-derived locations where connectivity analysis suggests a cooling corridor may matter most. This is a prioritization aid—not an observed temperature, prediction, or funding recommendation.</p>
               {researchQueue.length ? researchQueue.map((entry, index) => (
                 <button
                   key={entry.key}
@@ -3597,7 +3598,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                   <p>Class: {entry.overlay.scoreClass} | Score: {entry.overlay.score.toFixed(1)}</p>
                 </button>
               )) : (
-                <p className="muted">No ranked polygons match the current layer and severity filters. Low cooling access remains visible as a flagged condition, without a fabricated within-layer rank.</p>
+                <p className="muted">No ranked bottlenecks match the current layer and severity filters. Low cooling access remains visible as a flagged condition, without a fabricated within-layer rank.</p>
               )}
               {!coolingScoresAreRanked && coolingVisibleCount > 0 ? (
                 <p className="map-layer-summary">{coolingVisibleCount} low-cooling-access zones are flagged, but the bundled values are identical. They are intentionally excluded from this ranked queue.</p>
