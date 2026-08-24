@@ -33,7 +33,7 @@ cd "$(git rev-parse --show-toplevel)"
 make setup
 ```
 
-If `python3.11` is missing and Homebrew is available on macOS, `make setup` will install `python@3.11` first.
+If `python3.12` is missing and Homebrew is available on macOS, `make setup` will install `python@3.12` first.
 
 ### Python compatibility check
 
@@ -67,8 +67,8 @@ npm run build
 
 ## Current truth
 
-- Python 3.11 is the pinned interpreter target for this repo.
-- `make setup` and `scripts/bootstrap_env.sh` try to install `python3.11` with Homebrew on macOS if it is missing.
+- Python 3.12 is the pinned interpreter target for this repo.
+- `make setup` and `scripts/bootstrap_env.sh` try to install `python3.12` with Homebrew on macOS if it is missing.
 - Boston is the only real bundled city dataset today.
 - `boston-research` and `boston-classroom` are bundled package variants.
 - Other cities are upload-first.

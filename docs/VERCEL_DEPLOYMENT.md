@@ -46,7 +46,8 @@ that serverless scratch state is a persistent research record.
 
 Use Node.js 22 or newer for the Vercel build. The frontend package declares
 this requirement so the deployment uses a runtime supported by its resolved
-dependencies.
+dependencies. The repository pins Python 3.12 in `.python-version`; this is
+the oldest Python version currently supported by Vercel's Python runtime.
 
 ## Required environment variables
 
