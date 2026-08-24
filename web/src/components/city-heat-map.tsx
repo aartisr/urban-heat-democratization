@@ -1321,7 +1321,6 @@ function suggestedScenarioBudget(entry: OverlayEntry) {
 }
 
 export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps) {
-  const fullPageHostRef = useRef<HTMLElement | null>(null);
   const mapDebugEnabled = typeof window !== "undefined" && (
     window.localStorage.getItem("uhd.map.debug") === "1"
     || new URLSearchParams(window.location.search).get("mapDebug") === "1"
@@ -2283,11 +2282,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           setFullPageLayerTrayOpen(false);
           return;
         }
-        if (document.fullscreenElement === fullPageHostRef.current) {
-          void document.exitFullscreen().catch(() => {
-            // Ignore browser-level fullscreen exit errors and continue fallback mode.
-          });
-        }
         setFullPageMap(false);
         fullPageMapRef.current = false;
       }
@@ -2295,18 +2289,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [fullPageLayerTrayOpen]);
-
-  useEffect(() => {
-    const onFullscreenChange = () => {
-      const inFullscreen = document.fullscreenElement === fullPageHostRef.current;
-      if (!inFullscreen && fullPageMapRef.current) {
-        setFullPageMap(false);
-      }
-    };
-
-    document.addEventListener("fullscreenchange", onFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-  }, []);
 
   useEffect(() => {
     const enteringFullPageMap = fullPageMap && !fullPageMapRef.current;
@@ -2338,23 +2320,29 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       return;
     }
 
-    // Resize after layout settles when entering/exiting fullscreen.
-    let timeoutId = 0;
+    // Safari changes its visual viewport when its browser controls appear or
+    // disappear. A few settled resizes keep MapLibre visible on iPhone.
+    const resize = () => {
+      try {
+        map.resize();
+      } catch {
+        // Ignore transient resize failures during layout changes.
+      }
+    };
+    const timeoutIds: number[] = [];
     const frameId = window.requestAnimationFrame(() => {
-      timeoutId = window.setTimeout(() => {
-        try {
-          map.resize();
-        } catch {
-          // Ignore transient resize failures during layout changes.
-        }
-      }, 120);
+      resize();
+      timeoutIds.push(window.setTimeout(resize, 120), window.setTimeout(resize, 320));
     });
+    const visualViewport = window.visualViewport;
+    visualViewport?.addEventListener("resize", resize);
+    window.addEventListener("orientationchange", resize);
 
     return () => {
       window.cancelAnimationFrame(frameId);
-      if (timeoutId) {
-        window.clearTimeout(timeoutId);
-      }
+      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+      visualViewport?.removeEventListener("resize", resize);
+      window.removeEventListener("orientationchange", resize);
     };
   }, [fullPageMap, mapReady]);
 
@@ -3172,10 +3160,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   }, [data.liveThermalAdapter.latestSceneCapturedAt]);
 
   return (
-    <article
-      ref={fullPageHostRef}
-      className={`panel-card map-card map-card-geographic${fullPageMap ? " map-card-fullpage" : ""}`}
-    >
+    <article className={`panel-card map-card map-card-geographic${fullPageMap ? " map-card-fullpage" : ""}`}>
       {fullPageMap ? (
         <div className="map-fullpage-header">
           <div className="map-fullpage-header-content">
@@ -3196,11 +3181,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               type="button"
               className="map-fullpage-exit"
               onClick={() => {
-                if (document.fullscreenElement === fullPageHostRef.current) {
-                  void document.exitFullscreen().catch(() => {
-                    // Ignore browser-level fullscreen exit errors and continue fallback mode.
-                  });
-                }
                 setFullPageMap(false);
               }}
               aria-label="Exit full page map"
@@ -3333,18 +3313,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                         containerWidth: container?.offsetWidth ?? null,
                         containerHeight: container?.offsetHeight ?? null,
                         mapPresent: Boolean(mapRef.current),
-                      });
-                    }
-                    if (next) {
-                      const host = fullPageHostRef.current;
-                      if (host && document.fullscreenElement !== host && document.fullscreenEnabled) {
-                        void host.requestFullscreen().catch(() => {
-                          // Fullscreen API may be blocked by browser policy; CSS fallback still applies.
-                        });
-                      }
-                    } else if (document.fullscreenElement === fullPageHostRef.current) {
-                      void document.exitFullscreen().catch(() => {
-                        // Ignore browser-level fullscreen exit errors and continue fallback mode.
                       });
                     }
                     setFullPageMap(next);
