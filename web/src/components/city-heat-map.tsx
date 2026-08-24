@@ -1530,7 +1530,16 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         .slice(0, 8)
     : [];
   const researchQueue = rankedEntries.slice(0, 8);
-  const coolingAccessQueue = coolingPriorityEntries.slice(0, 8);
+  const coolingAccessBands = useMemo(() => {
+    const bands = new Map<string, { score: number; entries: OverlayEntry[] }>();
+    for (const entry of coolingPriorityEntries) {
+      const key = entry.overlay.score.toFixed(6);
+      const band = bands.get(key) ?? { score: entry.overlay.score, entries: [] };
+      band.entries.push(entry);
+      bands.set(key, band);
+    }
+    return [...bands.values()].sort((left, right) => right.score - left.score).slice(0, 4);
+  }, [coolingPriorityEntries]);
   const heatVisibleCount = visibleEntries.filter((entry) => entry.layer === "heat").length;
   const coolingVisibleCount = visibleEntries.filter((entry) => entry.layer === "cooling").length;
   const activeThermalSource = data.thermalSources.find((source) => source.id === selectedThermalSourceId) ?? data.thermalSources[0] ?? null;
@@ -3618,19 +3627,19 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             <div className="map-legend">
               <h3>Cooling-access constraints to inspect</h3>
               <p className="map-layer-summary">Higher constraint means lower modeled access to inferred cooling sinks. Equal scores are ties in this graph-based surface, not an invented finer ordering.</p>
-              {coolingAccessQueue.length ? coolingAccessQueue.map((entry, index) => (
+              {coolingAccessBands.length ? coolingAccessBands.map((band, index) => (
                 <button
-                  key={entry.key}
+                  key={band.score}
                   type="button"
-                  className={`map-insight-card ${selectedEntry?.key === entry.key ? "active" : ""}`}
-                  onClick={() => setSelectedKey(entry.key)}
+                  className={`map-insight-card ${selectedEntry ? band.entries.some((entry) => entry.key === selectedEntry.key) ? "active" : "" : ""}`}
+                  onClick={() => setSelectedKey(band.entries[0].key)}
                 >
                   <div className="map-insight-head">
                     <span className="legend-chip map-chip-inline cooling" />
-                    <strong>{index + 1}. Cooling-access constraint</strong>
+                    <strong>{index === 0 ? "Highest constraint band" : `Constraint band ${index + 1}`}</strong>
                   </div>
-                  <p>{overlayNarrative(entry, true)}</p>
-                  <p>Relative constraint score: {entry.overlay.score.toFixed(1)}</p>
+                  <p>{band.entries.length} {band.entries.length === 1 ? "cell has" : "cells share"} this modeled access band. Select to inspect a representative cell on the map.</p>
+                  <p>Relative constraint score: {band.score.toFixed(1)}</p>
                 </button>
               )) : (
                 <p className="muted">No rankable cooling-access cells match the current layer and severity filters.</p>
