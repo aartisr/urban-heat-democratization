@@ -5,7 +5,7 @@ import sys
 
 
 SUPPORTED_MAJOR = 3
-SUPPORTED_MINOR = 11
+SUPPORTED_MINOR = 12
 
 
 def main() -> int:

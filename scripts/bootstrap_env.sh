@@ -9,7 +9,7 @@ PYTHON_FALLBACK_PATHS=(
   "/usr/local/opt/python@3.12/bin/python3.12"
 )
 
-find_python311() {
+find_python312() {
   if command -v "${PYTHON_BIN}" >/dev/null 2>&1; then
     command -v "${PYTHON_BIN}"
     return 0
@@ -31,7 +31,7 @@ find_python311() {
   return 1
 }
 
-install_python311_with_brew() {
+install_python312_with_brew() {
   if ! command -v brew >/dev/null 2>&1; then
     return 1
   fi
@@ -41,15 +41,15 @@ install_python311_with_brew() {
   brew install python@3.12
 }
 
-resolve_python311() {
+resolve_python312() {
   local resolved
-  if resolved="$(find_python311)"; then
+  if resolved="$(find_python312)"; then
     printf '%s\n' "${resolved}"
     return 0
   fi
 
-  if install_python311_with_brew; then
-    if resolved="$(find_python311)"; then
+  if install_python312_with_brew; then
+    if resolved="$(find_python312)"; then
       printf '%s\n' "${resolved}"
       return 0
     fi
@@ -71,7 +71,7 @@ resolve_python311() {
   exit 1
 }
 
-PYTHON_PATH="$(resolve_python311)"
+PYTHON_PATH="$(resolve_python312)"
 
 # `venv` may preserve stale launchers when asked to reuse an existing
 # environment. Recreate only the project-local environment so `python`, pip,
@@ -83,7 +83,7 @@ fi
 source .venv/bin/activate
 python scripts/check_python_env.py
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements-research.txt
 
 echo ""
 echo "Environment created successfully."

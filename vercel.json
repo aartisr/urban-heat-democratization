@@ -4,7 +4,8 @@
   "outputDirectory": "web/dist",
   "functions": {
     "api/main.py": {
-      "includeFiles": "**/*",
+      "includeFiles": "{data/*.json,data/*.geojson,docs/IMPLEMENTATION_STATUS.md,01_master_plan.md,03_phase_roadmap.md}",
+      "excludeFiles": "{.venv/**,web/**,site/**,tests/**,data/runtime/**,docs/screenshots/**}",
       "maxDuration": 60
     }
   },
