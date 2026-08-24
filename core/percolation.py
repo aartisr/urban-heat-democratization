@@ -9,6 +9,13 @@ def giant_component_fraction(G: nx.Graph) -> float:
     return cc / G.number_of_nodes()
 
 def percolation_scan(G: nx.Graph, p_values: list[float], rng: np.random.Generator | None = None):
+    """Estimate giant-component fractions under independent bond retention.
+
+    Each listed ``p`` is a separate random draw.  The values are illustrative
+    Monte Carlo realizations, not a time-series or a physical failure forecast.
+    """
+    if any(not 0.0 <= p <= 1.0 for p in p_values):
+        raise ValueError("every retention probability must lie in [0, 1]")
     rng = rng or np.random.default_rng(42)
     fractions = []
     edges = list(G.edges(data=True))

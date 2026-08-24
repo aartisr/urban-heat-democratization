@@ -18,6 +18,7 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 | Why does public access to heat evidence matter? | [The case for democratizing urban heat](01-the-case-for-democratization.md) |
 | How do I navigate the app without getting lost? | [Platform and workflows](02-platform-and-workflows.md) |
 | What do the formulas and map layers actually mean? | [Science and interpretation](03-science-and-interpretation.md) |
+| Can you show me graph theory with a small, concrete example? | [A practical graph-theory worked example](08-graph-theory-worked-example.md) |
 | What can I safely conclude from a scenario or impact preview? | [Evidence and responsible use](04-evidence-and-responsible-use.md) |
 | How could my city participate responsibly? | [City onboarding and partnership](05-city-onboarding-and-partnership.md) |
 
@@ -32,6 +33,7 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 7. [Technical reference](07-technical-reference.md)
 8. [Glossary](GLOSSARY.md)
 9. [Urban Thermal Math Deep Dive](../Urban_Thermal_Math_Deep_Dive.md) — the equation-level companion, with assumptions and interpretation notes.
+10. [A Practical Graph-Theory Worked Example](08-graph-theory-worked-example.md) — a four-cell example from map to question.
 
 ## The short version
 
