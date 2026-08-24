@@ -15,6 +15,7 @@ type CityHeatMapProps = {
 type OverlayLayer = "heat" | "cooling";
 type SeverityFilter = "all" | "high" | "medium" | "low";
 type ControlDeckTab = "spectral" | "thermal" | "actions" | "context";
+type MapLens = "priority" | "evidence" | "action" | "custom";
 
 type OverlayEntry = {
   key: string;
@@ -36,6 +37,56 @@ type MapDebugState = {
   scenarioRenderedCount: number;
   severityFilter: SeverityFilter;
 };
+
+const METHOD_GUIDES = {
+  cheeger: {
+    path: "/methods/cheeger-bottlenecks-method",
+    title: "Cheeger bottleneck method",
+    summary: "How the graph identifies weakly connected heat-and-cooling seams.",
+    pdfMeta: "Recommended · 2 pages · 74 KB",
+    wordMeta: "Editable for review and annotation · 12 KB",
+    markdownMeta: "Plain text with equations and implementation pointers · 2 KB",
+  },
+  cooling: {
+    path: "/methods/low-cooling-access-method",
+    title: "Low cooling access method",
+    summary: "How the network models relative access to cooling-supporting cells.",
+    pdfMeta: "Recommended · 2 pages · 61 KB",
+    wordMeta: "Editable for review and annotation · 12 KB",
+    markdownMeta: "Plain text with equations and implementation pointers · 2 KB",
+  },
+  interventions: {
+    path: "/methods/scenario-interventions-method",
+    title: "Scenario intervention method",
+    summary: "How planning placements are connected to evidence without overstating impact.",
+    pdfMeta: "Recommended · 2 pages · 53 KB",
+    wordMeta: "Editable for review and annotation · 12 KB",
+    markdownMeta: "Plain text with equations and implementation pointers · 2 KB",
+  },
+} as const;
+
+type MethodGuideKey = keyof typeof METHOD_GUIDES;
+
+function MethodGuideLink({ guideKey, open, onToggle }: { guideKey: MethodGuideKey; open: boolean; onToggle: () => void }) {
+  const guide = METHOD_GUIDES[guideKey];
+  return (
+    <div className={`map-method-card${open ? " is-open" : ""}`}>
+      <button type="button" className="map-method-open" onClick={onToggle} aria-expanded={open}>
+        <span className="map-method-book" aria-hidden="true">📖</span>
+        <span><strong>Download method note</strong><small>{guide.summary}</small></span>
+        <span className="map-method-open-icon" aria-hidden="true">{open ? "−" : "↓"}</span>
+      </button>
+      {open ? (
+        <div className="map-method-format-picker" aria-label={`Download formats for ${guide.title}`}>
+          <div className="map-method-format-heading"><strong>{guide.title}</strong><span>Choose the format that suits your purpose.</span></div>
+          <a href={`${guide.path}.pdf`} download><b>PDF <em>Best for most people</em></b><span>Read, print, or cite <small>{guide.pdfMeta}</small></span><i>Download</i></a>
+          <a href={`${guide.path}.docx`} download><b>Word</b><span>{guide.wordMeta}</span><i>Download</i></a>
+          <a href={`${guide.path}.md`} download><b>Markdown</b><span>{guide.markdownMeta}</span><i>Download</i></a>
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 type FeatureBounds = {
   minLng: number;
@@ -1337,8 +1388,8 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const previousSelectedKeyRef = useRef<string | null>(null);
   const previousLiveSceneCapturedAtRef = useRef<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
-  const [showThermalSurface, setShowThermalSurface] = useState(true);
-  const [showThermalCorridors, setShowThermalCorridors] = useState(true);
+  const [showThermalSurface, setShowThermalSurface] = useState(false);
+  const [showThermalCorridors, setShowThermalCorridors] = useState(false);
   const [showHeat, setShowHeat] = useState(true);
   const [showCooling, setShowCooling] = useState(true);
   const [showStudyArea, setShowStudyArea] = useState(true);
@@ -1353,12 +1404,14 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const [scenarioBudget, setScenarioBudget] = useState<number>(250000);
   const [scenarioPlanningMode, setScenarioPlanningMode] = useState<PlanningMode>("best_under_budget");
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
-  const [showScenarioInterventions, setShowScenarioInterventions] = useState(true);
+  const [showScenarioInterventions, setShowScenarioInterventions] = useState(false);
   const [liveThermalBusy, setLiveThermalBusy] = useState<"enable" | "disable" | "refresh" | null>(null);
   const [sidebarTrayOpen, setSidebarTrayOpen] = useState(true);
   const [fullPageLayerTrayOpen, setFullPageLayerTrayOpen] = useState(false);
   const [liveScenePulse, setLiveScenePulse] = useState(false);
   const [fullPageMap, setFullPageMap] = useState(false);
+  const [mapLens, setMapLens] = useState<MapLens>("priority");
+  const [openMethodGuide, setOpenMethodGuide] = useState<MethodGuideKey | null>(null);
   const fullPageMapRef = useRef(false);
   const { sidebarCollapsed: shellCollapsed } = useAppShellLayout();
   const [debugState, setDebugState] = useState<MapDebugState>({
@@ -1607,18 +1660,18 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
               <div className="map-layer-section">
                 <div className="map-layer-section-title">Derived analysis layers</div>
-                <label className="map-switch">
-                  <input type="checkbox" checked={showHeat} onChange={() => setShowHeat((value) => !value)} />
-                  <span><span className="layer-swatch layer-swatch-cheeger" />Cheeger bottlenecks</span>
-                </label>
+                <div className="map-layer-control-row">
+                  <label className="map-switch"><input type="checkbox" checked={showHeat} onChange={() => setShowHeat((value) => !value)} /><span><span className="layer-swatch layer-swatch-cheeger" />Cheeger bottlenecks</span></label>
+                  <MethodGuideLink guideKey="cheeger" open={openMethodGuide === "cheeger"} onToggle={() => setOpenMethodGuide((current) => current === "cheeger" ? null : "cheeger")} />
+                </div>
                 <div className="map-slider-control">
                   <span>Heat opacity {Math.round(heatOpacity * 100)}%</span>
                   <input type="range" min="0.1" max="0.9" step="0.02" value={heatOpacity} aria-label="Heat opacity" title="Heat opacity" onChange={(event) => setHeatOpacity(Number(event.target.value))} />
                 </div>
-                <label className="map-switch">
-                  <input type="checkbox" checked={showCooling} onChange={() => setShowCooling((value) => !value)} />
-                  <span><span className="layer-swatch layer-swatch-resistance" />Low cooling access</span>
-                </label>
+                <div className="map-layer-control-row">
+                  <label className="map-switch"><input type="checkbox" checked={showCooling} onChange={() => setShowCooling((value) => !value)} /><span><span className="layer-swatch layer-swatch-resistance" />Low cooling access</span></label>
+                  <MethodGuideLink guideKey="cooling" open={openMethodGuide === "cooling"} onToggle={() => setOpenMethodGuide((current) => current === "cooling" ? null : "cooling")} />
+                </div>
                 <div className="map-slider-control">
                   <span>Cooling opacity {Math.round(coolingOpacity * 100)}%</span>
                   <input type="range" min="0.1" max="0.9" step="0.02" value={coolingOpacity} aria-label="Cooling opacity" title="Cooling opacity" onChange={(event) => setCoolingOpacity(Number(event.target.value))} />
@@ -1772,10 +1825,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               <p className="map-layer-summary">
                 The atlas now shows saved scenarios when they exist, so the map can tell one clean planning story per scenario instead of a crowded list of options.
               </p>
-              <label className="map-switch">
-                <input type="checkbox" checked={showScenarioInterventions} onChange={() => setShowScenarioInterventions((value) => !value)} />
-                <span>Show intervention layers on map</span>
-              </label>
+              <div className="map-layer-control-row">
+                <label className="map-switch"><input type="checkbox" checked={showScenarioInterventions} onChange={() => setShowScenarioInterventions((value) => !value)} /><span>Show intervention layers on map</span></label>
+                <MethodGuideLink guideKey="interventions" open={openMethodGuide === "interventions"} onToggle={() => setOpenMethodGuide((current) => current === "interventions" ? null : "interventions")} />
+              </div>
               <div className="map-layer-section-title">Impact evidence</div>
               <div className="scenario-impact-evidence">
                 <div className="scenario-impact-evidence-row">
@@ -3159,6 +3212,40 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     return () => window.clearTimeout(timeout);
   }, [data.liveThermalAdapter.latestSceneCapturedAt]);
 
+  const mapLensLabel = mapLens === "priority"
+    ? "Priority view"
+    : mapLens === "evidence"
+      ? "Observed heat"
+      : mapLens === "action"
+        ? "Action view"
+        : "Custom view";
+
+  const chooseMapLens = (lens: Exclude<MapLens, "custom">) => {
+    setMapLens(lens);
+    setShowStudyArea(true);
+    if (lens === "priority") {
+      setShowHeat(true);
+      setShowCooling(true);
+      setShowThermalSurface(false);
+      setShowThermalCorridors(false);
+      setShowScenarioInterventions(false);
+      return;
+    }
+    if (lens === "evidence") {
+      setShowHeat(false);
+      setShowCooling(false);
+      setShowThermalSurface(true);
+      setShowThermalCorridors(true);
+      setShowScenarioInterventions(false);
+      return;
+    }
+    setShowHeat(true);
+    setShowCooling(true);
+    setShowThermalSurface(false);
+    setShowThermalCorridors(false);
+    setShowScenarioInterventions(true);
+  };
+
   return (
     <article className={`panel-card map-card map-card-geographic${fullPageMap ? " map-card-fullpage" : ""}`}>
       {fullPageMap ? (
@@ -3175,7 +3262,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               aria-expanded={fullPageLayerTrayOpen}
               aria-controls="fullpage-map-layers-and-evidence"
             >
-              {fullPageLayerTrayOpen ? "Close layers" : "Map layers"}
+              {fullPageLayerTrayOpen ? "Close" : mapLensLabel}
             </button>
             <button
               type="button"
@@ -3198,40 +3285,42 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         >
           <div className="map-sidebar-fullpage-tray-header">
             <div>
-              <p className="map-sidebar-fullpage-kicker">Map controls</p>
-              <h3>Map layers</h3>
-              <p>Turn on only the evidence you need. The short labels below are designed for a clear demo and a clear map.</p>
+              <p className="map-sidebar-fullpage-kicker">One clear question at a time</p>
+              <h3>What would you like to see?</h3>
+              <p>Choose a view. We keep only the evidence that answers that question on the map.</p>
             </div>
             <button type="button" onClick={() => setFullPageLayerTrayOpen(false)} aria-label="Close layers and evidence">
               Close
             </button>
           </div>
-          <div className="map-fullpage-layer-quick-controls" role="group" aria-label="Quick map layer controls">
-            <label className="map-fullpage-layer-switch">
-              <input type="checkbox" checked={showHeat} onChange={() => setShowHeat((value) => !value)} />
-              <span><i className="layer-swatch layer-swatch-cheeger" />Heat priority <small>derived</small></span>
-            </label>
-            <label className="map-fullpage-layer-switch">
-              <input type="checkbox" checked={showCooling} onChange={() => setShowCooling((value) => !value)} />
-              <span><i className="layer-swatch layer-swatch-resistance" />Cooling gaps <small>derived</small></span>
-            </label>
-            <label className="map-fullpage-layer-switch">
-              <input type="checkbox" checked={showThermalSurface} onChange={() => setShowThermalSurface((value) => !value)} />
-              <span><i className="layer-swatch layer-swatch-thermal" />Surface heat <small>observed</small></span>
-            </label>
-            <label className="map-fullpage-layer-switch">
-              <input type="checkbox" checked={showThermalCorridors} onChange={() => setShowThermalCorridors((value) => !value)} />
-              <span><i className="layer-swatch layer-swatch-corridor" />Heat corridors <small>observed</small></span>
-            </label>
-            <label className="map-fullpage-layer-switch">
-              <input type="checkbox" checked={showScenarioInterventions} onChange={() => setShowScenarioInterventions((value) => !value)} />
-              <span><i className="layer-swatch layer-swatch-intervention" />Actions <small>scenario</small></span>
-            </label>
-            <label className="map-fullpage-layer-switch">
-              <input type="checkbox" checked={showStudyArea} onChange={() => setShowStudyArea((value) => !value)} />
-              <span><i className="layer-swatch layer-swatch-study-area" />Study edge <small>scope</small></span>
-            </label>
+          <div className="map-lens-chooser" role="group" aria-label="Choose a map view">
+            <button type="button" className={`map-lens-card${mapLens === "priority" ? " is-active" : ""}`} onClick={() => chooseMapLens("priority")} aria-pressed={mapLens === "priority"}>
+              <i className="layer-swatch layer-swatch-cheeger" aria-hidden="true" />
+              <span><strong>Where is help needed?</strong><small>Priority + cooling gaps</small></span>
+              <b>→</b>
+            </button>
+            <button type="button" className={`map-lens-card${mapLens === "evidence" ? " is-active" : ""}`} onClick={() => chooseMapLens("evidence")} aria-pressed={mapLens === "evidence"}>
+              <i className="layer-swatch layer-swatch-thermal" aria-hidden="true" />
+              <span><strong>What does the satellite see?</strong><small>Observed surface heat + corridors</small></span>
+              <b>→</b>
+            </button>
+            <button type="button" className={`map-lens-card${mapLens === "action" ? " is-active" : ""}`} onClick={() => chooseMapLens("action")} aria-pressed={mapLens === "action"}>
+              <i className="layer-swatch layer-swatch-intervention" aria-hidden="true" />
+              <span><strong>What could improve it?</strong><small>Priorities + proposed actions</small></span>
+              <b>→</b>
+            </button>
           </div>
+          <details className="map-fullpage-fine-tune">
+            <summary>Fine-tune individual layers <span>{mapLens === "custom" ? "Custom" : "Optional"}</span></summary>
+            <div className="map-fullpage-layer-quick-controls" role="group" aria-label="Individual map layer controls">
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showHeat} onChange={() => { setMapLens("custom"); setShowHeat((value) => !value); }} /><span><i className="layer-swatch layer-swatch-cheeger" />Heat priority <small>derived</small></span></label>
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showCooling} onChange={() => { setMapLens("custom"); setShowCooling((value) => !value); }} /><span><i className="layer-swatch layer-swatch-resistance" />Cooling gaps <small>derived</small></span></label>
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showThermalSurface} onChange={() => { setMapLens("custom"); setShowThermalSurface((value) => !value); }} /><span><i className="layer-swatch layer-swatch-thermal" />Surface heat <small>observed</small></span></label>
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showThermalCorridors} onChange={() => { setMapLens("custom"); setShowThermalCorridors((value) => !value); }} /><span><i className="layer-swatch layer-swatch-corridor" />Heat corridors <small>observed</small></span></label>
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showScenarioInterventions} onChange={() => { setMapLens("custom"); setShowScenarioInterventions((value) => !value); }} /><span><i className="layer-swatch layer-swatch-intervention" />Actions <small>scenario</small></span></label>
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showStudyArea} onChange={() => { setMapLens("custom"); setShowStudyArea((value) => !value); }} /><span><i className="layer-swatch layer-swatch-study-area" />Study edge <small>scope</small></span></label>
+            </div>
+          </details>
           <details className="map-fullpage-research-details">
             <summary>Research details &amp; sources</summary>
             <div className="map-fullpage-research-content">{sidebarContent}</div>
@@ -3315,7 +3404,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                         mapPresent: Boolean(mapRef.current),
                       });
                     }
-                    setFullPageMap(next);
+                    setFullPageMap((current) => !current);
                   }}
                   aria-label={fullPageMap ? "Exit full page map" : "Open full page map"}
                 >
