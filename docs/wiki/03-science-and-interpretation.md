@@ -16,6 +16,54 @@ An urban area can be represented as a network of spatial units and their relatio
 | Resistance-style metrics | Where may movement through the modeled network face more friction? | A proxy for modeled access or flow, not a measured person-level outcome. |
 | Reliability / percolation | How does modeled connectivity respond to removals or changes? | A stress test, not a forecast of a real intervention’s performance. |
 
+## How probability and combinatorics are used
+
+**In brief:** probability tests how the *modeled network* holds up when some
+connections disappear; combinatorics helps choose among many possible
+network cuts or intervention combinations. Neither predicts an individual’s
+heat risk or guarantees a real-world outcome.
+
+| Tool | What it does here | Read it as |
+| --- | --- | --- |
+| **Probability** | Randomly removes modeled connections, then checks how much of the network remains connected to cooling points. | A resilience stress test. |
+| **Combinatorics** | Finds practical candidate bottlenecks and selects a budget-fitting combination of verified actions. | A transparent selection rule. |
+
+### Probability: “What if some connections fail?”
+
+The project runs two simple checks:
+
+1. **Percolation:** retain each connection with a chosen chance, then measure
+   the largest remaining connected area.
+2. **Sink reliability:** repeat that random test many times and average the
+   share of locations that still connect to a cooling point.
+
+Fixed random seeds make these demonstrations repeatable. The results describe
+the graph model only—they are not a forecast of infrastructure failure or a
+claim that a particular person can reach cooling.
+
+### Combinatorics: “Which combination should we examine?”
+
+There are too many possible groups of map cells or interventions to inspect
+one by one. The project therefore uses clear shortcuts:
+
+- **Bottlenecks:** a spectral ordering narrows the search to sensible candidate
+  cuts, rather than testing every possible group of nodes.
+- **Budgets:** an exact knapsack calculation selects the highest-utility
+  combination of verified actions that fits the stated budget.
+- **Raster demonstration:** a bounded greedy rule focuses on bottleneck or
+  cooling-sink-adjacent edges.
+
+These rules are inspectable choices, not hidden optimization claims.
+
+<details>
+<summary>Implementation references</summary>
+
+- Bond-percolation scan: [`core/percolation.py`](../../core/percolation.py)
+- Monte Carlo sink reliability: [`core/reliability.py`](../../core/reliability.py)
+- Spectral sweep cut: [`core/spectra.py`](../../core/spectra.py)
+- Budget subset selection: [`core/city_strategies.py`](../../core/city_strategies.py)
+</details>
+
 ## Reading the Boston overlays
 
 Boston is the project’s real bundled example. It includes a boundary, a Cheeger bottleneck overlay, and a low-cooling-access overlay. These provide a concrete way to learn the workflow, but they should be read at the level of their documented artifact and method—not as a complete account of heat risk.
