@@ -97,8 +97,15 @@ export function ContactPage() {
           </div>
         </article>
         <aside className="contact-gratitude-card">
-          <p className="eyebrow">With gratitude</p>
+          <div className="gratitude-topline">
+            <div className="gratitude-seal" aria-hidden="true"><span>∞</span></div>
+            <p className="eyebrow">With gratitude</p>
+            <span className="gratitude-line" aria-hidden="true" />
+          </div>
           <h2>Every rigorous idea has a human foundation.</h2>
+          <blockquote>
+            <p>“The most enduring equations begin with someone who helps us believe we can understand them.”</p>
+          </blockquote>
           <p>With sincere credit to <strong>Ms. Shukla</strong>, Math Mentor, for nurturing mathematical curiosity and disciplined reasoning.</p>
           <p>And with deep gratitude to Aarti’s parents, whose encouragement and belief supported the idea behind this project.</p>
           <p className="contact-author-credit">Created and authored by <a href={authorUrl}>Aarti S Ravikumar</a>.</p>

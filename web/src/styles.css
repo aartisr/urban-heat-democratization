@@ -369,7 +369,90 @@ body::before {
 }
 
 .contact-resource-card { background: rgba(255,255,255,0.78); }
-.contact-gratitude-card { background: linear-gradient(145deg, #fffaf0, #f3f8ef); }
+.contact-gratitude-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(181, 118, 39, 0.34);
+  background:
+    radial-gradient(circle at 88% 10%, rgba(255, 213, 135, 0.68) 0 1.5%, transparent 1.7%),
+    radial-gradient(circle at 91% 14%, rgba(255, 213, 135, 0.42) 0 0.75%, transparent 1%),
+    radial-gradient(circle at 84% 17%, rgba(255, 213, 135, 0.42) 0 0.55%, transparent 0.8%),
+    linear-gradient(145deg, #fffaf0 0%, #fff3d8 55%, #eff8ec 100%);
+  box-shadow: 0 22px 54px rgba(120, 77, 16, 0.14), inset 0 1px 0 rgba(255,255,255,0.88);
+}
+
+.contact-gratitude-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 235px;
+  height: 235px;
+  top: -124px;
+  right: -87px;
+  border: 1px solid rgba(180, 114, 33, 0.32);
+  border-radius: 50%;
+  box-shadow: 0 0 0 22px rgba(246, 202, 123, 0.13), 0 0 0 44px rgba(246, 202, 123, 0.07);
+}
+
+.contact-gratitude-card::after {
+  content: "Σ  ·  ∞  ·  ∴";
+  position: absolute;
+  right: 25px;
+  bottom: 18px;
+  color: rgba(119, 76, 20, 0.19);
+  font-family: var(--display-font);
+  font-size: 23px;
+  letter-spacing: 0.18em;
+}
+
+.gratitude-topline {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.gratitude-topline .eyebrow { margin: 0; color: #8a5518; }
+
+.gratitude-seal {
+  display: grid;
+  place-items: center;
+  width: 37px;
+  height: 37px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(148, 91, 22, 0.47);
+  border-radius: 50%;
+  color: #845016;
+  background: rgba(255, 252, 241, 0.8);
+  box-shadow: inset 0 0 0 4px rgba(255, 217, 150, 0.28);
+}
+
+.gratitude-seal span { font-family: var(--display-font); font-size: 23px; line-height: 1; }
+.gratitude-line { height: 1px; flex: 1; background: linear-gradient(90deg, rgba(148, 91, 22, 0.37), transparent); }
+
+.contact-gratitude-card h2 {
+  max-width: 13ch;
+  margin-top: 22px;
+  color: #442e12;
+}
+
+.contact-gratitude-card blockquote {
+  max-width: 38rem;
+  margin: 23px 0 25px;
+  padding: 0 0 0 17px;
+  border-left: 2px solid #cf8d31;
+}
+
+.contact-gratitude-card blockquote p {
+  margin: 0;
+  color: #6f4b20 !important;
+  font-family: var(--display-font);
+  font-size: clamp(19px, 1.8vw, 24px);
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.contact-gratitude-card > p:not(.eyebrow) { position: relative; max-width: 41rem; color: #5e4b31; }
 
 .contact-resource-links {
   display: grid;
@@ -385,7 +468,7 @@ body::before {
 
 .contact-author-credit {
   margin: 24px 0 0;
-  color: #31585a !important;
+  color: #704b1b !important;
   font-weight: 700;
 }
 
