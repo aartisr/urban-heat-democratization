@@ -86,6 +86,43 @@ def _canonical_severity_label(raw_class: str, *, invert_score: bool = False) -> 
     return "Low"
 
 
+def _score_status(overlays: list[dict[str, Any]]) -> dict[str, Any]:
+    """Describe whether an exported numeric field supports within-layer ranking.
+
+    A thresholded export can legitimately contain the same value for every
+    included feature. That is a useful flagged condition, but it is not a
+    priority scale. Keeping this decision in the API prevents clients from
+    turning a uniform sentinel value into false precision.
+    """
+    values = [float(overlay["score"]) for overlay in overlays if isinstance(overlay.get("score"), (int, float))]
+    distinct_count = len({round(value, 6) for value in values})
+    if not values:
+        return {
+            "scoreStatus": "unavailable",
+            "distinctScoreCount": 0,
+            "detail": "No numeric score is available in this bundled export.",
+        }
+    if distinct_count < 2:
+        return {
+            "scoreStatus": "flagged_not_ranked",
+            "distinctScoreCount": distinct_count,
+            "detail": "All bundled values are identical, so this layer is shown as a flagged condition rather than a within-layer ranking.",
+        }
+    return {
+        "scoreStatus": "ranked",
+        "distinctScoreCount": distinct_count,
+        "detail": "The bundled values vary and support within-layer ranking. They remain model-derived unless otherwise stated.",
+    }
+
+
+def _public_artifact_path(repo_root: Path, path: Path) -> str:
+    """Keep filesystem locations out of public API responses."""
+    try:
+        return path.relative_to(repo_root).as_posix()
+    except ValueError:
+        return path.name
+
+
 def _resolve_thermal_metadata_path(repo_root: Path) -> Path | None:
     local_path = repo_root / "data" / "metadata" / "thermal_sources.json"
     if local_path.exists():
@@ -195,8 +232,8 @@ def _load_thermal_surfaces(repo_root: Path) -> list[dict[str, Any]]:
                 "maxTempC": float(max(finite)),
                 "thresholdTempC": threshold,
                 "corridorQuantile": _THERMAL_CORRIDOR_QUANTILE,
-                "filePath": str(data_path),
-                "metadataPath": str(metadata_path),
+                "filePath": _public_artifact_path(repo_root, data_path),
+                "metadataPath": _public_artifact_path(repo_root, metadata_path),
                 "bounds": {
                     "minLng": min_lng,
                     "minLat": min_lat,
@@ -533,7 +570,11 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
     access_overlays.sort(key=lambda item: item["score"], reverse=True)
 
     top_heat = heat_overlays[:3]
-    low_access = access_overlays[:3]
+    heat_score_status = _score_status(heat_overlays)
+    cooling_score_status = _score_status(access_overlays)
+    if cooling_score_status["scoreStatus"] != "ranked":
+        for overlay in access_overlays:
+            overlay["label"] = "Low-access condition"
     thermal_sources = _load_thermal_surfaces(repo_root)
     heat_bounds = _feature_bounds(_feature_collection(bottleneck_payload)) if bottleneck_payload else None
     cooling_bounds = _feature_bounds(_feature_collection(cooling_payload)) if cooling_payload else None
@@ -572,15 +613,16 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
                 "description": top_heat[0]["properties"].get("priority_class", "Unknown") if top_heat else "No bottleneck features found.",
             },
             {
-                "title": "Top low-access zone",
-                "value": low_access[0]["score"] if low_access else 0.0,
-                "description": low_access[0]["properties"].get("access_class", "Unknown") if low_access else "No access features found.",
+                "title": "Low-access zones flagged" if cooling_score_status["scoreStatus"] != "ranked" else "Top low-access zone",
+                "value": len(access_overlays) if cooling_score_status["scoreStatus"] != "ranked" else (access_overlays[0]["score"] if access_overlays else 0.0),
+                "valueLabel": "zones" if cooling_score_status["scoreStatus"] != "ranked" else "score",
+                "description": cooling_score_status["detail"] if cooling_score_status["scoreStatus"] != "ranked" else (access_overlays[0]["properties"].get("access_class", "Unknown") if access_overlays else "No access features found."),
             },
         ],
         "artifactPaths": [
-            str(boundary_path),
-            str(bottleneck_path),
-            str(cooling_path),
+            _public_artifact_path(repo_root, boundary_path),
+            _public_artifact_path(repo_root, bottleneck_path),
+            _public_artifact_path(repo_root, cooling_path),
             *[source["filePath"] for source in thermal_sources],
         ],
         "bounds": {
@@ -613,7 +655,7 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
                 "label": "Boston municipal boundary",
                 "truthStatus": "observed",
                 "sourceType": "workspace_geojson",
-                "filePath": str(boundary_path),
+                "filePath": _public_artifact_path(repo_root, boundary_path),
                 "method": "Loaded directly from the repository boundary GeoJSON and drawn on the map without simplification beyond browser rendering.",
                 "primaryFields": [],
                 "limitations": [
@@ -625,9 +667,10 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
                 "label": "Cheeger bottleneck overlay",
                 "truthStatus": "derived",
                 "sourceType": "spectral_pipeline_geojson",
-                "filePath": str(bottleneck_path),
+                "filePath": _public_artifact_path(repo_root, bottleneck_path),
                 "method": "Loaded from bundled spectral pipeline output and colored by the exported priority field.",
                 "primaryFields": ["priority", "priority_class"],
+                **heat_score_status,
                 "limitations": [
                     "Priority values are model-derived, not direct field observations.",
                     "This UI currently exposes a simplified subset of the full Boston research diagnostics.",
@@ -638,11 +681,13 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
                 "label": "Low cooling access overlay",
                 "truthStatus": "derived",
                 "sourceType": "spectral_pipeline_geojson",
-                "filePath": str(cooling_path),
+                "filePath": _public_artifact_path(repo_root, cooling_path),
                 "method": "Loaded from bundled spectral pipeline output and colored by the exported cooling-access field.",
                 "primaryFields": ["cooling_access", "access_class"],
+                **cooling_score_status,
                 "limitations": [
                     "Cooling-access values are model-derived planning indicators, not direct sensor observations.",
+                    cooling_score_status["detail"],
                     "The current interface does not yet expose the full cooling-resistance diagnostic stack from the Boston research repo.",
                 ],
             },
