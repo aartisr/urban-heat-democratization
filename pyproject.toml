@@ -1,0 +1,15 @@
+[project]
+name = "urban-heat-democratization-api"
+version = "0.1.0"
+description = "Serverless API runtime for Urban Heat Democratization"
+requires-python = "==3.12.*"
+dependencies = [
+  "setuptools<81",
+  "fastapi==0.110.0",
+  "uvicorn[standard]==0.27.1",
+  "numpy==1.26.4",
+  "scipy==1.11.4",
+  "networkx==3.2.1",
+  "pydantic==2.13.4",
+]
+
