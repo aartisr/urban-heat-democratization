@@ -27,6 +27,44 @@ A high-priority looking polygon is an invitation to investigate:
 - What nearby factors—shade, transit, housing conditions, water access, maintenance, safety, or construction—are not represented?
 - Does the appropriate response require capital improvements, operations, emergency response, tenant protections, public communication, or something else?
 
+## Mathematical detail: why a spectral signal is not a verdict
+
+Let the selected spatial units form a weighted graph \(G=(V,E,W)\), with
+weighted adjacency \(W=[w_{ij}]\), degree \(d_i=\sum_jw_{ij}\), and degree
+matrix \(D\). The combinatorial Laplacian is \(L=D-W\); a common normalized
+form is \(\mathcal{L}=I-D^{-1/2}WD^{-1/2}\). For any signal \(f\) on the
+nodes,
+
+\[
+f^\top Lf=\frac{1}{2}\sum_{i,j}w_{ij}(f_i-f_j)^2.
+\]
+
+This identity makes the modeling choice visible: the analysis penalizes a
+difference across an edge only to the extent that the chosen \(w_{ij}\) says
+the two units are connected. A different boundary, adjacency rule, distance
+kernel, thermal similarity rule, or missing-data treatment produces a
+different graph and may produce a different signal.
+
+For a candidate set \(S\), conductance is
+
+\[
+\phi(S)=\frac{\operatorname{cut}(S,V\setminus S)}
+{\min\{\operatorname{vol}(S),\operatorname{vol}(V\setminus S)\}},
+\qquad \operatorname{vol}(S)=\sum_{i\in S}d_i.
+\]
+
+Low conductance means that \(S\) is weakly connected *in the specified
+model*. Cheeger-style inequalities relate the optimum conductance \(\phi_*\)
+to the second normalized-Laplacian eigenvalue \(\lambda_2\):
+\(\lambda_2/2\leq\phi_*\leq\sqrt{2\lambda_2}\). This supports using a
+spectral partition as a disciplined candidate for investigation. It does not
+establish a causal health effect, a neighborhood deficit, or an intervention
+priority. Those claims require additional evidence.
+
+The extended [Urban Thermal Math Deep Dive](../Urban_Thermal_Math_Deep_Dive.md)
+walks through spatial support, graph construction, resistance, robustness,
+uncertainty, and validation in greater depth.
+
 ## Interpretation protocol
 
 Before sharing an output as a finding, use this sequence:
@@ -45,4 +83,6 @@ Those are not footnotes. They are the conditions that keep a useful analytical t
 
 ## Explore the science with the evidence beside it
 
-The [Boston study](https://ai-aarti.com/cities/boston) makes the bundled overlays inspectable. The [scenario workspace](https://ai-aarti.com/scenarios) presents the project’s mathematical and planning reasoning as a guided exploration; use both alongside this interpretation guide.
+The [Boston study](https://urban-heat.ai-aarti.com/cities/boston) makes the bundled overlays inspectable. The [scenario workspace](https://urban-heat.ai-aarti.com/scenarios) presents the project’s mathematical and planning reasoning as a guided exploration; use both alongside this interpretation guide.
+
+*Authored by [Aarti S Ravikumar](https://ai-aarti.com).*

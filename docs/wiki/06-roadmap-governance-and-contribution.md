@@ -49,4 +49,6 @@ The most meaningful recognition for this work would not be a prize. It would be 
 
 ## Experience the work, then improve it
 
-Explore the current [Urban Heat Democratization platform](https://ai-aarti.com/), its [Boston study](https://ai-aarti.com/cities/boston), and [transparent scenarios](https://ai-aarti.com/scenarios). Contributions should make these public experiences more truthful, legible, accessible, and accountable—not merely more elaborate.
+Explore the current [Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/), its [Boston study](https://urban-heat.ai-aarti.com/cities/boston), and [transparent scenarios](https://urban-heat.ai-aarti.com/scenarios). Contributions should make these public experiences more truthful, legible, accessible, and accountable—not merely more elaborate.
+
+*Authored by [Aarti S Ravikumar](https://ai-aarti.com).*

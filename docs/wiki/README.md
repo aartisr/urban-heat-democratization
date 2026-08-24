@@ -2,6 +2,8 @@
 
 ## A field guide for open, accountable urban-heat action
 
+> Authored by [Aarti S Ravikumar](https://ai-aarti.com) · The canonical living platform is [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com/).
+
 This wiki explains what the project is, why it exists, how to use it responsibly, and how to help it grow. It is written for residents, community organizations, educators, public agencies, students, researchers, designers, and engineers. It is also a public contract: it separates evidence from interpretation, current capability from future ambition, and an exploratory result from a decision that requires local validation.
 
 > **Read this wiki as an invitation to participate, not an instruction to defer.**
@@ -29,6 +31,7 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 6. [Roadmap, governance, and contribution](06-roadmap-governance-and-contribution.md)
 7. [Technical reference](07-technical-reference.md)
 8. [Glossary](GLOSSARY.md)
+9. [Urban Thermal Math Deep Dive](../Urban_Thermal_Math_Deep_Dive.md) — the equation-level companion, with assumptions and interpretation notes.
 
 ## The short version
 
@@ -38,7 +41,7 @@ Heat is a physical hazard, but access to the tools that explain it is a social q
 
 This is a place for the community to learn about urban heat: how heat patterns are observed, what a map can and cannot say, and why decisions about shade, cooling, public space, housing, and investment require public attention. Explore the atlas; ask for the source, date, and limitation of a layer; compare what a scenario assumes; and share local knowledge that the data misses. Understanding is the first form of participation. The next is helping to influence the questions asked, the priorities set, and the actions taken.
 
-> **Begin in the living workspace:** [explore the Urban Heat Democratization platform](https://ai-aarti.com/), [open the Boston study](https://ai-aarti.com/cities/boston), or [compare transparent scenarios](https://ai-aarti.com/scenarios). This wiki is the durable context for those interactive experiences.
+> **Begin in the living workspace:** [explore the Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/), [open the Boston study](https://urban-heat.ai-aarti.com/cities/boston), or [compare transparent scenarios](https://urban-heat.ai-aarti.com/scenarios). This wiki is the durable context for those interactive experiences.
 
 ## Project truth at a glance
 

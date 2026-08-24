@@ -97,4 +97,6 @@ This hub makes existing material navigable. It does not replace the next technic
 
 ## See the technical system in context
 
-The public [Urban Heat Democratization platform](https://ai-aarti.com/) is the user-facing counterpart to these contracts. Use the [Boston study](https://ai-aarti.com/cities/boston) and [scenario workspace](https://ai-aarti.com/scenarios) to see how the API, evidence artifacts, and scientific core appear in the actual experience.
+The public [Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/) is the user-facing counterpart to these contracts. Use the [Boston study](https://urban-heat.ai-aarti.com/cities/boston) and [scenario workspace](https://urban-heat.ai-aarti.com/scenarios) to see how the API, evidence artifacts, and scientific core appear in the actual experience.
+
+*Authored by [Aarti S Ravikumar](https://ai-aarti.com).*

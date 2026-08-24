@@ -51,4 +51,6 @@ An onboarding is successful when a local group can answer: What did we put into 
 
 ## See readiness in the living platform
 
-The [Cities workspace](https://ai-aarti.com/cities) makes the difference between an onboarding path and a bundled study visible. Use the [Boston experience](https://ai-aarti.com/cities/boston) as the current reference point, then pair any new city work with the partnership process above.
+The [Cities workspace](https://urban-heat.ai-aarti.com/cities) makes the difference between an onboarding path and a bundled study visible. Use the [Boston experience](https://urban-heat.ai-aarti.com/cities/boston) as the current reference point, then pair any new city work with the partnership process above.
+
+*Authored by [Aarti S Ravikumar](https://ai-aarti.com).*

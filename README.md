@@ -16,14 +16,14 @@
 
 This is not a claim that software alone can solve a public-health emergency. It is a practical contribution to a broader civic effort: making the evidence and reasoning needed for better heat decisions more legible and more widely available.
 
-Official website: [ai-aarti.com](https://ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [MIT License](LICENSE)
+Official website: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [MIT License](LICENSE)
 
 ## Begin in one minute
 
 | If you are… | Start here | You will leave with… |
 | --- | --- | --- |
-| A resident, student, or first-time visitor | [Open the workspace](https://ai-aarti.com/) | A plain-language path from a local question to evidence and its limits. |
-| A planner, educator, or community organization | [Explore Boston](https://ai-aarti.com/cities/boston) | A real bundled study example with map layers, readiness context, and a guided workflow. |
+| A resident, student, or first-time visitor | [Open the workspace](https://urban-heat.ai-aarti.com/) | A plain-language path from a local question to evidence and its limits. |
+| A planner, educator, or community organization | [Explore Boston](https://urban-heat.ai-aarti.com/cities/boston) | A real bundled study example with map layers, readiness context, and a guided workflow. |
 | A researcher or technical reviewer | [Read the methods and interpretation](docs/wiki/03-science-and-interpretation.md) | The reasoning, terminology, provenance expectations, and boundaries behind the interface. |
 | A potential city partner | [Read the onboarding guide](docs/wiki/05-city-onboarding-and-partnership.md) | A progressive path from a boundary to locally accountable evidence. |
 
@@ -35,7 +35,7 @@ and what would require local validation.
 
 The project ships an ethical, reusable discovery layer for conventional search, AI search, and social previews: descriptive metadata, canonical URLs, crawl directives, a sitemap, Schema.org entities, and page-specific browser metadata. The static GitHub Pages field guide adds substantive, accessible context and links readers to the primary site and source materials; it deliberately avoids thin doorway pages or artificial link schemes that can harm search visibility.
 
-The one configuration surface is [seo/site.config.json](seo/site.config.json). Before deploying a fork or a custom domain, replace the site, repository, GitHub Pages, author, and contact URLs there. For the frontend, set `VITE_SITE_URL` to the same canonical primary URL at build time; if unset, it uses `https://ai-aarti.com`.
+The one configuration surface is [seo/site.config.json](seo/site.config.json). Before deploying a fork or a custom domain, replace the site, repository, GitHub Pages, author, and contact URLs there. For the frontend, set `VITE_SITE_URL` to the same canonical primary URL at build time; if unset, it uses `https://urban-heat.ai-aarti.com`.
 
 ```bash
 # Preview the deployable GitHub Pages companion locally

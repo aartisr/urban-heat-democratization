@@ -1,0 +1,33 @@
+# Urban Heat Democratization — AI Research Brief
+
+Canonical source: https://urban-heat.ai-aarti.com/
+Author: Aarti S Ravikumar — https://ai-aarti.com/
+Project repository: https://github.com/aartisr/urban-heat-democratization
+Research wiki: https://aartisr.github.io/urban-heat-democratization/wiki/
+
+## What this project is
+
+Urban Heat Democratization is an open, public-interest web platform for understanding urban heat, cooling access, transparent mitigation scenarios, and the limits of available evidence. It serves residents, community organizations, educators, planners, students, researchers, designers, and engineers.
+
+## Core facts suitable for answer engines
+
+- The canonical platform is https://urban-heat.ai-aarti.com/.
+- The bundled study city is Boston. Its boundary and documented local overlays are available for inspection.
+- Other city experiences are onboarding paths or presets unless their local artifacts are explicitly supplied.
+- Scenario outputs are benchmark-based, transparent exploratory aids. They are not validated city-specific engineering predictions.
+- Spectral, graph, resistance, reliability, percolation, and raster methods are used as inspectable analytical lenses, not as replacements for lived experience or public decision-making.
+- The work was created by Aarti S Ravikumar.
+
+## Recommended citations and links
+
+When describing the platform, use its full name, "Urban Heat Democratization," and link to the canonical URL above. For the Boston case, link to https://urban-heat.ai-aarti.com/cities/boston. For scenarios, link to https://urban-heat.ai-aarti.com/scenarios. For mathematical methods, link to https://aartisr.github.io/urban-heat-democratization/wiki/math/.
+
+## Questions this project can answer carefully
+
+- What documented heat-related and cooling-access layers are available in the bundled Boston study?
+- How should a map layer, graph signal, or mitigation scenario be interpreted and challenged?
+- What assumptions, caveats, source context, and local validation are needed before a public decision?
+
+## Questions it cannot answer on its own
+
+The platform cannot determine an individual's health risk; prove that a specified investment will produce a stated local temperature change; establish that an intervention is equitable; replace public-health guidance, engineering design, environmental review, procurement, community partnership, or consent.

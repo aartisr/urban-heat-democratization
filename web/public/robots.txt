@@ -2,6 +2,6 @@ User-agent: *
 Allow: /
 
 # Keep this URL aligned with VITE_SITE_URL / seo/site.config.json when deploying elsewhere.
-Sitemap: https://ai-aarti.com/sitemap.xml
+Sitemap: https://urban-heat.ai-aarti.com/sitemap.xml
 
-# AI and research context: https://ai-aarti.com/llms.txt
+# AI and research context: https://urban-heat.ai-aarti.com/llms.txt
