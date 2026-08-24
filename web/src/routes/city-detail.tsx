@@ -127,6 +127,12 @@ export function CityDetailPage() {
     });
   }, [cityDataRegistrationQuery.data]);
 
+  useEffect(() => {
+    if (cityExperienceQuery.data?.bundled) {
+      setAtlasActivated(true);
+    }
+  }, [cityExperienceQuery.data?.bundled]);
+
   return (
     <section className="page-stack city-detail-page">
       <CityIntelligenceOverview

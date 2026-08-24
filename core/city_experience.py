@@ -125,14 +125,14 @@ CITY_ARTIFACTS: dict[str, tuple[ArtifactSpec, ...]] = {
             name="Cheeger bottleneck overlay",
             kind="geojson",
             description="Real exported Cheeger bottleneck polygons from the pipeline.",
-            relative_path="../spectral_urbanism_boston/outputs/boston_dev/cheeger_bottleneck.geojson",
+            relative_path="data/cheeger_bottleneck.geojson",
         ),
         ArtifactSpec(
             id="low-cooling-access",
             name="Low cooling access overlay",
             kind="geojson",
             description="Real exported low cooling access polygons from the pipeline.",
-            relative_path="../spectral_urbanism_boston/outputs/boston_dev/low_cooling_access_zones.geojson",
+            relative_path="data/low_cooling_access_zones.geojson",
         ),
         ArtifactSpec(
             id="boston-study-guide",
