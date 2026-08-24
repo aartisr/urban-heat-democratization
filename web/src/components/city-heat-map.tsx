@@ -69,6 +69,7 @@ type MethodGuideKey = keyof typeof METHOD_GUIDES;
 
 function MethodGuideLink({ guideKey, open, onToggle }: { guideKey: MethodGuideKey; open: boolean; onToggle: () => void }) {
   const guide = METHOD_GUIDES[guideKey];
+  const hasVerifiedRichFormats = guideKey !== "cooling";
   return (
     <div className={`map-method-card${open ? " is-open" : ""}`}>
       <button type="button" className="map-method-open" onClick={onToggle} aria-expanded={open}>
@@ -78,9 +79,9 @@ function MethodGuideLink({ guideKey, open, onToggle }: { guideKey: MethodGuideKe
       </button>
       {open ? (
         <div className="map-method-format-picker" aria-label={`Download formats for ${guide.title}`}>
-          <div className="map-method-format-heading"><strong>{guide.title}</strong><span>Choose the format that suits your purpose.</span></div>
-          <a href={`${guide.path}.pdf`} download><b>PDF <em>Best for most people</em></b><span>Read, print, or cite <small>{guide.pdfMeta}</small></span><i>Download</i></a>
-          <a href={`${guide.path}.docx`} download><b>Word</b><span>{guide.wordMeta}</span><i>Download</i></a>
+          <div className="map-method-format-heading"><strong>{guide.title}</strong><span>{hasVerifiedRichFormats ? "Choose the format that suits your purpose." : "Read the current, versioned method note."}</span></div>
+          {hasVerifiedRichFormats ? <a href={`${guide.path}.pdf`} download><b>PDF <em>Best for most people</em></b><span>Read, print, or cite <small>{guide.pdfMeta}</small></span><i>Download</i></a> : null}
+          {hasVerifiedRichFormats ? <a href={`${guide.path}.docx`} download><b>Word</b><span>{guide.wordMeta}</span><i>Download</i></a> : null}
           <a href={`${guide.path}.md`} download><b>Markdown</b><span>{guide.markdownMeta}</span><i>Download</i></a>
         </div>
       ) : null}
