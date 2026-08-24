@@ -49,8 +49,8 @@ const METHOD_GUIDES = {
   },
   cooling: {
     path: "/methods/low-cooling-access-method",
-    title: "Low cooling access method",
-    summary: "How the network models relative access to cooling-supporting cells.",
+    title: "Cooling-access constraint method",
+    summary: "How the network ranks relative access constraints without overstating them.",
     pdfMeta: "Recommended · 2 pages · 61 KB",
     wordMeta: "Editable for review and annotation · 12 KB",
     markdownMeta: "Plain text with equations and implementation pointers · 2 KB",
@@ -545,11 +545,11 @@ function thermalSourceTheme(sourceId: string) {
 
 function spectralAnalysisNarrative(data: CityMapData, heatVisibleCount: number, coolingVisibleCount: number, severityFilter: SeverityFilter) {
   const filterLabel = severityFilter === "all" ? "all severity bands" : `${severityFilter} severity`;
-  return `The highlighted story is the spectral analysis itself: ${heatVisibleCount} Cheeger bottlenecks and ${coolingVisibleCount} low-cooling-access zones are currently visible under ${filterLabel}. Cheeger values are ranked; the bundled cooling-access export identifies flagged zones but does not currently distinguish a rank within that set. Thermal sources provide supporting context for why these patterns appear.`;
+  return `The highlighted story is the spectral analysis itself: ${heatVisibleCount} Cheeger bottlenecks and ${coolingVisibleCount} cooling-access cells are currently visible under ${filterLabel}. Cheeger values rank network leverage; cooling-access values independently rank modeled constraint to inferred cooling sinks. Thermal sources provide supporting context for why these patterns appear.`;
 }
 
 function spectralMathNarrative(heatVisibleCount: number, coolingVisibleCount: number) {
-  return `This workflow does not guess. It uses graph-based spectral structure to rank the ${heatVisibleCount} visible bottlenecks where urban heat movement pinches. The ${coolingVisibleCount} visible low-cooling zones are retained as a flagged access condition; this bundled export does not yet support a trustworthy within-layer ranking for them.`;
+  return `This workflow does not guess. It uses graph-based spectral structure to rank the ${heatVisibleCount} visible bottlenecks where urban heat movement pinches, and a separately validated resistance surface to rank the ${coolingVisibleCount} visible cooling-access constraints. These are distinct decision lenses and are not silently combined.`;
 }
 
 function plainMathExplanation(entry: OverlayEntry, isRanked: boolean) {
@@ -1475,7 +1475,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         key: `cooling:${overlay.id}`,
         layer: "cooling",
         color: "#0ea5e9",
-        layerLabel: "Low cooling access",
+        layerLabel: "Cooling-access constraint",
         overlay,
       })),
     [data.accessZones],
@@ -1506,6 +1506,14 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       .sort((left, right) => right.overlay.score - left.overlay.score),
     [visibleEntries],
   );
+  const coolingPriorityEntries = useMemo(
+    () => coolingScoresAreRanked
+      ? visibleEntries
+        .filter((entry) => entry.layer === "cooling")
+        .sort((left, right) => right.overlay.score - left.overlay.score)
+      : [],
+    [coolingScoresAreRanked, visibleEntries],
+  );
   const selectedEntry = visibleEntries.find((entry) => entry.key === selectedKey) ?? rankedEntries[0] ?? visibleEntries[0] ?? null;
   const cityScenarios = useMemo(
     () => (scenarios ?? []).filter((scenario) => scenario.cityId === data.cityId),
@@ -1521,6 +1529,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         .slice(0, 8)
     : [];
   const researchQueue = rankedEntries.slice(0, 8);
+  const coolingAccessQueue = coolingPriorityEntries.slice(0, 8);
   const heatVisibleCount = visibleEntries.filter((entry) => entry.layer === "heat").length;
   const coolingVisibleCount = visibleEntries.filter((entry) => entry.layer === "cooling").length;
   const activeThermalSource = data.thermalSources.find((source) => source.id === selectedThermalSourceId) ?? data.thermalSources[0] ?? null;
@@ -3603,6 +3612,28 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               {!coolingScoresAreRanked && coolingVisibleCount > 0 ? (
                 <p className="map-layer-summary">{coolingVisibleCount} low-cooling-access zones are flagged, but the bundled values are identical. They are intentionally excluded from this ranked queue.</p>
               ) : null}
+            </div>
+
+            <div className="map-legend">
+              <h3>Cooling-access constraints to inspect</h3>
+              <p className="map-layer-summary">Higher constraint means lower modeled access to inferred cooling sinks. Equal scores are ties in this graph-based surface, not an invented finer ordering.</p>
+              {coolingAccessQueue.length ? coolingAccessQueue.map((entry, index) => (
+                <button
+                  key={entry.key}
+                  type="button"
+                  className={`map-insight-card ${selectedEntry?.key === entry.key ? "active" : ""}`}
+                  onClick={() => setSelectedKey(entry.key)}
+                >
+                  <div className="map-insight-head">
+                    <span className="legend-chip map-chip-inline cooling" />
+                    <strong>{index + 1}. Cooling-access constraint</strong>
+                  </div>
+                  <p>{overlayNarrative(entry, true)}</p>
+                  <p>Relative constraint score: {entry.overlay.score.toFixed(1)}</p>
+                </button>
+              )) : (
+                <p className="muted">No rankable cooling-access cells match the current layer and severity filters.</p>
+              )}
             </div>
 
             <div className="map-legend">

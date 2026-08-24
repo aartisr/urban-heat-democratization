@@ -1,4 +1,4 @@
-# Low cooling access
+# Cooling-access constraint
 
 ## Plain-language purpose
 
@@ -10,7 +10,7 @@ The analysis uses the same raster graph as the Cheeger layer. Each edge has cond
 
 ## Cooling sinks
 
-The pipeline identifies candidate cooling sinks from the normalized vegetation and temperature fields. A zero-cost super-sink is connected to every identified cooling sink. This converts “distance to any cooling sink” into one shortest-path calculation.
+The pipeline identifies candidate cooling sinks from the overlap of relatively green and relatively cool cells. A zero-cost super-sink is connected to every identified cooling sink. This selective rule prevents the map from treating most of the city as a sink and collapsing access into a binary label.
 
 ## Access score
 
@@ -18,7 +18,9 @@ For each cell `i`, Dijkstra's algorithm finds the least accumulated network cost
 
 `cooling_access(i) = normalize(-d(i, sink))`.
 
-Thus higher values mean easier modeled access; the map's **Low cooling access** layer highlights the lower end of that score. The exported values are displayed on a 0–100 scale.
+Thus higher values mean easier modeled access. The map inverts that display into a **relative constraint score**: higher constraint means lower modeled access. The full 0–100 surface is ranked within this layer only; it is not combined with Cheeger priority, observed temperature, or a funding recommendation.
+
+Cells can tie when the graph gives them the same modeled least-resistance path. A tie is shown as a tie, not broken with an invented secondary score.
 
 ## What the score includes — and omits
 
@@ -30,4 +32,4 @@ Use it to ask “where should we learn more about relief?” Validate against lo
 
 ## Reproducibility
 
-Implementation: `core/graph.py` and `core/pipeline.py` (`_sink_nodes`, `_distance_to_sinks`). Report the sink rule, inputs, resolution, graph connectivity, `alpha`, and `beta` alongside the output.
+Implementation: the Boston spectral pipeline's cooling-access metric and spatial-artifact export. Report the sink-selection rule, inputs, resolution, graph connectivity, and score distribution alongside the output. The pipeline rejects a publishable ranking when non-sink scores have no variation.

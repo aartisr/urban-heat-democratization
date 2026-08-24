@@ -83,7 +83,7 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
   } = input;
 
   const thermalSourceNames = cityMap?.thermalSources.map((source) => source.id.toUpperCase()).join(" and ");
-  // Low-cooling-access is currently a thresholded flag, not a comparable priority score.
+  // Cooling-access constraint is a separate decision lens, not a comparable Cheeger score.
   const highPriorityCount = mapStats?.highHeatZones ?? 0;
   const suggestedBudget = recommendedBudget(highPriorityCount);
   const scenarioSearch = buildScenarioSearch(cityId, suggestedBudget);
@@ -252,7 +252,7 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
           eyebrow: "Overlay dashboard",
           title: "Loaded overlay counts",
           body: mapStats
-            ? `${mapStats.heatZones} bottleneck polygons and ${mapStats.accessZones} low-cooling-access polygons are loaded from the workspace data. ${mapStats.highHeatZones} bottlenecks have high derived priority; the low-access export is presented as flagged zones, not as a within-layer score ranking.`
+            ? `${mapStats.heatZones} bottleneck polygons and ${mapStats.accessZones} cooling-access cells are loaded from the workspace data. ${mapStats.highHeatZones} bottlenecks have high derived priority; cooling-access constraints are independently ranked and never silently combined with Cheeger priority.`
             : "Loading overlay counts...",
         }]
       : []),

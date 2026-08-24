@@ -19,15 +19,15 @@ Boston is the strongest real-data example currently bundled in this repo because
 
 - `Cheeger bottleneck`:
   places where the urban heat network looks pinched or weakly connected, so heat can get trapped and relief does not spread well.
-- `Low cooling access`:
-  places where people appear to have weaker access to cooling sinks or cooling support.
+- `Cooling-access constraint`:
+  a separately ranked, model-derived view of places with lower modeled access to inferred cooling sinks. It is not a measure of air-conditioning, safety, or lived experience.
 - `Spectral highlights`:
   summary numbers that describe how fractured or connected the city's cooling pathways look.
 
 You can think of Boston as a city map with:
 
 - red shapes for the hardest heat traps,
-- blue shapes for the weakest cooling access,
+- blue cells for modeled cooling-access constraints,
 - scenario tools that ask what we should fund first.
 
 ## Best Way To Study Boston In The App
