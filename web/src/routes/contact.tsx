@@ -106,9 +106,20 @@ export function ContactPage() {
           <blockquote>
             <p>“The most enduring equations begin with someone who helps us believe we can understand them.”</p>
           </blockquote>
-          <p>With sincere credit to <strong>Ms. Shukla</strong>, Math Mentor, for nurturing mathematical curiosity and disciplined reasoning.</p>
-          <p>And with deep gratitude to Aarti’s parents, whose encouragement and belief supported the idea behind this project.</p>
-          <p className="contact-author-credit">Created and authored by <a href={authorUrl}>Aarti S Ravikumar</a>.</p>
+          <div className="gratitude-honorees">
+            <section className="gratitude-honoree" aria-labelledby="mentor-name">
+              <p className="gratitude-label">Mentor</p>
+              <h3 id="mentor-name">Mrs. Siddhi Shukla</h3>
+              <p className="gratitude-role">Algebra Teacher &amp; Math Chair</p>
+              <p className="gratitude-organization">Pioneer Charter School of Science II <span aria-hidden="true">·</span> Saugus, MA</p>
+              <p className="gratitude-note">With sincere appreciation for nurturing mathematical curiosity and disciplined reasoning.</p>
+            </section>
+            <section className="gratitude-honoree gratitude-honoree--parents" aria-labelledby="parents-names">
+              <p className="gratitude-label">Parents</p>
+              <h3 id="parents-names">Subasri Dorairaj <span aria-hidden="true">&amp;</span> Ramanjanappa Ravikumar</h3>
+              <p className="gratitude-note">With deep gratitude for the encouragement, belief, and steadfast support behind this project.</p>
+            </section>
+          </div>
         </aside>
       </section>
 

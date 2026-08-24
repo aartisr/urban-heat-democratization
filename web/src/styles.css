@@ -431,8 +431,8 @@ body::before {
 .gratitude-line { height: 1px; flex: 1; background: linear-gradient(90deg, rgba(148, 91, 22, 0.37), transparent); }
 
 .contact-gratitude-card h2 {
-  max-width: 13ch;
   margin-top: 22px;
+  max-width: 22ch;
   color: #442e12;
 }
 
@@ -453,6 +453,78 @@ body::before {
 }
 
 .contact-gratitude-card > p:not(.eyebrow) { position: relative; max-width: 41rem; color: #5e4b31; }
+
+.gratitude-honorees {
+  position: relative;
+  display: grid;
+  gap: 18px;
+}
+
+.gratitude-honoree {
+  position: relative;
+  padding: 19px 21px 20px;
+  border: 1px solid rgba(151, 98, 31, 0.22);
+  border-radius: 18px;
+  background: rgba(255, 253, 247, 0.56);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.gratitude-honoree--parents {
+  border-color: rgba(70, 114, 81, 0.22);
+  background: rgba(247, 253, 246, 0.56);
+}
+
+.gratitude-label {
+  margin: 0 0 7px;
+  color: #8a5518;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.gratitude-honoree h3 {
+  margin: 0;
+  color: #442e12;
+  font-family: var(--display-font);
+  font-size: clamp(22px, 2.2vw, 28px);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+}
+
+.gratitude-role,
+.gratitude-organization,
+.gratitude-note { margin: 0; }
+
+.gratitude-role {
+  margin-top: 9px;
+  color: #6f4b20;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.gratitude-organization {
+  margin-top: 3px;
+  color: #766047;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.gratitude-organization span { padding: 0 4px; color: #b57428; }
+
+.gratitude-note {
+  margin-top: 13px;
+  max-width: 48ch;
+  color: #5e4b31;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.gratitude-honoree--parents .gratitude-label { color: #52725a; }
+.gratitude-honoree--parents .gratitude-note { color: #52634e; }
 
 .contact-resource-links {
   display: grid;
