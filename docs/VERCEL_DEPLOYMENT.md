@@ -61,7 +61,9 @@ the public serverless bundle.
 The runtime pins a current Pydantic 2 release so Vercel can install its
 prebuilt `pydantic-core` wheel. Do not downgrade it to Pydantic 2.6.x: that
 series can trigger an unsupported source build on current Vercel Python
-builders.
+builders. The serverless spectral endpoint uses a NumPy dense-matrix fallback
+for its compact demonstration graphs, so SciPy remains in the local research
+toolchain instead of the public Function bundle.
 
 If a Vercel log shows Meson or Cython compiling NumPy or SciPy, redeploy with
 **Use existing Build Cache** disabled. The checked-in Python 3.12 constraints
