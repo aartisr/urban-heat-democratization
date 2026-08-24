@@ -48,6 +48,8 @@ workflow more usable, and any public action more accountable.
 
 ## With gratitude
 
-This project gratefully credits **Ms. Shukla**, Math Mentor, for nurturing
-mathematical curiosity and disciplined reasoning. It also thanks Aarti's parents
-for the encouragement and belief that supported the idea behind this project.
+This project gratefully credits **Mrs. Siddhi Shukla**, Algebra Teacher and Math
+Chair at **Pioneer Charter School of Science II, Saugus, MA**, for nurturing
+mathematical curiosity and disciplined reasoning. It also thanks Aarti's parents,
+**Subasri Dorairaj** and **Ramanjanappa Ravikumar**, for their encouragement,
+belief, and steadfast support behind this project.
