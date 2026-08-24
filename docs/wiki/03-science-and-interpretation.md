@@ -29,34 +29,34 @@ A high-priority looking polygon is an invitation to investigate:
 
 ## Mathematical detail: why a spectral signal is not a verdict
 
-Let the selected spatial units form a weighted graph \(G=(V,E,W)\), with
-weighted adjacency \(W=[w_{ij}]\), degree \(d_i=\sum_jw_{ij}\), and degree
-matrix \(D\). The combinatorial Laplacian is \(L=D-W\); a common normalized
-form is \(\mathcal{L}=I-D^{-1/2}WD^{-1/2}\). For any signal \(f\) on the
+Let the selected spatial units form a weighted graph $G=(V,E,W)$, with
+weighted adjacency $W=[w_{ij}]$, degree $d_i=\sum_jw_{ij}$, and degree
+matrix $D$. The combinatorial Laplacian is $L=D-W$; a common normalized
+form is $\mathcal{L}=I-D^{-1/2}WD^{-1/2}$. For any signal $f$ on the
 nodes,
 
-\[
+$$
 f^\top Lf=\frac{1}{2}\sum_{i,j}w_{ij}(f_i-f_j)^2.
-\]
+$$
 
 This identity makes the modeling choice visible: the analysis penalizes a
-difference across an edge only to the extent that the chosen \(w_{ij}\) says
+difference across an edge only to the extent that the chosen $w_{ij}$ says
 the two units are connected. A different boundary, adjacency rule, distance
 kernel, thermal similarity rule, or missing-data treatment produces a
 different graph and may produce a different signal.
 
-For a candidate set \(S\), conductance is
+For a candidate set $S$, conductance is
 
-\[
+$$
 \phi(S)=\frac{\operatorname{cut}(S,V\setminus S)}
 {\min\{\operatorname{vol}(S),\operatorname{vol}(V\setminus S)\}},
 \qquad \operatorname{vol}(S)=\sum_{i\in S}d_i.
-\]
+$$
 
-Low conductance means that \(S\) is weakly connected *in the specified
-model*. Cheeger-style inequalities relate the optimum conductance \(\phi_*\)
-to the second normalized-Laplacian eigenvalue \(\lambda_2\):
-\(\lambda_2/2\leq\phi_*\leq\sqrt{2\lambda_2}\). This supports using a
+Low conductance means that $S$ is weakly connected *in the specified
+model*. Cheeger-style inequalities relate the optimum conductance $\phi_*$
+to the second normalized-Laplacian eigenvalue $\lambda_2$:
+$\lambda_2/2\leq\phi_*\leq\sqrt{2\lambda_2}$. This supports using a
 spectral partition as a disciplined candidate for investigation. It does not
 establish a causal health effect, a neighborhood deficit, or an intervention
 priority. Those claims require additional evidence.

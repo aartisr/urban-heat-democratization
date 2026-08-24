@@ -9,6 +9,12 @@ except ImportError:  # The Vercel runtime uses NumPy for compact demo graphs.
     eigsh = None
 
 def lambda2_and_fiedler(G: nx.Graph):
+    """Return the second normalized-Laplacian eigenpair in stable node order.
+
+    For a disconnected graph, lambda_2 is zero and a Fiedler sweep does not
+    identify a unique structural bottleneck.  Callers that need a Cheeger-style
+    partition must therefore check connectivity before interpreting this result.
+    """
     L, nodes, deg = normalized_laplacian(G)
     n = L.shape[0]
     if n < 2:
@@ -23,6 +29,14 @@ def lambda2_and_fiedler(G: nx.Graph):
     return float(vals[1]), vecs[:,1], nodes, deg
 
 def sweep_conductance(G: nx.Graph, fiedler: np.ndarray, nodes: list, deg: np.ndarray):
+    """Find the minimum-conductance threshold set along a Fiedler ordering.
+
+    ``phi(S) = cut(S, V\\S) / min(vol(S), vol(V\\S))`` uses weighted cut and
+    weighted volume.  This is a spectral sweep heuristic/certificate candidate,
+    not an exhaustive search over every subset of vertices.
+    """
+    if len(fiedler) != len(nodes) or len(deg) != len(nodes):
+        raise ValueError("fiedler, nodes, and deg must have equal length")
     order = np.argsort(fiedler)
     node_order = [nodes[i] for i in order]
     idx = {u:i for i,u in enumerate(node_order)}

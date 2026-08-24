@@ -546,19 +546,19 @@ function thermalSourceTheme(sourceId: string) {
 
 function spectralAnalysisNarrative(data: CityMapData, heatVisibleCount: number, coolingVisibleCount: number, severityFilter: SeverityFilter) {
   const filterLabel = severityFilter === "all" ? "all severity bands" : `${severityFilter} severity`;
-  return `The highlighted story is the spectral analysis itself: ${heatVisibleCount} Cheeger bottlenecks and ${coolingVisibleCount} cooling-access cells are currently visible under ${filterLabel}. Cheeger values rank network leverage; cooling-access values independently rank modeled constraint to inferred cooling sinks. Thermal sources provide supporting context for why these patterns appear.`;
+  return `The highlighted story is the model output: ${heatVisibleCount} Cheeger bottleneck features and ${coolingVisibleCount} cooling-access cells are currently visible under ${filterLabel}. The Cheeger layer identifies low-conductance structure in the chosen graph; the cooling-access layer independently ranks least-cost access to inferred cooling sinks. Thermal sources provide contextual evidence, not a causal explanation.`;
 }
 
 function spectralMathNarrative(heatVisibleCount: number, coolingVisibleCount: number) {
-  return `This workflow does not guess. It uses graph-based spectral structure to rank the ${heatVisibleCount} visible bottlenecks where urban heat movement pinches, and a separately validated resistance surface to rank the ${coolingVisibleCount} visible cooling-access constraints. These are distinct decision lenses and are not silently combined.`;
+  return `This workflow makes its assumptions inspectable. It uses graph-based spectral structure to identify ${heatVisibleCount} visible low-conductance features and a separate least-cost cooling-access proxy to rank ${coolingVisibleCount} visible constraints. These are distinct analytical lenses; neither is a measurement of heat movement, lived access, or intervention impact.`;
 }
 
 function plainMathExplanation(entry: OverlayEntry, isRanked: boolean) {
   if (entry.layer === "heat") {
-    return "In plain English: the math is looking for places where heat flow gets squeezed through a narrow urban pathway. A higher score means this spot behaves more like a choke point, so cooling action here can influence a wider surrounding area.";
+    return "In plain English: the math is looking for weakly connected seams in the chosen raster graph. A higher derived priority combines local heat with lower modeled cooling access on the cut boundary; it is a reason to investigate, not a prediction of intervention impact.";
   }
   return isRanked
-    ? "In plain English: the math is looking for places with less access to cooling relief. A higher score means people here are more exposed to heat without enough nearby cooling benefit, so mitigation here can close a bigger gap."
+    ? "In plain English: the math is looking for cells with lower modeled access to inferred cooling sinks. A higher constraint score means lower least-cost access in this graph; it does not measure people’s exposure or available relief."
     : "In plain English: this area is flagged for low cooling access. The current bundled export does not contain enough variation to say it ranks above or below another flagged zone, so the interface does not invent a score difference.";
 }
 
@@ -1672,7 +1672,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               <div className="map-layer-section map-layer-section-spectral-priority">
                 <div className="map-layer-section-title">Spectral analysis first</div>
                 <div className="spectral-priority-card">
-                  <strong>Cheeger bottlenecks and low cooling access are the headline outputs because they maximize actionable value.</strong>
+                  <strong>Cheeger bottlenecks and low cooling access are the primary derived outputs; they identify questions for local investigation.</strong>
                   <span>{spectralAnalysisNarrative(data, heatVisibleCount, coolingVisibleCount, severityFilter)}</span>
                 </div>
               </div>
@@ -1686,15 +1686,15 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                   </div>
                   <div className="map-property-row">
                     <span>Bottleneck test</span>
-                    <strong>Cheeger-style cut logic to expose weak heat circulation seams</strong>
+                    <strong>Cheeger-style cut logic to expose low-conductance structure in the chosen graph</strong>
                   </div>
                   <div className="map-property-row">
                     <span>Equity layer</span>
-                    <strong>Cooling-access scoring to locate places with the least relief</strong>
+                    <strong>Least-cost cooling-access proxy to locate modeled constraints</strong>
                   </div>
                   <div className="map-property-row">
                     <span>Why it matters</span>
-                    <strong>Ranks interventions by likely value instead of visual intuition alone</strong>
+                    <strong>Supports transparent investigation and scenario comparison alongside local evidence</strong>
                   </div>
                 </div>
                 <p className="map-layer-summary">
@@ -2101,13 +2101,13 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         <div className="map-focus-card map-focus-card-spectral">
           <div className="map-insight-head">
             <div className="truth-badge derived">Derived</div>
-            <strong>Decision-grade spectral outputs from rigorous math</strong>
+            <strong>Inspectable spectral outputs with explicit mathematical limits</strong>
           </div>
           <p>{spectralAnalysisNarrative(data, heatVisibleCount, coolingVisibleCount, severityFilter)}</p>
           <div className="map-property-list">
             <div className="map-property-row">
               <span>Primary signal</span>
-              <strong>Circulation bottlenecks + cooling inequity</strong>
+              <strong>Low-conductance features + modeled cooling-access constraints</strong>
             </div>
             <div className="map-property-row">
               <span>Mathematical basis</span>
@@ -3423,7 +3423,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           {truthLabel(data.truthMode.interpretationStatus)}
         </div>
         <div className="truth-copy">
-          <strong>{data.truthMode.headline} The emphasis is on rigorous spectral mathematics, not just sensor imagery.</strong>
+          <strong>{data.truthMode.headline} The emphasis is on inspectable spectral mathematics alongside sensor imagery and local interpretation.</strong>
           <p>{data.truthMode.caution}</p>
         </div>
       </div>

@@ -34,7 +34,7 @@ export function CityScienceSpotlight({ cityName, spectral, robustness, trustAudi
           <strong>{reliabilityGain == null ? "Model context loading" : `${reliabilityGain >= 0 ? "+" : ""}${reliabilityGain.toFixed(3)} reliability signal`}</strong>
         </div>
         <MathBlock tex="L_{\\mathrm{norm}} = D^{-1/2}(D-A)D^{-1/2}" className="city-science-formula" />
-        <p>The normalized graph Laplacian reveals weak connections: places where a cooling corridor may matter more than another isolated improvement.</p>
+        <p>The normalized graph Laplacian identifies weak connections in the chosen graph. It can suggest places where a cooling corridor deserves investigation; it does not establish that one intervention will matter more than another in the physical city.</p>
         <details className="city-science-methods">
           <summary className="city-science-method-summary">
             <span>See the method in plain language</span>
@@ -42,7 +42,7 @@ export function CityScienceSpotlight({ cityName, spectral, robustness, trustAudi
           </summary>
           <div>
             <MathBlock tex="\\phi(S)=\\frac{\\operatorname{cut}(S,V\\setminus S)}{\\min(\\operatorname{vol}(S),\\operatorname{vol}(V\\setminus S))}" className="city-science-formula city-science-formula-small" />
-            <p>Conductance tests how easily a part of the city is separated from cooling opportunity. Lower values can reveal bottlenecks worth examining with local knowledge.</p>
+            <p>Conductance tests how easily a subset is separated in the modeled network. Lower values can reveal bottleneck candidates worth examining with local knowledge and domain review.</p>
           </div>
         </details>
       </div>

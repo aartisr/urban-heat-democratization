@@ -13,7 +13,19 @@ def _indexer(h, w):
 
 def build_weighted_grid(lst01: np.ndarray, ndvi01: np.ndarray | None = None, connect8: bool = True,
                         alpha: float = 3.0, beta: float = 0.5) -> tuple[nx.Graph, np.ndarray]:
+    """Build an undirected weighted raster graph.
+
+    A valid raster cell is a node.  For adjacent cells ``i`` and ``j``, the
+    conductance is ``w_ij = exp(-alpha * g_ij) * (1 + beta * ndvi_ij)`` where
+    ``g_ij`` is mean local LST-gradient magnitude and ``ndvi_ij`` is mean
+    normalized NDVI when supplied.  The companion ``cost_ij = length_ij/w_ij``
+    is a least-cost-path input; it is not an electrical resistance measurement.
+    """
     assert lst01.ndim == 2
+    if ndvi01 is not None and ndvi01.shape != lst01.shape:
+        raise ValueError("lst01 and ndvi01 must have the same shape")
+    if alpha < 0 or beta < 0:
+        raise ValueError("alpha and beta must be non-negative")
     h, w = lst01.shape
     mask = np.isfinite(lst01)
     idx = _indexer(h, w)
@@ -44,6 +56,11 @@ def build_weighted_grid(lst01: np.ndarray, ndvi01: np.ndarray | None = None, con
     return G, deg
 
 def normalized_laplacian(G: nx.Graph):
+    """Return ``D^(-1/2)(D-A)D^(-1/2)``, node order, and weighted degrees.
+
+    Isolated nodes receive a zero inverse-square-root degree, the conventional
+    finite representation for this normalized-Laplacian construction.
+    """
     nodes = list(G.nodes())
     n = len(nodes)
     i_map = {u:i for i,u in enumerate(nodes)}

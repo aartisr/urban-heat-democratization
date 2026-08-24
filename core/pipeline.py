@@ -103,6 +103,16 @@ def _cut_boundary_mask(G, selected_nodes, shape, dilation=2):
 
 
 def _distance_to_sinks(G, sinks, shape):
+    """Return relative least-cost cooling access, scaled to [0, 1].
+
+    Dijkstra distance is computed over ``cost = geometric_length / conductance``.
+    The distance is inverted before normalization, so a value near one means
+    easier modeled access to an inferred sink.  The legacy output filename
+    ``resistance_proxy`` refers to the underlying least-cost construction, not
+    to the direction of this returned score.
+    """
+    if not sinks:
+        return np.full(shape, np.nan, dtype="float32")
     H = G.copy()
     super_sink = -1
     for sink in sinks:
@@ -552,7 +562,9 @@ def run_pipeline(
     progress(22, "Building weighted urban conductance graph...")
     G, _ = build_weighted_grid(lst01, nd01, connect8=connect8, alpha=alpha, beta=beta)
     if G.number_of_nodes() < 2:
-        raise ValueError("Input rasters did not produce a connected analysis graph.")
+        raise ValueError("Input rasters did not produce at least two valid analysis cells.")
+    if not nx.is_connected(G):
+        raise ValueError("Input rasters produce a disconnected graph; mask gaps or analyze connected components separately.")
 
     progress(35, "Computing spectral gap and Cheeger bottleneck...")
     lam2, fiedler, nodes, deg = lambda2_and_fiedler(G)

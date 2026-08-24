@@ -2,6 +2,7 @@ import numpy as np
 import networkx as nx
 
 from core.graph import build_weighted_grid
+from core.percolation import percolation_scan
 from core.reliability import reliability_to_sinks
 from core.spectra import lambda2_and_fiedler, sweep_conductance
 
@@ -45,3 +46,13 @@ def test_cheeger_sweep_and_sink_reliability_are_bounded():
     assert 0 <= phi <= 1
     assert selected
     assert reliability == 1.0
+
+
+def test_probability_contracts_reject_invalid_values():
+    graph = nx.path_graph(2)
+    nx.set_edge_attributes(graph, 1.0, "w")
+
+    with np.testing.assert_raises(ValueError):
+        reliability_to_sinks(graph, {0}, p_keep=1.01)
+    with np.testing.assert_raises(ValueError):
+        percolation_scan(graph, [-0.1])

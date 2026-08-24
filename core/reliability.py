@@ -4,6 +4,16 @@ import networkx as nx
 
 def reliability_to_sinks(G: nx.Graph, sinks: set[int], p_keep: float = 0.9, trials: int = 256,
                           rng: np.random.Generator | None = None) -> float:
+    """Estimate the expected share of nodes connected to at least one sink.
+
+    Each trial independently retains every edge with probability ``p_keep``.
+    The returned Monte Carlo mean is a graph-model reliability proxy, not a
+    probability that people can reach cooling in the physical city.
+    """
+    if not 0.0 <= p_keep <= 1.0:
+        raise ValueError("p_keep must lie in [0, 1]")
+    if trials < 1:
+        raise ValueError("trials must be at least 1")
     rng = rng or np.random.default_rng(123)
     edges = list(G.edges(data=True))
     n = G.number_of_nodes()

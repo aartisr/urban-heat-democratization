@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="860" viewBox="0 0 1280 860" role="img" aria-labelledby="title desc">
+  <title id="title">Four-cell cooling-network walkthrough and Cheeger cut</title>
+  <desc id="desc">A five-step diagram: map cells become a graph; candidate cooling sink A is selected; the weak B-to-C connection is cut; conductance is calculated as one ninth; the result becomes a question for local investigation.</desc>
+  <style>
+    .title{font:700 36px system-ui,sans-serif;fill:#102728}.sub{font:400 18px system-ui,sans-serif;fill:#456267}.step{font:800 16px system-ui,sans-serif;fill:#075f72;letter-spacing:1.2px}.label{font:700 20px system-ui,sans-serif;fill:#102728}.body{font:400 17px system-ui,sans-serif;fill:#28484c}.small{font:400 15px system-ui,sans-serif;fill:#456267}.formula{font:700 24px Georgia,serif;fill:#102728}.cell{stroke:#102728;stroke-width:3}.edge{stroke:#075f72;stroke-width:10;stroke-linecap:round}.weak{stroke:#d99a35;stroke-width:10;stroke-linecap:round}.cut{stroke:#bd3c31;stroke-width:6;stroke-dasharray:14 10}.card{fill:#fffdf7;stroke:#d9e2db;stroke-width:2}.num{fill:#075f72}.numtxt{font:800 16px system-ui,sans-serif;fill:white}
+  </style>
+  <rect width="1280" height="860" fill="#f6f7f1"/>
+  <text x="64" y="66" class="title">How a Cheeger cut turns a tiny map into a careful question</text>
+  <text x="64" y="98" class="sub">This is a toy model. Its numbers are relative connection weights—not temperatures, distances, or judgements about people.</text>
+
+  <rect x="60" y="140" width="1160" height="205" rx="20" class="card"/>
+  <circle cx="100" cy="180" r="20" class="num"/><text x="94" y="186" class="numtxt">1</text>
+  <text x="135" y="186" class="step">START WITH MAP CELLS</text>
+  <text x="135" y="214" class="body">Four nearby cells are the model's smallest possible city. Colour is only a visual cue.</text>
+  <rect x="635" y="180" width="105" height="105" rx="12" class="cell" fill="#a7d9a8"/><text x="682" y="242" class="label">A</text>
+  <rect x="755" y="180" width="105" height="105" rx="12" class="cell" fill="#f5df91"/><text x="802" y="242" class="label">B</text>
+  <rect x="875" y="180" width="105" height="105" rx="12" class="cell" fill="#f3b36d"/><text x="922" y="242" class="label">C</text>
+  <rect x="995" y="180" width="105" height="105" rx="12" class="cell" fill="#ef8a68"/><text x="1042" y="242" class="label">D</text>
+  <text x="650" y="315" class="small">cool / green</text><text x="1012" y="315" class="small">warmer</text>
+
+  <rect x="60" y="370" width="1160" height="205" rx="20" class="card"/>
+  <circle cx="100" cy="410" r="20" class="num"/><text x="94" y="416" class="numtxt">2</text>
+  <text x="135" y="416" class="step">MAKE A CONNECTION GRAPH</text>
+  <text x="135" y="444" class="body">Each cell becomes a dot. Each shared boundary becomes an edge. Higher conductance means easier connection in this model.</text>
+  <line x1="620" y1="495" x2="760" y2="495" class="edge"/><line x1="800" y1="495" x2="940" y2="495" class="weak"/><line x1="980" y1="495" x2="1120" y2="495" class="edge"/>
+  <circle cx="590" cy="495" r="30" fill="#a7d9a8" class="cell"/><circle cx="780" cy="495" r="30" fill="#f5df91" class="cell"/><circle cx="960" cy="495" r="30" fill="#f3b36d" class="cell"/><circle cx="1150" cy="495" r="30" fill="#ef8a68" class="cell"/>
+  <text x="581" y="502" class="label">A</text><text x="771" y="502" class="label">B</text><text x="951" y="502" class="label">C</text><text x="1141" y="502" class="label">D</text>
+  <text x="672" y="480" class="formula">4</text><text x="852" y="480" class="formula">1</text><text x="1032" y="480" class="formula">4</text>
+  <text x="610" y="550" class="small">strong</text><text x="852" y="550" class="small">weak link</text><text x="1080" y="550" class="small">strong</text>
+
+  <rect x="60" y="600" width="1160" height="205" rx="20" class="card"/>
+  <circle cx="100" cy="640" r="20" class="num"/><text x="94" y="646" class="numtxt">3</text>
+  <text x="135" y="646" class="step">SELECT SINKS, THEN TEST A CUT</text>
+  <text x="135" y="674" class="body">A is an inferred cooling sink. Try split S={A,B}. The dashed line crosses only B–C, whose weight is 1.</text>
+  <text x="520" y="740" class="label">★ A is a candidate cooling sink</text>
+  <line x1="860" y1="704" x2="860" y2="782" class="cut"/>
+  <text x="885" y="732" class="small">Cheeger candidate cut</text>
+  <text x="520" y="780" class="formula">cut = 1 · vol(S) = 9 · vol(V∖S) = 9 · φ(S) = 1 / 9 ≈ 0.11</text>
+
+  <rect x="60" y="825" width="1160" height="1" fill="#d9e2db"/>
+  <text x="64" y="850" class="small">4. Interpret carefully: the weak B–C model connection supports a question—what local conditions make cooling continuity difficult here? It is not a forecast or a diagnosis.</text>
+</svg>
