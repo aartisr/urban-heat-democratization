@@ -1,7 +1,12 @@
 
 import numpy as np
 import networkx as nx
-from scipy.sparse import coo_matrix, diags
+
+try:
+    from scipy.sparse import coo_matrix, diags
+except ImportError:  # Serverless API runtime uses the dense NumPy fallback below.
+    coo_matrix = None
+    diags = None
 
 def _indexer(h, w):
     return lambda r, c: r*w + c
@@ -49,12 +54,20 @@ def normalized_laplacian(G: nx.Graph):
         w = d.get('w',1.0)
         rows += [i,j]; cols += [j,i]; data += [w, w]
         deg[i] += w; deg[j] += w
-    A = coo_matrix((data,(rows,cols)), shape=(n,n)).tocsr()
-    D = diags(deg)
-    L = D - A
     with np.errstate(divide='ignore'):
         d_is = 1.0/np.sqrt(deg)
         d_is[np.isinf(d_is)] = 0.0
-    S = diags(d_is)
-    Lnorm = S @ L @ S
+
+    if coo_matrix is not None and diags is not None:
+        A = coo_matrix((data, (rows, cols)), shape=(n, n)).tocsr()
+        L = diags(deg) - A
+        S = diags(d_is)
+        Lnorm = S @ L @ S
+    else:
+        # The public serverless API evaluates compact demonstration graphs.
+        # Avoid a heavyweight SciPy runtime by using the equivalent dense form.
+        A = np.zeros((n, n), dtype=float)
+        if rows:
+            A[rows, cols] = data
+        Lnorm = d_is[:, None] * (np.diag(deg) - A) * d_is[None, :]
     return Lnorm, nodes, deg
