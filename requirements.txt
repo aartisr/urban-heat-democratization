@@ -1,5 +1,5 @@
 
-# This repo is currently pinned for Python 3.11.
+# This repo is deployed with Python 3.12 on Vercel.
 # If you install with Python 3.9 or a much newer interpreter that lacks
 # compatible wheels for the pinned scientific stack, packages like SciPy may
 # fall back to a source build and fail during metadata preparation.

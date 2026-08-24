@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-PYTHON ?= python3.11
+PYTHON ?= python3.12
 VENV ?= .venv
 WEB_DIR ?= web
 CITY ?= boston
@@ -15,8 +15,8 @@ UVICORN_IN_VENV := $(VENV)/bin/uvicorn
 help:
 	@echo "Available targets:"
 	@echo "  make check-python       Check whether your interpreter setup matches the repo requirements"
-	@echo "  make install-python     Install Python 3.11 with Homebrew when it is missing"
-	@echo "  make setup              Create the Python 3.11 virtualenv and install web dependencies"
+	@echo "  make install-python     Install Python 3.12 with Homebrew when it is missing"
+	@echo "  make setup              Create the Python 3.12 virtualenv and install web dependencies"
 	@echo "  make web-install        Install frontend dependencies"
 	@echo "  make api                Run the FastAPI server from the project virtualenv"
 	@echo "  make run-api            Alias for 'make api'"
@@ -39,11 +39,11 @@ install-python:
 	@if command -v $(PYTHON) >/dev/null 2>&1; then \
 		echo "$(PYTHON) is already available."; \
 	elif command -v brew >/dev/null 2>&1; then \
-		echo "Installing Python 3.11 with Homebrew..."; \
-		brew install python@3.11; \
+		echo "Installing Python 3.12 with Homebrew..."; \
+		brew install python@3.12; \
 	else \
-		echo "python3.11 is missing and Homebrew is not available."; \
-		echo "Install Python 3.11 manually, then rerun 'make setup'."; \
+		echo "python3.12 is missing and Homebrew is not available."; \
+		echo "Install Python 3.12 manually, then rerun 'make setup'."; \
 		exit 1; \
 	fi
 
