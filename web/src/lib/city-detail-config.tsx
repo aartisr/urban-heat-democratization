@@ -83,7 +83,8 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
   } = input;
 
   const thermalSourceNames = cityMap?.thermalSources.map((source) => source.id.toUpperCase()).join(" and ");
-  const highPriorityCount = (mapStats?.highHeatZones ?? 0) + (mapStats?.highAccessZones ?? 0);
+  // Low-cooling-access is currently a thresholded flag, not a comparable priority score.
+  const highPriorityCount = mapStats?.highHeatZones ?? 0;
   const suggestedBudget = recommendedBudget(highPriorityCount);
   const scenarioSearch = buildScenarioSearch(cityId, suggestedBudget);
   const liveAdapter = cityMap?.liveThermalAdapter ?? liveThermalAdapter;
@@ -251,7 +252,7 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
           eyebrow: "Overlay dashboard",
           title: "Loaded overlay counts",
           body: mapStats
-            ? `${mapStats.heatZones} bottleneck polygons, ${mapStats.accessZones} low-cooling-access polygons, ${mapStats.highHeatZones} high-priority heat zones, and ${mapStats.highAccessZones} high-severity access zones are loaded from the workspace data.`
+            ? `${mapStats.heatZones} bottleneck polygons and ${mapStats.accessZones} low-cooling-access polygons are loaded from the workspace data. ${mapStats.highHeatZones} bottlenecks have high derived priority; the low-access export is presented as flagged zones, not as a within-layer score ranking.`
             : "Loading overlay counts...",
         }]
       : []),

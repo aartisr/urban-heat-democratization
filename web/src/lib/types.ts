@@ -427,7 +427,17 @@ export type CityMapLayerProvenance = {
   filePath: string | null;
   method: string;
   primaryFields: string[];
+  scoreStatus?: "ranked" | "flagged_not_ranked" | "unavailable";
+  distinctScoreCount?: number;
+  detail?: string;
   limitations: string[];
+};
+
+export type CityMapHighlight = {
+  title: string;
+  value: number;
+  valueLabel?: string;
+  description: string;
 };
 
 export type CityMapTruthMode = {
@@ -446,7 +456,7 @@ export type CityMapData = {
   heatZones: CityMapOverlay[];
   accessZones: CityMapOverlay[];
   legend: CityMapLegendItem[];
-  highlights: Array<{ title: string; value: number; description: string }>;
+  highlights: CityMapHighlight[];
   artifactPaths: string[];
   bounds: CityMapBounds | null;
   studyAreaGeojson: GeoJsonFeatureCollection | null;
