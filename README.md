@@ -1,7 +1,7 @@
 # Urban Heat Democratization
 
 [![CI](https://github.com/aartisr/urban-heat-democratization/actions/workflows/ci.yml/badge.svg)](https://github.com/aartisr/urban-heat-democratization/actions/workflows/ci.yml)
-![Python 3.11](https://img.shields.io/badge/python-3.11-blue)
+![Python 3.12](https://img.shields.io/badge/python-3.12-blue)
 ![Frontend Vite + React](https://img.shields.io/badge/frontend-Vite%20%2B%20React-0ea5e9)
 ![API FastAPI](https://img.shields.io/badge/api-FastAPI-10b981)
 
@@ -178,14 +178,14 @@ flowchart LR
 
 ## Quickstart
 
-Requirements: Python `3.11` and Node.js `22+` (the frontend lockfile includes
+Requirements: Python `3.12` and Node.js `22+` (the frontend lockfile includes
 dependencies that require the current Node 22 runtime).
 
 ```bash
 make setup
 ```
 
-`make setup` recreates the project-local `.venv` with the pinned Python 3.11
+`make setup` recreates the project-local `.venv` with the pinned Python 3.12
 interpreter. If an older environment was activated, run `deactivate` first,
 then activate the newly created environment after setup completes:
 

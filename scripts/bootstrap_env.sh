@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PYTHON_BIN="${PYTHON_BIN:-python3.11}"
+PYTHON_BIN="${PYTHON_BIN:-python3.12}"
 PYTHON_FALLBACK_PATHS=(
-  "/opt/homebrew/bin/python3.11"
-  "/usr/local/bin/python3.11"
-  "/opt/homebrew/opt/python@3.11/bin/python3.11"
-  "/usr/local/opt/python@3.11/bin/python3.11"
+  "/opt/homebrew/bin/python3.12"
+  "/usr/local/bin/python3.12"
+  "/opt/homebrew/opt/python@3.12/bin/python3.12"
+  "/usr/local/opt/python@3.12/bin/python3.12"
 )
 
 find_python311() {
@@ -15,8 +15,8 @@ find_python311() {
     return 0
   fi
 
-  if command -v python3.11 >/dev/null 2>&1; then
-    command -v python3.11
+  if command -v python3.12 >/dev/null 2>&1; then
+    command -v python3.12
     return 0
   fi
 
@@ -36,9 +36,9 @@ install_python311_with_brew() {
     return 1
   fi
 
-  echo "python3.11 was not found on PATH."
-  echo "Attempting to install Python 3.11 with Homebrew..."
-  brew install python@3.11
+  echo "python3.12 was not found on PATH."
+  echo "Attempting to install Python 3.12 with Homebrew..."
+  brew install python@3.12
 }
 
 resolve_python311() {
@@ -56,18 +56,18 @@ resolve_python311() {
 
     if command -v brew >/dev/null 2>&1; then
       local brew_prefix
-      brew_prefix="$(brew --prefix python@3.11)"
-      if [[ -x "${brew_prefix}/bin/python3.11" ]]; then
-        printf '%s\n' "${brew_prefix}/bin/python3.11"
+      brew_prefix="$(brew --prefix python@3.12)"
+      if [[ -x "${brew_prefix}/bin/python3.12" ]]; then
+        printf '%s\n' "${brew_prefix}/bin/python3.12"
         return 0
       fi
     fi
   fi
 
-  echo "python3.11 was not found and could not be installed automatically." >&2
-  echo "This repository is currently pinned for Python 3.11." >&2
-  echo "Install Python 3.11 manually, then rerun this script." >&2
-  echo "Suggested macOS command: brew install python@3.11" >&2
+  echo "python3.12 was not found and could not be installed automatically." >&2
+  echo "This repository is currently pinned for Python 3.12." >&2
+  echo "Install Python 3.12 manually, then rerun this script." >&2
+  echo "Suggested macOS command: brew install python@3.12" >&2
   exit 1
 }
 
@@ -77,7 +77,7 @@ PYTHON_PATH="$(resolve_python311)"
 # environment. Recreate only the project-local environment so `python`, pip,
 # and every launcher consistently use the pinned interpreter.
 if [[ -d .venv ]]; then
-  echo "Recreating existing .venv with Python 3.11..."
+  echo "Recreating existing .venv with Python 3.12..."
 fi
 "${PYTHON_PATH}" -m venv --clear .venv
 source .venv/bin/activate
