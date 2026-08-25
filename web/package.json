@@ -7,8 +7,10 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
+    "predev": "npm run pwa:prepare",
     "dev": "vite",
-    "build": "npm run discovery:refresh && tsc --noEmit && vite build",
+    "pwa:prepare": "node scripts/prepare-pwa.mjs",
+    "build": "npm run discovery:refresh && npm run pwa:prepare && tsc --noEmit && vite build",
     "build:seo": "npm run discovery:refresh && node ../scripts/build-github-pages.mjs",
     "discovery:refresh": "node ../scripts/refresh-discovery.mjs",
     "discovery:check": "node ../scripts/refresh-discovery.mjs --check",

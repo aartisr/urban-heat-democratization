@@ -62,6 +62,23 @@ lockfile uses only the public npm registry and includes declared optional
 cross-platform packages, keeping contributor and deployment installs
 reproducible without depending on a private registry.
 
+## Progressive Web App behavior
+
+The app uses a dependency-free PWA boundary so it remains portable across Vite
+hosts and does not couple the UI to a plugin. `npm run dev` and `npm run build`
+generate `public/sw.js` from `scripts/prepare-pwa.mjs`; it is intentionally
+ignored because it carries a fingerprint of the current application sources.
+
+- `public/site.webmanifest`, `pwa-icon.svg`, and `offline.html` are the stable
+  install assets.
+- `src/components/pwa-controls.tsx` is the reusable, optional UI. It appears
+  only when the browser makes installation available.
+- A changed build fingerprint makes the next worker wait; the user can choose
+  **Update now** or **Later**. No update reload is automatic.
+- Navigation is network-first and has a deliberately small offline fallback.
+  It does not cache live evidence, maps, or API responses as if they were
+  current.
+
 ## Notes
 
 - The API client can use the Python backend and falls back to local mock data

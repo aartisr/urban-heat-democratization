@@ -1,4 +1,4 @@
-import type { ArtifactRecord, AuthSession, BenchmarkSuite, BundledPackage, CityDataRegistration, CityExperience, CityLiveThermalAdapter, CityMapData, CityOnboardingInput, CityOnboardingResult, CityProfile, CitySpectral, CostSource, InterventionRecord, PackageValidation, PlannerValidation, PlanningMode, PlanningReadiness, RobustnessLab, RunDetail, RunRecord, ScenarioRecord, TrustAudit, WorkspaceMembership } from "./types";
+import type { AddressAdviceContext, ArtifactRecord, AuthSession, BenchmarkSuite, BundledPackage, CityDataRegistration, CityExperience, CityLiveThermalAdapter, CityMapData, CityOnboardingInput, CityOnboardingResult, CityProfile, CitySpectral, CostSource, InterventionRecord, PackageValidation, PlannerValidation, PlanningMode, PlanningReadiness, RobustnessLab, RobustnessLabExperiment, RunDetail, RunRecord, ScenarioRecord, TrustAudit, WorkspaceMembership } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 // Keep the app responsive when a local or remote service is unavailable.
@@ -186,6 +186,10 @@ export async function getCity(cityId: string): Promise<CityProfile> {
   return fetchJson<CityProfile>(`/v1/cities/${encodeURIComponent(cityId)}`);
 }
 
+export async function getAddressAdviceContext(cityId: string): Promise<AddressAdviceContext> {
+  return fetchJson<AddressAdviceContext>(`/v1/address-advice/cities/${encodeURIComponent(cityId)}`);
+}
+
 export async function listCityExperiences(): Promise<CityExperience[]> {
   return fetchJson<CityExperience[]>("/v1/city-experiences");
 }
@@ -355,6 +359,13 @@ export async function listArtifacts(): Promise<ArtifactRecord[]> {
 
 export async function getRobustnessLab(): Promise<RobustnessLab> {
   return fetchJson<RobustnessLab>("/v1/robustness/lab");
+}
+
+export async function runRobustnessExperiment(experiment: RobustnessLabExperiment): Promise<RobustnessLab> {
+  return fetchJson<RobustnessLab>("/v1/robustness/lab/experiment", {
+    method: "POST",
+    body: JSON.stringify(experiment),
+  });
 }
 
 export async function queueRun(cityId: string, scenario: string): Promise<RunRecord> {

@@ -17,5 +17,6 @@ web/.turbo/
 web/test-results/
 web/playwright-report/
 web/coverage/
+web/public/sw.js
 data/runtime/
 site/

@@ -1,12 +1,37 @@
 # Address-Level Spectral Urbanism Advice: Value, Limits, and an Operational Blueprint
 
-> Authored by [Aarti S Ravikumar](https://ai-aarti.com) · Last research review: 2026-08-24 · Canonical platform: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com/)
+> Authored by [Aarti S Ravikumar](https://ai-aarti.com) · Last implementation review: 2026-08-25 · Canonical platform: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com/)
+
+> **Status authority.** This is the canonical roadmap and implementation status
+> for Address-Level Spectral Urbanism. The Phase 3–5 documents linked below are
+> supporting readiness contracts; they do not replace this status record.
 
 ## Executive answer
 
 **Yes—but only as an address-informed, evidence-bounded guidance service, not as a personal risk diagnosis or an automated property prescription.** An address can help a person locate their surroundings in a thermal, vegetation, shade, surface, and access-to-relief context. Spectral Urbanism can add a useful structural question: *in the chosen local graph, where are the weak connections between a hot area and modeled cooling features?*
 
 That can generate meaningful next steps: what to inspect on site, which low-regret household actions may be worth exploring, what questions to ask a landlord or city, and where a resident can contribute local knowledge. It cannot establish indoor temperature, medical risk, legal compliance, a property’s energy performance, structural suitability for a roof intervention, a causal cooling benefit, or an intervention’s equity.
+
+## Current delivery status and what remains
+
+| Phase | Current status | What is implemented | What remains before advancing |
+| --- | --- | --- | --- |
+| 0. Research contract | Complete | Published scope, evidence, privacy, and governance boundaries. | Keep sources and safeguards under review. |
+| 1. No-address help | Partial | Browser-only safety, role-matched site, and collective-action prompts are available. | Current official forecast / local-resource integration and accessibility content review. |
+| 2. Approximate-place prototype | Technically complete; externally pending | `/address-plan` keeps place text in-browser, blocks street addresses, exposes city-wide provenance, and never returns an unsupported spectral result. | Five-person comprehension study; record findings and revise the interface if needed. |
+| 3. One-city co-designed pilot | Preparation only | Boston readiness protocol and in-app readiness context. | Named steward and decision owner; bounded public question; dated/licensed data contract; paid community review; pre-registered ground truth, sensitivity, equity, and publication/suppression protocol. |
+| 4. Address-confirmed private report | Not enabled | Browser-only report-preparation flow and provider contract. | Approved provider; affirmative consent and deletion path; zero-retention/redaction implementation; security, privacy, accessibility, and partner reviews; address-perturbation and sensitivity validation. |
+| 5. Evaluated contribution network | Preparation only | Browser-only observation draft and registry contract. | Partner-approved intake, moderation, retention, multilingual access, governance, equity/harm monitoring, and published learning reports. |
+
+### Non-negotiable release gate for address-level spectral results
+
+No address-level spectral result may be enabled until all of the following are
+complete: supported and licensed coverage; compatible dated layers; a
+neighborhood-appropriate resolution claim; documented quality checks; a valid
+connected graph and sink definition; sensitivity analysis; independent method,
+privacy, accessibility, and local-partner review; and a safe no-result state.
+Until then, the product must offer only the browser-only approximate-place plan
+and general safety / community guidance.
 
 The most valuable product is therefore a **three-layer service**:
 
@@ -43,7 +68,7 @@ The plan must show only actions that match the person’s declared ability to ac
 
 ## 1. What the current project can and cannot do
 
-The present repository has no address-search interface, geocoding service, parcel model, property record connector, building-energy model, or real-time health-alert integration. Its scientific core constructs a weighted graph from valid raster cells, computes a normalized-Laplacian spectral signal and sweep conductance, and uses a modeled least-cost route to inferred cooling sinks. The existing Boston experience is a documented study environment; its scenario outputs are explicitly benchmark-based exploration aids rather than local engineering predictions.
+The public app now includes a first-phase **Your Cooling Action Plan** at `/address-plan`. It accepts a user’s place label and role entirely in the browser, provides role-matched safety, site, and collective-action prompts, and deliberately does not geocode, save, transmit, or map the entered location. The repository does not yet include a geocoding service, parcel model, property record connector, building-energy model, real-time health-alert integration, or address-level spectral endpoint. Its scientific core constructs a weighted graph from valid raster cells, computes a normalized-Laplacian spectral signal and sweep conductance, and uses a modeled least-cost route to inferred cooling sinks. The existing Boston experience is a documented study environment; its scenario outputs are explicitly benchmark-based exploration aids rather than local engineering predictions.
 
 That means an address feature **must not** simply place a pin over the current Boston result and present the result as “advice for your home.” At the current model resolution, a pixel may contain multiple parcels, roofs, streets, trees, and microclimates. USGS notes that Landsat surface-temperature products have constraints including missing data, cloud-related error, temporal limitations, and coarse or blocky behavior over small targets. The product measures **land-surface temperature**, not indoor temperature or personal heat exposure. [USGS: Landsat Collection 2 surface-temperature constraints](https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-temperature)
 
@@ -259,6 +284,24 @@ The response should say “**worth exploring first**” rather than “recommend
 - Run parameter sweeps over adjacency, \(\alpha\), \(\beta\), sink definition, season, imagery date, and analysis extent.
 - Publish reproducibility fixtures and a plain-language “why no result?” state.
 
+### Phase 2 comprehension check
+
+Before Phase 2 is marked complete, test the approximate-place page with at
+least five people who did not help build it. Ask each person, without coaching:
+
+1. Can you enter a street address here? What should you enter instead?
+2. Does the location text leave the browser or reach the evidence service?
+3. Is the neighborhood evidence card about a property, a person, or a
+   city / neighborhood-scale study context?
+4. Does the page show an address-level spectral result today? Why or why not?
+5. What is one safe next step you could take after reading the plan?
+
+**Pass condition:** every participant correctly answers questions 1–4, and at
+least four of five can identify one action without interpreting the plan as a
+health-risk score or property prescription. Record the answers, any confusing
+language, and resulting changes in the project’s issue tracker before marking
+Phase 2 complete.
+
 ### Field validation
 
 - Co-design a pilot with residents, public health, planning / urban forestry, disability / accessibility advocates, tenants, and data stewards.
@@ -283,16 +326,32 @@ NOAA’s heat-mapping work offers a strong precedent for participatory validatio
 | --- | --- | --- | --- |
 | 0. Research contract | Publish this boundary, privacy specification, and data inventory | Trust before feature work | Community / technical review accepts the contract |
 | 1. No-address heat-help page | Official forecast links, local resources, general safety and contribution routes | Immediate value without location retention | Accessibility and content review pass |
-| 2. Approximate-place prototype | ZIP / intersection / coarse pin; evidence card and no spectral advice unless supported | Neighborhood orientation | Privacy tests, provenance tests, and user comprehension testing pass |
+| 2. Approximate-place prototype *(external review pending)* | Browser-only place label plus city-wide evidence card; no spectral advice unless supported | Neighborhood orientation without location transmission | Five-person comprehension study is recorded and resulting changes are applied |
 | 3. One-city co-designed pilot | Curated layers, local partner, public feedback route, spectral explanation panel | Local question discovery | Ground-truth and equity evaluation protocol complete |
 | 4. Address-confirmed private report | Ephemeral geocoding, rounded display, site-fact questionnaire, conditional investigation menu | More tailored but bounded guidance | Independent privacy/security/accessibility review and pilot evidence justify expansion |
 | 5. Evaluated contribution network | Public issue / partner handoff, structured observations, pilot registry, learning reports | Turns individual curiosity into accountable civic action | Demonstrated local usefulness and no unacceptable disparate harms |
 
-## 9. Recommended first implementation
+Supporting readiness contracts: [Boston pilot](BOSTON_PILOT_READINESS.md),
+[address-confirmed private report](PHASE_4_PRIVATE_REPORT_READINESS.md), and
+[contribution network](PHASE_5_CONTRIBUTION_NETWORK_READINESS.md). The status
+table at the start of this document is authoritative; these contracts define
+the detailed external gates for the later phases.
 
-Do **not** begin with a street-address box. Begin with a “Find heat-help near me” experience that accepts an approximate place, displays current official heat guidance and local resources, and shows a transparent neighborhood evidence card only for supported cities. Add a one-click invitation to report missing shade, inaccessible cooling, or local context.
+## 9. Recommended next implementation
 
-Then build a single, consented Boston pilot with local review. The first spectral output should be a **research explanation panel**, not an action ranker: show the candidate cut, explain the model, request confirmation or disagreement, and document what local review reveals. Only after reproducibility, field validation, privacy review, and a co-designed action pathway should the platform permit address-confirmed, personalized investigation menus.
+Do **not** enable a street-address lookup next. First complete the outstanding
+Phase 2 comprehension study and apply any resulting language or interaction
+changes. In parallel, strengthen the existing approximate-place experience with
+official current-heat and local-resource integrations only where the data and
+operational owner are clear.
+
+Then establish a single, consented Boston pilot with a named local steward and
+review process. The first spectral output should be a **research explanation
+panel**, not an action ranker: show the candidate cut, explain the model,
+request confirmation or disagreement, and document what local review reveals.
+Only after reproducibility, field validation, privacy review, and a co-designed
+action pathway should the platform permit address-confirmed, personalized
+investigation menus.
 
 ## 10. Final decision
 
