@@ -1,0 +1,20 @@
+{
+  "scenarios": [
+    {
+      "id": "scenario-boston-50k",
+      "cityId": "boston",
+      "budgetUsd": 50000,
+      "label": "Boston Classroom starter",
+      "presetKey": "classroom",
+      "planningMode": "best_under_budget"
+    },
+    {
+      "id": "scenario-boston-250k",
+      "cityId": "boston",
+      "budgetUsd": 250000,
+      "label": "Boston $250,000 scenario",
+      "presetKey": "benchmark",
+      "planningMode": "best_under_budget"
+    }
+  ]
+}
