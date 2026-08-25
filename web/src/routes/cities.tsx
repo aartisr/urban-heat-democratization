@@ -23,6 +23,40 @@ const emptyUploadPreview: BoundaryUploadPreview = {
   error: null,
 };
 
+type CityStarter = {
+  id: string;
+  title: string;
+  source: string;
+  promise: string;
+};
+
+const CITY_STARTERS: CityStarter[] = [
+  {
+    id: "new-york-city",
+    title: "New York City starter",
+    source: "City identity and study defaults are prepared.",
+    promise: "Add one boundary GeoJSON to create a local, boundary-ready workspace.",
+  },
+  {
+    id: "chicago",
+    title: "Chicago starter",
+    source: "City identity and study defaults are prepared.",
+    promise: "Add one boundary GeoJSON to create a local, boundary-ready workspace.",
+  },
+  {
+    id: "los-angeles",
+    title: "Los Angeles starter",
+    source: "City identity and study defaults are prepared.",
+    promise: "Add one boundary GeoJSON to create a local, boundary-ready workspace.",
+  },
+  {
+    id: "houston",
+    title: "Houston starter",
+    source: "City identity and study defaults are prepared.",
+    promise: "Add one boundary GeoJSON to create a local, boundary-ready workspace.",
+  },
+];
+
 export function CitiesPage() {
   const queryClient = useQueryClient();
   const citiesQuery = useQuery({ queryKey: ["cities"], queryFn: () => listCities() });
@@ -83,6 +117,23 @@ export function CitiesPage() {
     notes: "",
   });
   const uploadReady = formValue.boundarySource !== "upload" || (Boolean(formValue.boundaryGeojsonText) && uploadPreview.error === null);
+  const beginStarter = (starterId: string) => {
+    const city = catalogCities.find((candidate) => candidate.id === starterId);
+    if (!city) return;
+    setFormValue({
+      name: city.name,
+      region: city.region,
+      population: city.population,
+      boundarySource: "upload",
+      boundaryPath: "",
+      boundaryFileName: null,
+      boundaryGeojsonText: null,
+      notes: `${city.name} starter pipeline: boundary supplied by a local partner; local layers and validation remain to be registered.`,
+    });
+    setUploadPreview(emptyUploadPreview);
+    setErrorMessage(null);
+    document.getElementById("city-onboarding-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   return (
     <section className="page-stack cities-page">
@@ -149,10 +200,33 @@ export function CitiesPage() {
         </div>
       </article>
 
+      <article className="panel-card premium-section-card city-starter-section">
+        <div className="city-starter-heading">
+          <div>
+            <div className="eyebrow">Preconfigured city starters</div>
+            <h2>Start with a city, not a blank form.</h2>
+            <p>Choose a starter to preload its identity, regional context, and a transparent readiness path. The only required local input is a valid boundary GeoJSON; everything else stays visibly staged until it is supplied and reviewed.</p>
+          </div>
+          <a href="https://aartisr.github.io/urban-heat-democratization/wiki/civic-guide/" target="_blank" rel="noreferrer">New to the workspace? Read the civic guide ↗</a>
+        </div>
+        <div className="city-starter-grid">
+          {CITY_STARTERS.filter((starter) => catalogCities.some((city) => city.id === starter.id)).map((starter) => (
+            <section key={starter.id} className="city-starter-card">
+              <h3>{starter.title}</h3>
+              <p>{starter.source}</p>
+              <p className="muted">{starter.promise}</p>
+              <button className="button-link button-link-secondary" type="button" onClick={() => beginStarter(starter.id)}>Use this starter</button>
+            </section>
+          ))}
+        </div>
+        <p className="city-starter-boundary"><strong>Honest boundary:</strong> starters reduce repeated setup; they do not claim that a local heat analysis, local thermal layer, or intervention result already exists.</p>
+      </article>
+
       <div className="panel-grid two-col">
         <article className="panel-card premium-section-card">
           <h2>Onboard a city</h2>
           <form
+            id="city-onboarding-form"
             className="form-grid"
             onSubmit={async (event) => {
               event.preventDefault();
