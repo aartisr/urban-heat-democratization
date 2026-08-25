@@ -42,7 +42,7 @@ export function RunsPage() {
 
   return (
     <section className="page-stack runs-page">
-      <WorkflowHeader eyebrow="Runs" title="Track analysis jobs, outputs, and the evidence trail." description="This registry keeps the app honest: you can see what ran, what finished, and which workflows still need attention." />
+      <WorkflowHeader wide eyebrow="Runs" title="Track analysis jobs, outputs, and the evidence trail." description="This registry keeps the app honest: you can see what ran, what finished, and which workflows still need attention." />
 
       <div className="panel-grid two-col premium-story-grid">
         <article className="panel-card premium-section-card">

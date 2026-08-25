@@ -4,7 +4,7 @@ import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const webRoot = fileURLToPath(new URL("..", import.meta.url));
-const sourceRoots = ["src", "index.html", "public/site.webmanifest", "public/pwa-icon.svg", "public/offline.html"];
+const sourceRoots = ["src", "index.html", "public/site.webmanifest", "public/favicon.svg", "public/offline.html"];
 
 async function collectFiles(target) {
   const fullPath = join(webRoot, target);
