@@ -24,6 +24,11 @@
   coverage.
 - A route-by-route responsive engineering audit: [Responsive and Usability
   Audit](RESPONSIVE_USABILITY_AUDIT.md).
+- Preconfigured city starters for New York City, Chicago, Los Angeles, and
+  Houston. They fill repeatable city context and focus onboarding on the first
+  real local input: a boundary GeoJSON; they do not represent bundled evidence.
+- A public [Civic Starter Guide](wiki/12-civic-starter-guide.md), also rendered
+  on GitHub Pages, for residents, educators, advocates, and public teams.
 
 ## Partial / constrained
 
