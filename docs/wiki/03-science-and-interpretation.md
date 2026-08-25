@@ -8,6 +8,17 @@ The scientific core includes graph, spectral, resistance, reliability, percolati
 
 An urban area can be represented as a network of spatial units and their relationships. The choice of units, edges, weights, thresholds, and input layers affects the result. In this project, graph and spectral methods identify places where the modeled system appears weakly connected or where relief may not spread smoothly through the network.
 
+## Spectral urbanism, in one minute
+
+**Spectral urbanism reads the city as a pattern of relationships, not just a
+collection of map pixels.** It asks: *where does the modeled connection between
+heat, shade, cooling features, and public routes become thin, fragmented, or
+hard to traverse?*
+
+The answer is a **place to investigate together**—not a score for a person,
+property, or neighborhood. It turns a complex map into a clear civic question:
+*What is breaking continuity here, and what evidence would help us repair it?*
+
 | Method family | Plain-language question | Careful interpretation |
 | --- | --- | --- |
 | Raster workflows | What spatial surface patterns are present in the supplied layers? | Results depend on source, resolution, processing, date, and coverage. |
@@ -37,9 +48,102 @@ The project runs two simple checks:
 2. **Sink reliability:** repeat that random test many times and average the
    share of locations that still connect to a cooling point.
 
+In the lab, a **percolation scan** repeats the first check across several
+retention chances, written as $p$. At each $p$, it keeps each modeled edge with
+chance $p$, removes the rest, and reports the fraction of nodes in the largest
+remaining connected group. A sharp fall in the curve means the *modelled*
+network has few alternate routes under that stress assumption. It is useful for
+finding fragile corridors to investigate; it is not a probability forecast for
+a street, a park, infrastructure, or a person.
+
+For example, a retention chance of 70% means that each modeled connection has
+a 70-in-100 chance of being kept in a simulated test. It does not mean exactly
+seven connections survive in every group of ten, nor does it mean a real street
+has a 70% chance of remaining usable. It is simply a clear dial for comparing
+the same model under gentler and harsher hypothetical stress.
+
+**Redundant routes** are backup edges added to the scenario graph so a narrow
+corridor is not the only modeled connection toward a cooling-sink candidate. In
+a real-world review, they stand for asking where continuity could be improved:
+for example, by linking shade, vegetation, cooler public-realm materials, or
+verified cooling assets. They do not prescribe a road, a parcel change, or an
+intervention without site evidence and community review.
+
+### Why is a corridor called vulnerable?
+
+In the interactive scenario, the highlighted corridor is intentionally the
+only short bridge between two denser clusters of nodes. That makes it a useful
+teaching bottleneck: removing one of its few links can separate a large part of
+the graph, while removing a link inside a dense cluster often leaves several
+alternatives. It is not selected because the lab knows it is a real hot street.
+
+In the actual pipeline, a candidate bottleneck qualifies through graph
+structure. The Fiedler-vector sweep seeks a split with a relatively small
+weighted cut compared with the connected volume on either side (low
+conductance, $\phi$); $\lambda_2$ characterizes how strongly the graph is
+stitched together overall. Thermal gradients—and vegetation where an NDVI layer
+is supplied—affect edge conductance. The resulting signal means “inspect this
+possible break in modeled thermal-landscape continuity,” not “this is proven to
+be the hottest or most dangerous corridor.”
+
 Fixed random seeds make these demonstrations repeatable. The results describe
 the graph model only—they are not a forecast of infrastructure failure or a
 claim that a particular person can reach cooling.
+
+### Try the interactive robustness lab
+
+The **Robustness lab** turns those exact project methods into a bounded
+irregular nine-node teaching district. Choose an edge-retention assumption, the number
+of Monte Carlo trials, and zero to three redundant modeled routes. The lab then
+uses `core/percolation.py` to show the largest connected share under random
+edge removals, and `core/reliability.py` to estimate the share still connected
+to a designated cooling point.
+
+This distinction is intentional: those two routines test whether an edge is
+present, not how visually strong an edge looks. The lab therefore models a
+reinforcement as an explicit alternate route, so the control changes the same
+network structure that the stress tests evaluate. Its repeatable random seeds
+make before/after comparison easier to inspect; they do not reduce real-world
+uncertainty or convert the synthetic example into a local prediction.
+
+### What is real in this project, and what is a scenario?
+
+The lab now displays a **project reality anchor** drawn directly from the
+bundled Landsat surface-temperature input. The pipeline normalizes that raster,
+creates one graph node for each valid analysis cell, connects adjacent cells,
+uses local thermal-gradient-derived conductance weights, identifies low-LST
+cooling-sink candidates, and then applies the spectral, percolation, and
+reliability methods described here.
+
+The interactive irregular district is deliberately smaller and hypothetical.
+It makes the causal structure of a robustness question visible: where a narrow
+corridor is, what an alternate route changes, and how assumptions affect a
+network result. The actual bundled field gives the method its study context;
+the scenario gives a user a safe, comprehensible place to experiment. Neither
+is a parcel-level, person-level, indoor-temperature, or live-condition model.
+
+The lab’s **Explain this run** control turns the selected retention chance,
+trial count, route setting, and measured graph outputs into a plain-language
+record. It is designed to support a planning conversation: *what stress did we
+assume, what modeled alternative did we test, what changed, and what local
+evidence is still needed before acting?*
+
+### What does “connected” mean in the real world?
+
+In the graph, a connection is an edge between adjacent valid raster cells. A
+sequence of those edges means the model can trace a continuous pattern across
+the **study surface**. Edge conductance is lower where the local thermal signal
+changes more sharply, and can incorporate vegetation when an NDVI layer is
+provided. A connection to an inferred cooling sink therefore means *the model
+finds a contiguous, relatively favorable thermal-landscape pattern toward a
+cooler candidate area*.
+
+That is a useful question for fieldwork—might this corridor support continuous
+shade, planting, cooler materials, or access to an actual cooling asset? It is
+not a finding that a route is walkable, safe, publicly accessible, maintained,
+open, or usable by any particular person. Those real-world conditions must be
+verified with local knowledge, street and sidewalk data, accessibility review,
+and community input.
 
 ### Combinatorics: “Which combination should we examine?”
 

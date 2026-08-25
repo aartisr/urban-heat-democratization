@@ -21,7 +21,7 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 | Can you show me graph theory with a small, concrete example? | [A practical graph-theory worked example](08-graph-theory-worked-example.md) |
 | What can I safely conclude from a scenario or impact preview? | [Evidence and responsible use](04-evidence-and-responsible-use.md) |
 | How could my city participate responsibly? | [City onboarding and partnership](05-city-onboarding-and-partnership.md) |
-| Could an address receive useful heat-mitigation guidance? | [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md) |
+| Could an address receive useful heat-mitigation guidance, and what remains before it can use an address? | [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md) |
 
 ## Read in this order
 

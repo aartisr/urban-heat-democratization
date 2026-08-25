@@ -74,6 +74,7 @@ export function HomePage() {
           <div className="quick-links">
             <Link to="/cities" preload="intent" className="button-link secondary">See city readiness</Link>
             <Link to="/scenarios" search={{ cityId: undefined, budgetUsd: undefined, focus: undefined, sourceLayer: undefined, selectedLabel: undefined }} preload="intent" className="button-link secondary">Explore scenarios</Link>
+            <Link to="/address-plan" preload="intent" className="button-link secondary">Start a cooling plan</Link>
           </div>
         </article>
       </section>

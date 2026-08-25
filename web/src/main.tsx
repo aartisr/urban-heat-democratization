@@ -5,6 +5,7 @@ import { RouterProvider } from "@tanstack/react-router";
 
 import { router } from "./router";
 import { AnalyticsConsent } from "./components/analytics-consent";
+import { PwaControls } from "./components/pwa-controls";
 import { initializeAnalytics } from "./lib/analytics";
 import { defaultSeo, setPageSeo } from "./lib/seo";
 import "katex/dist/katex.min.css";
@@ -34,6 +35,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <AnalyticsConsent />
+      <PwaControls />
     </QueryClientProvider>
   </React.StrictMode>,
 );

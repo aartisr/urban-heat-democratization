@@ -12,6 +12,29 @@ export type CityProfile = {
   description: string;
 };
 
+export type AddressAdviceLayer = {
+  label: string;
+  status: "available" | "limited" | "unavailable";
+  detail: string;
+  sourceName: string;
+  provider: string;
+  resolutionM: number | null;
+  artifactUrl: string | null;
+};
+
+export type AddressAdviceContext = {
+  cityId: string;
+  cityName: string;
+  status: "available" | "limited" | "unavailable";
+  coverage: string;
+  analysisScale: string;
+  spectralStatus: "available" | "not_available";
+  spectralDetail: string;
+  layers: AddressAdviceLayer[];
+  limits: string[];
+  generatedAt: string;
+};
+
 export type ScenarioRecord = {
   id: string;
   label: string;
@@ -300,6 +323,26 @@ export type RobustnessLab = {
   reliabilityBaseline: number;
   reliabilityIntervention: number;
   notes: string[];
+  reference: RobustnessReference;
+};
+
+export type RobustnessReference = {
+  label: string;
+  source: string;
+  provider: string;
+  resolutionM: number;
+  rasterShape: number[];
+  graphNodes: number;
+  graphEdges: number;
+  inferredCoolingSinks: number;
+  scope: string;
+  limitations: string;
+};
+
+export type RobustnessLabExperiment = {
+  edgeRetention: number;
+  trials: number;
+  redundantLinks: number;
 };
 
 export type CityOnboardingInput = {

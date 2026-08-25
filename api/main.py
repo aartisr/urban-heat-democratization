@@ -7,6 +7,7 @@ import re
 import sqlite3
 import threading
 import time
+from functools import lru_cache
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -46,6 +47,8 @@ from core.city_strategies import (
 )
 from core.cities import city_onboarding_summary, get_city_profile, is_bundled_city, list_city_profiles, normalize_city_key
 from core.percolation import percolation_scan
+from core.graph import build_weighted_grid
+from core.pipeline import _preprocess, _sink_nodes
 from core.reliability import reliability_to_sinks
 from core.spectra import lambda2_and_fiedler, sweep_conductance
 
@@ -123,6 +126,29 @@ class CityProfileResponse(BaseModel):
     canopyCoverage: str
     planningCostMultiplier: float
     description: str
+
+
+class AddressAdviceLayerResponse(BaseModel):
+    label: str
+    status: str
+    detail: str
+    sourceName: str
+    provider: str
+    resolutionM: int | None = None
+    artifactUrl: str | None = None
+
+
+class AddressAdviceContextResponse(BaseModel):
+    cityId: str
+    cityName: str
+    status: str
+    coverage: str
+    analysisScale: str
+    spectralStatus: str
+    spectralDetail: str
+    layers: list[AddressAdviceLayerResponse]
+    limits: list[str]
+    generatedAt: str
 
 
 class CityOnboardingResponse(BaseModel):
@@ -266,6 +292,28 @@ class RobustnessLabResponse(BaseModel):
     reliabilityBaseline: float
     reliabilityIntervention: float
     notes: list[str]
+    reference: "RobustnessReferenceResponse"
+
+
+class RobustnessReferenceResponse(BaseModel):
+    label: str
+    source: str
+    provider: str
+    resolutionM: int
+    rasterShape: list[int]
+    graphNodes: int
+    graphEdges: int
+    inferredCoolingSinks: int
+    scope: str
+    limitations: str
+
+
+class RobustnessLabExperimentRequest(BaseModel):
+    """Bounded controls for the synthetic, repeatable robustness demonstration."""
+
+    edge_retention: float = Field(default=0.7, ge=0.1, le=1.0, alias="edgeRetention")
+    trials: int = Field(default=256, ge=32, le=2048)
+    redundant_links: int = Field(default=1, ge=0, le=3, alias="redundantLinks")
 
 
 class TrustProtocolStepResponse(BaseModel):
@@ -1060,22 +1108,85 @@ def _benchmark_suite(city_id: str) -> dict[str, object]:
     }
 
 
-def _toy_robustness_graphs() -> tuple[nx.Graph, nx.Graph]:
-    baseline = nx.path_graph(5)
+@lru_cache(maxsize=1)
+def _bundled_robustness_reference() -> dict[str, object]:
+    """Describe the actual bundled thermal field without turning it into a forecast.
+
+    The interactive district remains a deliberately small scenario. This cached
+    reference makes the real graph construction visible: the same LST raster is
+    normalized and converted to the weighted adjacency graph used by the main
+    pipeline.
+    """
+    raster_path = _repo_root() / "data" / "thermal" / "landsat_lst.npy"
+    metadata_path = _repo_root() / "data" / "metadata" / "thermal_sources.json"
+    metadata: dict[str, object] = {}
+    if metadata_path.exists():
+        with metadata_path.open() as handle:
+            metadata = json.load(handle).get("landsat", {})
+    if not raster_path.exists():
+        return {
+            "label": "Bundled thermal reference unavailable",
+            "source": "No bundled Landsat raster is available in this environment.",
+            "provider": "Not available",
+            "resolutionM": 0,
+            "rasterShape": [],
+            "graphNodes": 0,
+            "graphEdges": 0,
+            "inferredCoolingSinks": 0,
+            "scope": "No reference graph could be constructed.",
+            "limitations": "The interactive district is still only a teaching scenario.",
+        }
+    raw_lst = np.load(raster_path)
+    lst01, _ = _preprocess(raw_lst, None)
+    graph, _ = build_weighted_grid(lst01, None, connect8=True, alpha=3.0, beta=0.6)
+    sinks = _sink_nodes(graph, None, lst01)
+    return {
+        "label": "Bundled Landsat reference field",
+        "source": str(metadata.get("source", "Landsat Collection 2 Surface Temperature")),
+        "provider": str(metadata.get("provider", "USGS/NASA")),
+        "resolutionM": int(metadata.get("resolution_m", 100)),
+        "rasterShape": [int(size) for size in raw_lst.shape],
+        "graphNodes": graph.number_of_nodes(),
+        "graphEdges": graph.number_of_edges(),
+        "inferredCoolingSinks": len(sinks),
+        "scope": "The pipeline normalizes this bundled land-surface-temperature field, creates one node per valid raster cell, and joins adjacent cells with conductance weighted by local thermal gradient.",
+        "limitations": "This is a study-scale land-surface-temperature input, not live weather, indoor temperature, parcel conditions, or a measure of a person’s ability to reach cooling.",
+    }
+
+
+def _toy_robustness_graphs(redundant_links: int = 1) -> tuple[nx.Graph, nx.Graph]:
+    # An irregular synthetic district: compact neighborhoods at either end are
+    # joined by a narrow three-edge corridor. It is intentionally not a grid
+    # or a real city geography, but it makes a meaningful bottleneck visible.
+    baseline = nx.Graph()
+    baseline.add_edges_from(
+        (
+            (0, 1), (1, 8), (8, 0),  # cooling-hub neighborhood
+            (1, 2), (2, 3), (3, 4),  # narrow central corridor
+            (4, 5), (5, 6), (6, 7), (7, 4),  # eastern neighborhood
+        )
+    )
     for u, v in baseline.edges():
         baseline[u][v]["w"] = 1.0
         baseline[u][v]["cost"] = 1.0
 
     intervention = baseline.copy()
-    for u, v in intervention.edges():
-        if {u, v} in ({1, 2}, {2, 3}):
-            intervention[u][v]["w"] = 1.75
-            intervention[u][v]["cost"] = 1.0 / 1.75
+    # The project’s percolation and reliability routines model an edge as
+    # retained or removed.  Add explicit redundant routes here so this
+    # teaching intervention changes the same topology those routines test.
+    for index, (u, v) in enumerate(((0, 3), (1, 4), (0, 4))):
+        if index >= redundant_links:
+            break
+        intervention.add_edge(u, v, w=1.75, cost=1.0 / 1.75)
     return baseline, intervention
 
 
-def _toy_robustness_payload() -> dict[str, object]:
-    baseline, intervention = _toy_robustness_graphs()
+def _toy_robustness_payload(
+    edge_retention: float = 0.7,
+    trials: int = 256,
+    redundant_links: int = 1,
+) -> dict[str, object]:
+    baseline, intervention = _toy_robustness_graphs(redundant_links)
     p_values = np.linspace(0.1, 1.0, 10)
     lambda2_baseline, fiedler_baseline, nodes_baseline, deg_baseline = lambda2_and_fiedler(baseline)
     lambda2_intervention, fiedler_intervention, nodes_intervention, deg_intervention = lambda2_and_fiedler(intervention)
@@ -1083,11 +1194,11 @@ def _toy_robustness_payload() -> dict[str, object]:
     phi_intervention, _ = sweep_conductance(intervention, fiedler_intervention, nodes_intervention, deg_intervention)
     baseline_curve = percolation_scan(baseline, list(p_values), rng=np.random.default_rng(42))
     intervention_curve = percolation_scan(intervention, list(p_values), rng=np.random.default_rng(43))
-    reliability_baseline = reliability_to_sinks(baseline, {0}, p_keep=0.7, trials=256, rng=np.random.default_rng(44))
-    reliability_intervention = reliability_to_sinks(intervention, {0}, p_keep=0.7, trials=256, rng=np.random.default_rng(45))
+    reliability_baseline = reliability_to_sinks(baseline, {0}, p_keep=edge_retention, trials=trials, rng=np.random.default_rng(44))
+    reliability_intervention = reliability_to_sinks(intervention, {0}, p_keep=edge_retention, trials=trials, rng=np.random.default_rng(45))
     return {
-        "title": "Toy robustness lab",
-        "summary": "A five-node path graph shows how the existing spectral, percolation, and sink-reliability metrics respond to a small conductance boost.",
+        "title": "Scenario robustness lab",
+        "summary": "An irregular nine-node scenario district uses the same graph, spectral, percolation, and sink-reliability helpers as the scientific pipeline. Change the failure assumption and add redundant routes to see which measurements respond.",
         "pValues": list(map(float, p_values)),
         "baselinePercolation": list(map(float, baseline_curve)),
         "interventionPercolation": list(map(float, intervention_curve)),
@@ -1097,10 +1208,13 @@ def _toy_robustness_payload() -> dict[str, object]:
         "phiIntervention": float(phi_intervention),
         "reliabilityBaseline": float(reliability_baseline),
         "reliabilityIntervention": float(reliability_intervention),
+        "reference": _bundled_robustness_reference(),
         "notes": [
             "This is a teaching/demo lab, not a Boston city estimate.",
             "The same helper functions are used by the main scientific pipeline.",
-            "The intervention graph boosts the middle corridor conductance.",
+            f"Each modeled edge is retained with probability {edge_retention:.0%}; sink reliability averages {trials:,} independent trials.",
+            f"The comparison network adds {redundant_links} redundant route{'s' if redundant_links != 1 else ''}; it is a structural teaching scenario, not a design recommendation.",
+            "Percolation treats edges as retained or removed; edge weight alone would not alter that particular stress test.",
         ],
     }
 
@@ -2530,6 +2644,88 @@ async def city_detail(city_id: str):
     return CityProfileResponse.model_validate(city)
 
 
+@app.get("/api/v1/address-advice/cities/{city_id}", response_model=AddressAdviceContextResponse)
+async def address_advice_context(city_id: str):
+    """Return city-wide, non-personal evidence context for the address-plan UI.
+
+    This endpoint deliberately accepts no address, coordinates, or place label.
+    A future consented geocoder can be introduced behind a separate adapter only
+    after the address-level evidence gate and privacy review are complete.
+    """
+    city = _CITY_STORE.get(city_id)
+    if city is None:
+        return AddressAdviceContextResponse(
+            cityId=city_id,
+            cityName=city_id.replace("-", " ").title(),
+            status="unavailable",
+            coverage="No supported address-plan study coverage is registered for this city.",
+            analysisScale="Not available",
+            spectralStatus="not_available",
+            spectralDetail="A location-level spectral result cannot be shown without supported city coverage and the documented evidence checks.",
+            layers=[],
+            limits=[
+                "No place, address, or coordinate was received by this endpoint.",
+                "The platform does not infer personal heat risk or property conditions.",
+            ],
+            generatedAt=utc_now(),
+        )
+
+    map_payload = city_map_payload(city_id)
+    thermal_sources = map_payload.get("thermalSources", [])
+    layers: list[AddressAdviceLayerResponse] = [
+        AddressAdviceLayerResponse(
+            label="Municipal study boundary",
+            status="available" if bool(map_payload.get("boundaryGeojson")) else "limited",
+            detail="City-wide study context only; it does not confirm a submitted address or parcel.",
+            sourceName="Workspace boundary GeoJSON",
+            provider="Urban Heat Democratization study bundle",
+        ),
+        AddressAdviceLayerResponse(
+            label="Cheeger bottleneck overlay",
+            status="available" if bool(map_payload.get("heatGeojson")) else "limited",
+            detail="A derived neighborhood-scale graph layer used for investigation, not a property score.",
+            sourceName="Spectral pipeline GeoJSON export",
+            provider="Urban Heat Democratization study bundle",
+        ),
+        AddressAdviceLayerResponse(
+            label="Cooling-access constraint surface",
+            status="available" if bool(map_payload.get("accessGeojson")) else "limited",
+            detail="A derived modeled-access layer; it does not measure a person’s access to cooling.",
+            sourceName="Spectral pipeline GeoJSON export",
+            provider="Urban Heat Democratization study bundle",
+        ),
+    ]
+    layers.extend(
+        AddressAdviceLayerResponse(
+            label=str(source.get("label", "Thermal study surface")),
+            status="available",
+            detail=f"{source.get('sourceName', 'Source-backed')} study artifact; not live telemetry or an address-level observation.",
+            sourceName=str(source.get("sourceName", "Thermal study artifact")),
+            provider=str(source.get("provider", "Unknown")),
+            resolutionM=int(source["resolutionM"]) if isinstance(source.get("resolutionM"), int) and source["resolutionM"] > 0 else None,
+            artifactUrl=str(source["filePath"]) if isinstance(source.get("filePath"), str) else None,
+        )
+        for source in thermal_sources
+        if isinstance(source, dict)
+    )
+    return AddressAdviceContextResponse(
+        cityId=city_id,
+        cityName=str(city["name"]),
+        status="available" if is_bundled_city(city_id) else "limited",
+        coverage="Bundled city-wide study coverage. The entered place remains in the browser and is not matched to these layers.",
+        analysisScale="City-wide and neighborhood-scale study layers; not parcel scale.",
+        spectralStatus="not_available",
+        spectralDetail="The current app has no consented geocoder, rounded-location analysis service, or address-level sensitivity evaluation. For that reason, it does not produce a spectral result for a place label.",
+        layers=layers,
+        limits=[
+            "No address, coordinate, or place label is sent to this endpoint.",
+            "Thermal study surfaces are not live conditions and do not measure indoor temperature.",
+            "A future address-level result requires supported coverage, quality checks, graph connectivity, and sensitivity review.",
+        ],
+        generatedAt=utc_now(),
+    )
+
+
 @app.get("/api/v1/cities/{city_id}/map", response_model=CityMapResponse)
 async def city_map(city_id: str):
     payload = city_map_payload(city_id)
@@ -2897,3 +3093,14 @@ async def artifact_download(artifact_id: str):
 @app.get("/api/v1/robustness/lab", response_model=RobustnessLabResponse)
 async def robustness_lab():
     return RobustnessLabResponse.model_validate(_toy_robustness_payload())
+
+
+@app.post("/api/v1/robustness/lab/experiment", response_model=RobustnessLabResponse)
+async def run_robustness_experiment(request: RobustnessLabExperimentRequest):
+    return RobustnessLabResponse.model_validate(
+        _toy_robustness_payload(
+            edge_retention=request.edge_retention,
+            trials=request.trials,
+            redundant_links=request.redundant_links,
+        )
+    )
