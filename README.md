@@ -154,6 +154,11 @@ not a dashboard that asks people to decode everything at once.
 - **Keep impact claims honest.** Planning previews describe a shift in
   priority geometry. They are not presented as measured cooling or causal
   effects. See the [impact evidence protocol](docs/IMPACT_EVIDENCE_PROTOCOL.md).
+- **Use the mitigation lab in context.** Its compact grid controls support
+  rapid sketching, while its cooling-access teaching graph uses the same
+  canonical graph-metric evaluator as the production pipeline and Robustness
+  Lab. This confirms computational parity for the declared teaching graph—not
+  a city-specific intervention forecast.
 - **Make the science readable.** The city and scenario pages pair technical
   formulas with plain-language explanations and evidence labels rather than
   making the mathematics a gatekeeper.

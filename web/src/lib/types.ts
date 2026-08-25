@@ -522,3 +522,36 @@ export type CitySpectral = {
   coolingHighlights: Array<{ label: string; value: number; description: string }>;
   artifactPaths: string[];
 };
+
+export type MitigationLabBaseline = {
+  id: string;
+  version: string;
+  name: string;
+  width: number;
+  height: number;
+  priority: number[];
+  limitations: string[];
+  provenance: string[];
+};
+
+export type MitigationLabGraphBaseline = {
+  graphId: string;
+  version: string;
+  nodes: Array<{ id: number; x: number; y: number; label: string }>;
+  edges: Array<{ source: number; target: number; weight: number }>;
+  sinkNodeIds: number[];
+  sharedMetrics: Array<"lambda2" | "conductance" | "percolation" | "sink_reliability">;
+  limitations: string[];
+};
+
+export type MitigationLabGraphDelta = {
+  graphId: string;
+  redundantLinks: number;
+  lambda2Baseline: number;
+  lambda2Intervention: number;
+  phiBaseline: number;
+  phiIntervention: number;
+  reliabilityBaseline: number;
+  reliabilityIntervention: number;
+  notes: string[];
+};
