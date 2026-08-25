@@ -1,4 +1,4 @@
-import type { AddressAdviceContext, ArtifactRecord, AuthSession, BenchmarkSuite, BundledPackage, CityDataRegistration, CityExperience, CityLiveThermalAdapter, CityMapData, CityOnboardingInput, CityOnboardingResult, CityProfile, CitySpectral, CostSource, InterventionRecord, PackageValidation, PlannerValidation, PlanningMode, PlanningReadiness, RobustnessLab, RobustnessLabExperiment, RunDetail, RunRecord, ScenarioRecord, TrustAudit, WorkspaceMembership } from "./types";
+import type { AddressAdviceContext, ArtifactRecord, AuthSession, BenchmarkSuite, BundledPackage, CityDataRegistration, CityExperience, CityLiveThermalAdapter, CityMapData, CityOnboardingInput, CityOnboardingResult, CityProfile, CitySpectral, CostSource, InterventionRecord, MitigationLabBaseline, MitigationLabGraphBaseline, MitigationLabGraphDelta, PackageValidation, PlannerValidation, PlanningMode, PlanningReadiness, RobustnessLab, RobustnessLabExperiment, RunDetail, RunRecord, ScenarioRecord, TrustAudit, WorkspaceMembership } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 // Keep the app responsive when a local or remote service is unavailable.
@@ -212,6 +212,21 @@ export async function getCityExperience(cityId: string): Promise<CityExperience>
 
 export async function getCityMap(cityId: string): Promise<CityMapData> {
   return fetchJson<CityMapData>(`/v1/cities/${encodeURIComponent(cityId)}/map`);
+}
+
+export async function getBostonMitigationLabBaseline(): Promise<MitigationLabBaseline> {
+  return fetchJson<MitigationLabBaseline>("/v1/mitigation-lab/baselines/boston-study");
+}
+
+export async function getMitigationLabGraphBaseline(): Promise<MitigationLabGraphBaseline> {
+  return fetchJson<MitigationLabGraphBaseline>("/v1/mitigation-lab/graph-baseline");
+}
+
+export async function getMitigationLabGraphDelta(redundantLinks: number): Promise<MitigationLabGraphDelta> {
+  return fetchJson<MitigationLabGraphDelta>("/v1/mitigation-lab/graph-delta", {
+    method: "POST",
+    body: JSON.stringify({ redundantLinks }),
+  });
 }
 
 export async function getCityLiveThermal(cityId: string): Promise<CityLiveThermalAdapter> {
