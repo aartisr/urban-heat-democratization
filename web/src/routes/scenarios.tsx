@@ -618,6 +618,7 @@ export function ScenariosPage() {
   const [runStatusFilter, setRunStatusFilter] = useState<"all" | RunRecord["status"]>("all");
   const [paretoFocusedScenarioId, setParetoFocusedScenarioId] = useState<string | null>(null);
   const [paretoHoveredScenarioId, setParetoHoveredScenarioId] = useState<string | null>(null);
+  const [chartScenarioId, setChartScenarioId] = useState<string | null>(null);
   const paretoTooltipRef = useRef<HTMLDivElement | null>(null);
   const citiesQuery = useQuery({ queryKey: ["cities"], queryFn: listCities });
   const experienceQuery = useQuery({ queryKey: ["city-experience", cityId], queryFn: () => getCityExperience(cityId) });
@@ -641,6 +642,7 @@ export function ScenariosPage() {
       await queryClient.invalidateQueries({ queryKey: ["scenarios", variables.nextCityId] });
       setCityId(variables.nextCityId);
       setBudgetUsd(variables.nextBudgetUsd);
+      setChartScenarioId(scenario.id);
       setSubmissionError(null);
       if (variables.nextOptions?.presetKey) {
         setSubmissionMessage(`Created ${scenario.label} from the reusable starter set.`);
@@ -663,6 +665,7 @@ export function ScenariosPage() {
       await queryClient.invalidateQueries({ queryKey: ["scenarios", variables.nextCityId] });
       setCityId(variables.nextCityId);
       setBudgetUsd(variables.nextBudgetUsd);
+      setChartScenarioId(result.scenario.id);
       setSubmissionError(null);
       setSubmissionMessage(`Cleared ${result.clearedCount} saved scenario${result.clearedCount === 1 ? "" : "s"} and regenerated ${result.scenario.label}.`);
     },
@@ -946,7 +949,9 @@ export function ScenariosPage() {
     paretoTooltipRef.current.style.setProperty("--pareto-left", `${(activeParetoPoint.x / paretoPlot.width) * 100}%`);
     paretoTooltipRef.current.style.setProperty("--pareto-top", `${(activeParetoPoint.y / paretoPlot.height) * 100}%`);
   }, [activeParetoPoint, paretoPlot]);
-  const activeSunburstScenario = activeParetoPoint?.scenario
+  const explicitlySelectedChartScenario = allScenarios.find((scenario) => scenario.id === chartScenarioId) ?? null;
+  const activeSunburstScenario = explicitlySelectedChartScenario
+    ?? activeParetoPoint?.scenario
     ?? bestAffordableParetoPoint?.scenario
     ?? filteredScenarios[0]
     ?? allScenarios[0]
@@ -1029,8 +1034,8 @@ export function ScenariosPage() {
             wide
             className="scenario-page-heading"
             eyebrow="Scenario engine"
-            title="Review spectral evidence and verified cost benchmarks."
-            description={spectralQuery.data?.summary ?? "Use one guided page to test a budget, compare options, and keep the evidence trail visible without sending users across a maze of specialist screens."}
+            title="See what this budget can fund."
+            description={spectralQuery.data?.summary ?? "Choose a city and budget. We turn that constraint into a transparent intervention mix, then show where the money goes and what the evidence can support."}
           />
         </div>
 
@@ -1073,9 +1078,17 @@ export function ScenariosPage() {
         </div>
       </aside>
 
-      <ScenarioScienceGuide scenario={activeSunburstScenario} robustness={robustnessLab} />
+      <details className="scenario-secondary-details">
+        <summary>How the scenario is calculated</summary>
+        <ScenarioScienceGuide scenario={activeSunburstScenario} robustness={robustnessLab} />
+      </details>
 
       <div className="scenario-visual-gallery" id="scenario-composition">
+        <div className="scenario-visual-gallery-head">
+          <div className="eyebrow">Read the portfolio</div>
+          <h2>What the funded package looks like</h2>
+          <p className="muted">The first chart shows the flow. These views reveal the package's composition and where its weight is concentrated.</p>
+        </div>
         {activeSunburstScenario ? (
           <SunburstCard
             title="Scenario composition sunburst"
@@ -1120,7 +1133,9 @@ export function ScenariosPage() {
         </section>
       ) : null}
 
-      <div className="scenario-insight-grid" id="scenario-context">
+      <details className="scenario-secondary-details" id="scenario-context">
+        <summary>Compare modes and benchmark cases</summary>
+      <div className="scenario-insight-grid">
       <article className="panel-card premium-section-card scenario-support-card">
         <div className="mode-suite-header">
           <div>
@@ -1220,6 +1235,7 @@ export function ScenariosPage() {
         </div>
       </article>
       </div>
+      </details>
 
       {search.focus ? (
         <article className="panel-card premium-section-card">
@@ -1373,6 +1389,8 @@ export function ScenariosPage() {
             </p>
           ) : null}
         </article>
+        <details className="scenario-secondary-details scenario-method-details">
+          <summary>Show placement and uncertainty methods</summary>
         <article className="panel-card premium-section-card" id="scenario-math-proof">
           <h2>Why the math justifies the placement</h2>
           <p className="muted">
@@ -1586,7 +1604,10 @@ export function ScenariosPage() {
                       onMouseLeave={() => setParetoHoveredScenarioId(null)}
                       onFocus={() => setParetoHoveredScenarioId(point.scenario.id)}
                       onBlur={() => setParetoHoveredScenarioId(null)}
-                      onClick={() => setParetoFocusedScenarioId(point.scenario.id)}
+                      onClick={() => {
+                        setParetoFocusedScenarioId(point.scenario.id);
+                        setChartScenarioId(point.scenario.id);
+                      }}
                       tabIndex={0}
                       role="button"
                       aria-label={`${point.scenario.label}, ${point.costUsd.toLocaleString()} dollars, ${point.benefitC.toFixed(2)} degrees modeled benefit`}
@@ -1714,6 +1735,7 @@ export function ScenariosPage() {
             </>
           ) : null}
         </article>
+        </details>
         <article className="panel-card premium-section-card" id="scenario-table">
           <h2>Scenario table</h2>
           <p className="muted">This table keeps the main comparison surface visible while unsupported benefit fields stay blank instead of being guessed.</p>

@@ -8,7 +8,6 @@ import {
   useRouterState,
 } from "@tanstack/react-router";
 
-import { AccessWorkspaceSwitcher } from "./components/access-workspace-switcher";
 import { capturePageView } from "./lib/analytics";
 import { defaultSeo, setPageSeo } from "./lib/seo";
 const HomePage = lazy(() => import("./routes/home").then((module) => ({ default: module.HomePage })));
@@ -360,7 +359,6 @@ function RootLayout() {
               </details>
             ) : null}
           </nav>
-          {!sidebarCollapsed ? <AccessWorkspaceSwitcher /> : null}
         </aside>
         {!sidebarCollapsed ? (
           <div
