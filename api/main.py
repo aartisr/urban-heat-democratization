@@ -50,6 +50,7 @@ from core.percolation import percolation_scan
 from core.graph import build_weighted_grid
 from core.pipeline import _preprocess, _sink_nodes
 from core.reliability import reliability_to_sinks
+from core.robustness_metrics import evaluate_graph_delta
 from core.spectra import lambda2_and_fiedler, sweep_conductance
 
 logger = build_api_logger()
@@ -489,6 +490,63 @@ class CitySpectralResponse(BaseModel):
     cheegerHighlights: list[SpectralHighlight]
     coolingHighlights: list[SpectralHighlight]
     artifactPaths: list[str]
+
+
+class MitigationLabBaselineResponse(BaseModel):
+    id: str
+    version: str
+    name: str
+    width: int
+    height: int
+    priority: list[float]
+    limitations: list[str]
+    provenance: list[str]
+
+
+class SerializedGraphNodeResponse(BaseModel):
+    id: int
+    x: float
+    y: float
+    label: str
+
+
+class SerializedGraphEdgeResponse(BaseModel):
+    source: int
+    target: int
+    weight: float
+
+
+class MitigationLabGraphBaselineResponse(BaseModel):
+    graphId: str
+    version: str
+    nodes: list[SerializedGraphNodeResponse]
+    edges: list[SerializedGraphEdgeResponse]
+    sinkNodeIds: list[int]
+    sharedMetrics: list[str]
+    limitations: list[str]
+
+
+class MitigationLabGraphDeltaRequest(BaseModel):
+    redundantLinks: int = Field(default=0, ge=0, le=3)
+
+
+class MitigationLabGraphDeltaResponse(BaseModel):
+    graphId: str
+    redundantLinks: int
+    lambda2Baseline: float
+    lambda2Intervention: float
+    phiBaseline: float
+    phiIntervention: float
+    reliabilityBaseline: float
+    reliabilityIntervention: float
+    notes: list[str]
+
+
+class MitigationCalibrationGateResponse(BaseModel):
+    enabled: bool
+    evidenceState: str
+    requirements: list[str]
+    reason: str
 
 
 class StarterScenarioResponse(BaseModel):
@@ -1181,6 +1239,62 @@ def _toy_robustness_graphs(redundant_links: int = 1) -> tuple[nx.Graph, nx.Graph
     return baseline, intervention
 
 
+@lru_cache(maxsize=1)
+def _mitigation_lab_graph_baseline() -> dict[str, object]:
+    """Serialize the exact baseline graph used by the robustness lab.
+
+    Coordinates are presentation metadata for the learning lab; topology and
+    edge weights come directly from ``_toy_robustness_graphs(0)``. Keeping this
+    contract separate makes the shared computational boundary auditable.
+    """
+    graph, _ = _toy_robustness_graphs(0)
+    positions = {
+        0: (0.12, 0.50, "Cooling hub"), 1: (0.25, 0.31, "West shade gap"),
+        2: (0.39, 0.43, "Central approach"), 3: (0.50, 0.52, "Narrow corridor"),
+        4: (0.70, 0.52, "High heat-pressure zone"), 5: (0.75, 0.29, "North exposure"),
+        6: (0.87, 0.41, "East route gap"), 7: (0.79, 0.68, "South access gap"),
+        8: (0.18, 0.70, "Cooling-hub neighborhood"),
+    }
+    return {
+        "graphId": "robustness-scenario-district-v1",
+        "version": "1.0.0",
+        "nodes": [
+            {"id": node, "x": positions[node][0], "y": positions[node][1], "label": positions[node][2]}
+            for node in sorted(graph.nodes())
+        ],
+        "edges": [
+            {"source": min(source, target), "target": max(source, target), "weight": float(data["w"])}
+            for source, target, data in sorted(graph.edges(data=True))
+        ],
+        "sinkNodeIds": [0],
+        "sharedMetrics": ["lambda2", "conductance", "percolation", "sink_reliability"],
+        "limitations": [
+            "This is the same serialized nine-node teaching graph used by the robustness workflow, not the Boston study aggregate.",
+            "Node positions and labels aid interpretation; they are not a geographic network or infrastructure design.",
+            "Only an added cooling-access connection changes this graph scenario. Shade and surface placements remain priority-field explorations.",
+        ],
+    }
+
+
+def _mitigation_lab_graph_delta(redundant_links: int) -> dict[str, object]:
+    """Run the robustness workflow's graph-delta calculation for the lab."""
+    result = _toy_robustness_payload(edge_retention=0.7, trials=256, redundant_links=redundant_links)
+    return {
+        "graphId": _mitigation_lab_graph_baseline()["graphId"],
+        "redundantLinks": redundant_links,
+        "lambda2Baseline": result["lambda2Baseline"],
+        "lambda2Intervention": result["lambda2Intervention"],
+        "phiBaseline": result["phiBaseline"],
+        "phiIntervention": result["phiIntervention"],
+        "reliabilityBaseline": result["reliabilityBaseline"],
+        "reliabilityIntervention": result["reliabilityIntervention"],
+        "notes": [
+            "Computed by the same spectral, conductance, percolation, and sink-reliability helpers as the robustness workflow.",
+            "One placed cooling-access node represents one bounded redundant-link scenario, up to three; this is a learning mapping, not an infrastructure recommendation.",
+        ],
+    }
+
+
 def _toy_robustness_payload(
     edge_retention: float = 0.7,
     trials: int = 256,
@@ -1188,26 +1302,19 @@ def _toy_robustness_payload(
 ) -> dict[str, object]:
     baseline, intervention = _toy_robustness_graphs(redundant_links)
     p_values = np.linspace(0.1, 1.0, 10)
-    lambda2_baseline, fiedler_baseline, nodes_baseline, deg_baseline = lambda2_and_fiedler(baseline)
-    lambda2_intervention, fiedler_intervention, nodes_intervention, deg_intervention = lambda2_and_fiedler(intervention)
-    phi_baseline, sink_nodes = sweep_conductance(baseline, fiedler_baseline, nodes_baseline, deg_baseline)
-    phi_intervention, _ = sweep_conductance(intervention, fiedler_intervention, nodes_intervention, deg_intervention)
-    baseline_curve = percolation_scan(baseline, list(p_values), rng=np.random.default_rng(42))
-    intervention_curve = percolation_scan(intervention, list(p_values), rng=np.random.default_rng(43))
-    reliability_baseline = reliability_to_sinks(baseline, {0}, p_keep=edge_retention, trials=trials, rng=np.random.default_rng(44))
-    reliability_intervention = reliability_to_sinks(intervention, {0}, p_keep=edge_retention, trials=trials, rng=np.random.default_rng(45))
+    metrics = evaluate_graph_delta(
+        baseline,
+        intervention,
+        {0},
+        p_values=list(map(float, p_values)),
+        edge_retention=edge_retention,
+        trials=trials,
+    )
     return {
         "title": "Scenario robustness lab",
         "summary": "An irregular nine-node scenario district uses the same graph, spectral, percolation, and sink-reliability helpers as the scientific pipeline. Change the failure assumption and add redundant routes to see which measurements respond.",
         "pValues": list(map(float, p_values)),
-        "baselinePercolation": list(map(float, baseline_curve)),
-        "interventionPercolation": list(map(float, intervention_curve)),
-        "lambda2Baseline": float(lambda2_baseline),
-        "lambda2Intervention": float(lambda2_intervention),
-        "phiBaseline": float(phi_baseline),
-        "phiIntervention": float(phi_intervention),
-        "reliabilityBaseline": float(reliability_baseline),
-        "reliabilityIntervention": float(reliability_intervention),
+        **metrics,
         "reference": _bundled_robustness_reference(),
         "notes": [
             "This is a teaching/demo lab, not a Boston city estimate.",
@@ -1229,6 +1336,39 @@ def _load_geojson_features(path: Path) -> list[dict[str, object]]:
     if payload.get("type") == "Feature":
         return [payload]
     return []
+
+
+@lru_cache(maxsize=1)
+def _boston_mitigation_lab_baseline() -> dict[str, object]:
+    """Create a coarse, safe teaching grid from already-bundled study overlays.
+
+    This deliberately returns a 64x64 aggregate only—not source polygons or
+    a temperature surface—so the lab can retain provenance without becoming a
+    second precision map endpoint.
+    """
+    features = _load_geojson_features(_repo_root() / "data/boston_research_low_cooling_access_zones.geojson")
+    width = height = 64
+    priority = [0.18] * (width * height)
+    centers: list[tuple[float, float, float]] = []
+    for feature in features:
+        geometry = feature.get("geometry", {}) if isinstance(feature, dict) else {}
+        coordinates = geometry.get("coordinates", []) if isinstance(geometry, dict) else []
+        ring = coordinates[0] if isinstance(coordinates, list) and coordinates and isinstance(coordinates[0], list) else []
+        points = [point for point in ring if isinstance(point, list) and len(point) >= 2]
+        if not points:
+            continue
+        xs, ys = [float(point[0]) for point in points], [float(point[1]) for point in points]
+        props = feature.get("properties", {}) if isinstance(feature, dict) else {}
+        signal = float(props.get("street_intervention_signal", 0.0) or 0.0) if isinstance(props, dict) else 0.0
+        centers.append((sum(xs) / len(xs), sum(ys) / len(ys), min(1.0, max(0.0, signal / 100.0))))
+    if centers:
+        min_x, max_x = min(item[0] for item in centers), max(item[0] for item in centers)
+        min_y, max_y = min(item[1] for item in centers), max(item[1] for item in centers)
+        for x, y, signal in centers:
+            ix = min(width - 1, max(0, round((x - min_x) / max(1e-9, max_x - min_x) * (width - 1))))
+            iy = min(height - 1, max(0, round((y - min_y) / max(1e-9, max_y - min_y) * (height - 1))))
+            priority[iy * width + ix] = max(priority[iy * width + ix], 0.2 + 0.65 * signal)
+    return {"id": "boston-study-aggregate", "version": "1.0.0", "name": "Boston study-scale aggregate", "width": width, "height": height, "priority": priority, "limitations": ["Derived from bundled low-cooling-access study overlay as a coarse 64 × 64 aggregate.", "It omits source geometry, does not identify parcels or exact locations, and is not a temperature surface.", "It is a planning-study context, not a calibrated local response."], "provenance": ["data/boston_research_low_cooling_access_zones.geojson", "BOSTON_STUDY_GUIDE.md", "Bundled overlay aggregated server-side before delivery."]}
 
 
 def _planning_readiness(city_id: str) -> dict[str, object]:
@@ -2723,6 +2863,36 @@ async def address_advice_context(city_id: str):
             "A future address-level result requires supported coverage, quality checks, graph connectivity, and sensitivity review.",
         ],
         generatedAt=utc_now(),
+    )
+
+
+@app.get("/api/v1/mitigation-lab/baselines/boston-study", response_model=MitigationLabBaselineResponse)
+async def mitigation_lab_boston_baseline():
+    return MitigationLabBaselineResponse.model_validate(_boston_mitigation_lab_baseline())
+
+
+@app.get("/api/v1/mitigation-lab/graph-baseline", response_model=MitigationLabGraphBaselineResponse)
+async def mitigation_lab_graph_baseline():
+    return MitigationLabGraphBaselineResponse.model_validate(_mitigation_lab_graph_baseline())
+
+
+@app.post("/api/v1/mitigation-lab/graph-delta", response_model=MitigationLabGraphDeltaResponse)
+async def mitigation_lab_graph_delta(request: MitigationLabGraphDeltaRequest):
+    return MitigationLabGraphDeltaResponse.model_validate(_mitigation_lab_graph_delta(request.redundantLinks))
+
+
+@app.get("/api/v1/mitigation-lab/calibration-gate", response_model=MitigationCalibrationGateResponse)
+async def mitigation_lab_calibration_gate():
+    return MitigationCalibrationGateResponse(
+        enabled=False,
+        evidenceState="planning",
+        requirements=[
+            "Registered outcome, intervention geometry, comparison areas, inclusion rules, and analysis plan.",
+            "Comparable baseline and follow-up observations with documented weather and sensor controls.",
+            "A credible counterfactual design with diagnostics, uncertainty, robustness, and placebo results.",
+            "Data retention, governance, partner approval, and public communication review.",
+        ],
+        reason="Calibrated local-study output is intentionally disabled until every Impact Evidence Protocol requirement is met.",
     )
 
 

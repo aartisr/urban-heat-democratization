@@ -20,6 +20,7 @@ const ScenariosPage = lazy(() => import("./routes/scenarios").then((module) => (
 const RunsPage = lazy(() => import("./routes/runs").then((module) => ({ default: module.RunsPage })));
 const RunDetailPage = lazy(() => import("./routes/run-detail").then((module) => ({ default: module.RunDetailPage })));
 const RobustnessPage = lazy(() => import("./routes/robustness").then((module) => ({ default: module.RobustnessPage })));
+const MitigationLabPage = lazy(() => import("./routes/mitigation-lab").then((module) => ({ default: module.MitigationLabPage })));
 const ContactPage = lazy(() => import("./routes/contact").then((module) => ({ default: module.ContactPage })));
 const AddressPlanPage = lazy(() => import("./routes/address-plan").then((module) => ({ default: module.AddressPlanPage })));
 
@@ -66,13 +67,14 @@ const navItems: Array<{
 
 const secondaryNavItems: Array<{
   label: string;
-  to: "/modes" | "/exports" | "/runs" | "/robustness" | "/contact" | "/address-plan";
+  to: "/modes" | "/exports" | "/runs" | "/robustness" | "/mitigation-lab" | "/contact" | "/address-plan";
   search?: typeof baseScenarioSearch;
 }> = [
   { label: "Choose a path", to: "/modes" },
   { label: "Exports", to: "/exports" },
   { label: "Run history", to: "/runs" },
   { label: "Robustness lab", to: "/robustness" },
+  { label: "Mitigation lab", to: "/mitigation-lab" },
   { label: "My cooling plan", to: "/address-plan" },
   { label: "Collaborate", to: "/contact" },
 ];
@@ -140,6 +142,11 @@ function RootLayout() {
         title: "Urban heat robustness lab | Urban Heat Democratization",
         description: "Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.",
         keywords: ["urban heat science", "network robustness", "percolation analysis"],
+      },
+      "/mitigation-lab": {
+        title: "Interactive heat-mitigation lab | Urban Heat Democratization",
+        description: "Explore bounded, synthetic heat-mitigation planning relationships without making a temperature forecast.",
+        keywords: ["heat mitigation lab", "urban shade planning", "cooling interventions"],
       },
       "/contact": {
         title: "Collaborate on urban heat action | Urban Heat Democratization",
@@ -487,6 +494,7 @@ const runDetailRoute = createRoute({
   component: () => withPageSuspense(<RunDetailPage />),
 });
 const robustnessRoute = createRoute({ getParentRoute: () => rootRoute, path: "robustness", component: () => withPageSuspense(<RobustnessPage />) });
+const mitigationLabRoute = createRoute({ getParentRoute: () => rootRoute, path: "mitigation-lab", component: () => withPageSuspense(<MitigationLabPage />) });
 const contactRoute = createRoute({ getParentRoute: () => rootRoute, path: "contact", component: () => withPageSuspense(<ContactPage />) });
 const addressPlanRoute = createRoute({ getParentRoute: () => rootRoute, path: "address-plan", component: () => withPageSuspense(<AddressPlanPage />) });
 
@@ -500,6 +508,7 @@ const routeTree = rootRoute.addChildren([
   runsRoute,
   runDetailRoute,
   robustnessRoute,
+  mitigationLabRoute,
   addressPlanRoute,
   contactRoute,
 ]);

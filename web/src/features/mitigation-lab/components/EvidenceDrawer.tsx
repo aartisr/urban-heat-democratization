@@ -1,0 +1,5 @@
+import type { InterventionDefinition } from "../domain/types";
+export function EvidenceDrawer({ definitions }: { definitions: InterventionDefinition[] }) {
+  if (!definitions.length) return null;
+  return <details className="mitigation-evidence"><summary>Evidence, applicability, and sensitivity</summary><div className="mitigation-evidence-grid">{definitions.map((definition) => <article key={definition.id}><div><span className="eyebrow">{definition.evidenceState} · {definition.costStatus.replaceAll("_", " ")}</span><h3>{definition.name}</h3><p>{definition.responseEnvelope.context}</p></div><dl><div><dt>Lower illustrative case</dt><dd>{definition.responseEnvelope.lowLabel}</dd></div><div><dt>Higher illustrative case</dt><dd>{definition.responseEnvelope.highLabel}</dd></div></dl><h4>Check before acting</h4><ul>{definition.applicabilityPrompts.map((prompt) => <li key={prompt}>{prompt}</li>)}</ul><h4>Source context</h4>{definition.evidence.map((source) => <p key={source.url}><a href={source.url} target="_blank" rel="noreferrer">{source.title}</a><br /><small>{source.context}</small></p>)}</article>)}</div></details>;
+}

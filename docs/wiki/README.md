@@ -59,6 +59,7 @@ This is a place for the community to learn about urban heat: how heat patterns a
 | Bundled study city | Boston, with boundary and local study overlays |
 | Other cities | Upload-first onboarding and presets; not bundled datasets |
 | Scenarios | Benchmark-based and transparent; not calibrated local predictions |
+| Mitigation Lab | Synthetic priority exploration plus a shared, bounded teaching-graph metric contract; not a Boston intervention forecast |
 | Live thermal data | Configured city-ready adapters; no raw-scene API pipeline |
 | Persistence | Local SQLite runtime store with JSON mirrors |
 
@@ -73,3 +74,4 @@ This is a place for the community to learn about urban heat: how heat patterns a
 - [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md)
 - [Design and Accessibility System](../DESIGN_ACCESSIBILITY_SYSTEM.md)
 - [Implementation Status](../IMPLEMENTATION_STATUS.md)
+- [Interactive Heat-Mitigation Lab plan](../INTERACTIVE_MITIGATION_LAB_PLAN.md)

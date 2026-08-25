@@ -8,6 +8,7 @@ from .graph import build_weighted_grid
 from .percolation import percolation_scan
 from .raster import load_raster, normalize, valid_mask
 from .reliability import reliability_to_sinks
+from .robustness_metrics import evaluate_graph_delta
 from .spectra import lambda2_and_fiedler, sweep_conductance
 
 
@@ -579,15 +580,15 @@ def run_pipeline(
 
     progress(58, "Applying bottleneck intervention scenario...")
     G_opt, chosen_edges = _optimize_interventions(G, cheeger_set, sinks)
-    lam2_opt, fiedler_opt, nodes_opt, deg_opt = lambda2_and_fiedler(G_opt)
-    phi_opt, _ = sweep_conductance(G_opt, fiedler_opt, nodes_opt, deg_opt)
-
     progress(68, "Running percolation and reliability estimates...")
     p_vals = np.linspace(0.1, 1.0, 10)
-    frac_base = percolation_scan(G, list(p_vals), rng=np.random.default_rng(42))
-    frac_opt = percolation_scan(G_opt, list(p_vals), rng=np.random.default_rng(43))
-    rel_base = reliability_to_sinks(G, sinks, p_keep=0.7, trials=reliability_trials, rng=np.random.default_rng(123))
-    rel_opt = reliability_to_sinks(G_opt, sinks, p_keep=0.7, trials=reliability_trials, rng=np.random.default_rng(124))
+    robustness = evaluate_graph_delta(G, G_opt, sinks, p_values=list(p_vals), trials=reliability_trials)
+    lam2_opt = robustness["lambda2Intervention"]
+    phi_opt = robustness["phiIntervention"]
+    frac_base = robustness["baselinePercolation"]
+    frac_opt = robustness["interventionPercolation"]
+    rel_base = robustness["reliabilityBaseline"]
+    rel_opt = robustness["reliabilityIntervention"]
 
     progress(82, "Saving figures and overlays...")
     figures = _save_figures(out, lst01, nd01, cheeger_mask, cheeger_priority, resistance, p_vals, frac_base, frac_opt, lam2, lam2_opt, rel_base, rel_opt)
