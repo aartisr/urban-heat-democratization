@@ -7597,6 +7597,73 @@ body.map-fullpage-lock .sidebar-restore {
   .scenario-story-nav a {
     letter-spacing: 0.04em;
   }
+
+  .scenario-page {
+    overflow-x: hidden;
+  }
+
+  .scenario-sankey-card {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .scenario-sankey-head h3,
+  .scenario-packed-bubble-head h3,
+  .scenario-sunburst-head h3 {
+    font-size: 1.3rem;
+  }
+
+  .scenario-sankey-head-metrics,
+  .scenario-packed-bubble-head-actions,
+  .scenario-sunburst-head-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .scenario-sankey-visual {
+    margin-inline: -4px;
+    padding: 10px 8px 14px;
+    border-radius: 18px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .scenario-sankey-visual .scenario-sankey-headers,
+  .scenario-sankey-visual .scenario-sankey-svg {
+    width: 640px;
+    max-width: none;
+  }
+
+  .scenario-sankey-visual .scenario-sankey-headers {
+    padding-inline: 8px;
+  }
+
+  .scenario-sankey-visual .scenario-sankey-svg {
+    height: auto;
+  }
+
+  .scenario-sunburst-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-sunburst-visual {
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .scenario-sunburst-svg {
+    width: min(100%, 420px);
+    margin-inline: auto;
+  }
+
+  .scenario-packed-bubble-svg {
+    min-height: 220px;
+  }
+
+  .scenario-chart-controls {
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 1180px) {
