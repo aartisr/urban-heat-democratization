@@ -1,11 +1,17 @@
 {
   "name": "Urban Heat Democratization",
   "short_name": "Urban Heat",
+  "id": "/",
   "description": "Open, public-interest urban heat evidence and planning tools.",
   "start_url": "/",
-  "display": "browser",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "browser"],
   "background_color": "#f6f8f7",
   "theme_color": "#0d4963",
   "lang": "en-US",
-  "categories": ["education", "utilities", "weather"]
+  "categories": ["education", "utilities", "weather"],
+  "icons": [
+    { "src": "/pwa-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
 }

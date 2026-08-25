@@ -185,6 +185,7 @@ export function CityDetailPage() {
                       <summary>More ways to work with this city</summary>
                       <div className="quick-links">
                         <Link to="/exports" preload="intent" className="button-link secondary">Export evidence</Link>
+                        <Link to="/address-plan" preload="intent" className="button-link secondary">Start a cooling plan</Link>
                         <Link to="/runs" preload="intent" className="button-link secondary">Inspect runs</Link>
                         <Link to="/cities" preload="intent" className="button-link secondary">Back to cities</Link>
                         <button
@@ -309,7 +310,7 @@ export function CityDetailPage() {
         <div className="premium-details-stack">
           <CityDetailSectionGrid
             title="Planning robustness context"
-            description="These metrics still come from the repository's toy reliability lab, so they are a teaching and decision-framing aid rather than a city-specific resilience estimate."
+            description="These scenario metrics are paired with the bundled thermal-graph reference, but they remain a teaching and decision-framing aid—not a city-specific resilience estimate."
             cards={detailConfig.sections.robustnessCards}
           />
         </div>

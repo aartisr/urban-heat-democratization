@@ -21,6 +21,7 @@ const RunsPage = lazy(() => import("./routes/runs").then((module) => ({ default:
 const RunDetailPage = lazy(() => import("./routes/run-detail").then((module) => ({ default: module.RunDetailPage })));
 const RobustnessPage = lazy(() => import("./routes/robustness").then((module) => ({ default: module.RobustnessPage })));
 const ContactPage = lazy(() => import("./routes/contact").then((module) => ({ default: module.ContactPage })));
+const AddressPlanPage = lazy(() => import("./routes/address-plan").then((module) => ({ default: module.AddressPlanPage })));
 
 function withPageSuspense(node: JSX.Element) {
   return (
@@ -65,13 +66,14 @@ const navItems: Array<{
 
 const secondaryNavItems: Array<{
   label: string;
-  to: "/modes" | "/exports" | "/runs" | "/robustness" | "/contact";
+  to: "/modes" | "/exports" | "/runs" | "/robustness" | "/contact" | "/address-plan";
   search?: typeof baseScenarioSearch;
 }> = [
   { label: "Choose a path", to: "/modes" },
   { label: "Exports", to: "/exports" },
   { label: "Run history", to: "/runs" },
   { label: "Robustness lab", to: "/robustness" },
+  { label: "My cooling plan", to: "/address-plan" },
   { label: "Collaborate", to: "/contact" },
 ];
 
@@ -143,6 +145,11 @@ function RootLayout() {
         title: "Collaborate on urban heat action | Urban Heat Democratization",
         description: "A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.",
         keywords: ["urban heat collaboration", "climate resilience partnership", "heat equity community", "urban heat research mentorship"],
+      },
+      "/address-plan": {
+        title: "Your cooling action plan | Urban Heat Democratization",
+        description: "Build a privacy-first, evidence-bounded starting plan for heat safety, local observation, and collective cooling action.",
+        keywords: ["heat action plan", "cooling action", "urban heat guidance", "heat safety"],
       },
     };
     const page = pathname.startsWith("/cities/")
@@ -481,6 +488,7 @@ const runDetailRoute = createRoute({
 });
 const robustnessRoute = createRoute({ getParentRoute: () => rootRoute, path: "robustness", component: () => withPageSuspense(<RobustnessPage />) });
 const contactRoute = createRoute({ getParentRoute: () => rootRoute, path: "contact", component: () => withPageSuspense(<ContactPage />) });
+const addressPlanRoute = createRoute({ getParentRoute: () => rootRoute, path: "address-plan", component: () => withPageSuspense(<AddressPlanPage />) });
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -492,6 +500,7 @@ const routeTree = rootRoute.addChildren([
   runsRoute,
   runDetailRoute,
   robustnessRoute,
+  addressPlanRoute,
   contactRoute,
 ]);
 
