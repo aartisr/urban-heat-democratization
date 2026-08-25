@@ -86,7 +86,7 @@ export function CitiesPage() {
 
   return (
     <section className="page-stack cities-page">
-      <WorkflowHeader eyebrow="City onboarding" title="Pick a city, or bring in a new boundary with the same workflow." description="Bundled cities open immediately. Upload-first cities use the same modular path, so new work still feels guided instead of fragmented." />
+      <WorkflowHeader wide eyebrow="City onboarding" title="Pick a city, or bring in a new boundary with the same workflow." description="Bundled cities open immediately. Upload-first cities use the same modular path, so new work still feels guided instead of fragmented." />
 
       <section className="premium-story-grid">
         <article className="panel-card premium-card-stack">

@@ -5,13 +5,14 @@ type WorkflowHeaderProps = {
   title: ReactNode;
   description: ReactNode;
   className?: string;
+  wide?: boolean;
   actions?: ReactNode;
 };
 
 /** Shared accessible entry point for task-oriented pages. */
-export function WorkflowHeader({ eyebrow, title, description, className = "", actions }: WorkflowHeaderProps) {
+export function WorkflowHeader({ eyebrow, title, description, className = "", wide = false, actions }: WorkflowHeaderProps) {
   return (
-    <header className={`section-heading ${className}`.trim()}>
+    <header className={`section-heading ${wide ? "workflow-header-wide" : ""} ${className}`.trim()}>
       <div>
         <div className="eyebrow">{eyebrow}</div>
         <h1>{title}</h1>

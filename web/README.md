@@ -69,7 +69,7 @@ hosts and does not couple the UI to a plugin. `npm run dev` and `npm run build`
 generate `public/sw.js` from `scripts/prepare-pwa.mjs`; it is intentionally
 ignored because it carries a fingerprint of the current application sources.
 
-- `public/site.webmanifest`, `pwa-icon.svg`, and `offline.html` are the stable
+- `public/site.webmanifest`, `favicon.svg`, and `offline.html` are the stable
   install assets.
 - `src/components/pwa-controls.tsx` is the reusable, optional UI. It appears
   only when the browser makes installation available.

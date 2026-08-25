@@ -86,6 +86,7 @@ export function ExportsPage() {
   return (
     <section className="page-stack exports-page">
       <WorkflowHeader
+        wide
         eyebrow="Exports"
         title="Download the package, the evidence, and the living record."
         description="This page surfaces real artifacts from the repo and makes them downloadable from the app without making users hunt across the codebase."

@@ -308,7 +308,7 @@ function RootLayout() {
         <aside className={`app-sidebar ${sidebarCollapsed ? "collapsed" : ""}`}>
           <div className="app-sidebar-top">
             <div className="brand-card">
-              <div className="brand-mark">UH</div>
+              <div className="brand-mark"><img src="/favicon.svg" alt="Urban Heat Democratization" /></div>
               {!sidebarCollapsed ? (
                 <div>
                   <div className="brand-title">Urban Heat Democratization</div>

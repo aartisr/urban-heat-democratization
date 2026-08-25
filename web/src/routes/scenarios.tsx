@@ -1026,6 +1026,7 @@ export function ScenariosPage() {
       <div className="scenario-page-hero">
         <div className="scenario-hero-copy">
           <WorkflowHeader
+            wide
             className="scenario-page-heading"
             eyebrow="Scenario engine"
             title="Review spectral evidence and verified cost benchmarks."
