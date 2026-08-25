@@ -38,7 +38,8 @@ type ScenarioSankeyCardProps = {
   className?: string;
 };
 
-const NODE_WIDTH = 116;
+const NODE_WIDTH = 132;
+const MIN_NODE_HEIGHT = 50;
 const NODE_GAP = 8;
 const CHART_WIDTH = 760;
 const MIN_CHART_HEIGHT = 360;
@@ -83,6 +84,15 @@ function shortLabel(label: string) {
     return label;
   }
   return segments.slice(0, 3).join(" ");
+}
+
+function labelLines(label: string) {
+  const words = label.split(/\s+/).filter(Boolean);
+  if (words.length <= 1 || label.length <= 14) {
+    return [label];
+  }
+  const midpoint = Math.ceil(words.length / 2);
+  return [words.slice(0, midpoint).join(" "), words.slice(midpoint).join(" ")];
 }
 
 function blendColor(hex: string, amount = 0.18) {
@@ -292,12 +302,12 @@ function layoutColumn(nodes: SankeyNode[], chartHeight: number) {
   const totalGap = effectiveGap * Math.max(0, nodes.length - 1);
   const drawableHeight = Math.max(20, availableHeight - totalGap);
   const baseScale = totalValue > 0 ? drawableHeight / totalValue : 1;
-  const rawHeights = nodes.map((node) => Math.max(8, Math.max(0.001, node.value) * baseScale));
+  const rawHeights = nodes.map((node) => Math.max(MIN_NODE_HEIGHT, Math.max(0.001, node.value) * baseScale));
   const rawTotal = rawHeights.reduce((sum, height) => sum + height, 0);
   const shrink = rawTotal > drawableHeight ? drawableHeight / rawTotal : 1;
   let cursor = PADDING.top;
   return nodes.map((node, index) => {
-    const height = Math.max(6, rawHeights[index] * shrink);
+    const height = Math.max(MIN_NODE_HEIGHT, rawHeights[index] * shrink);
     const laidOut = { ...node, y: cursor, height };
     cursor += height + effectiveGap;
     return laidOut;
@@ -328,7 +338,7 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
     const widestColumn = Math.max(...Object.values(built.columnNodes).map((nodes) => nodes.length));
     const chartHeight = clamp(
       MIN_CHART_HEIGHT,
-      280 + widestColumn * 44,
+      300 + widestColumn * 72,
       MAX_CHART_HEIGHT,
     );
     const columnNodes = {
@@ -485,6 +495,8 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
             {Object.values(sankey.columnNodes).flat().map((node) => {
               const isActive = activeId == null || activeId === node.id || sankey.links.some((link) => link.id === activeId && (link.sourceId === node.id || link.targetId === node.id));
               const labelColor = node.kind === "budget" ? "#eef6ff" : "#f8fcff";
+              const lines = labelLines(node.label);
+              const labelStartY = node.height / 2 - (lines.length === 1 ? 8 : 13);
               return (
                 <g
                   key={node.id}
@@ -507,18 +519,14 @@ export function ScenarioSankeyCard({ scenario, title = "Scenario budget Sankey",
                   />
                   <rect width={node.width} height={node.height} rx="18" className="scenario-sankey-node-overlay" />
                   <rect width={node.width} height={node.height} rx="18" className="scenario-sankey-node-glow" />
-                  <text
-                    x={16}
-                    y={node.height / 2 - 4}
-                    textAnchor="start"
-                    className="scenario-sankey-node-label"
-                    fill={labelColor}
-                  >
-                    {node.label}
+                  <text x={12} textAnchor="start" className="scenario-sankey-node-label" fill={labelColor}>
+                    {lines.map((line, index) => (
+                      <tspan key={`${node.id}-label-${index}`} x={12} y={labelStartY + (index * 13)}>{line}</tspan>
+                    ))}
                   </text>
                   <text
-                    x={16}
-                    y={node.height / 2 + 13}
+                    x={12}
+                    y={node.height / 2 + (lines.length === 1 ? 12 : 16)}
                     textAnchor="start"
                     className="scenario-sankey-node-value"
                     fill={labelColor}

@@ -2589,6 +2589,25 @@ def _load_runtime_scenarios() -> list[dict[str, object]]:
             benchmark_cost = int(benchmark.get("estimatedCostUsd", 0))
         record.setdefault("benchmarkSummary", _benchmark_summary(budget_usd, benchmark_cost))
         records.append(record)
+    existing_ids = {str(record.get("id")) for record in records}
+    fixture_payload = _load_json_file(_repo_data_path("scenario_fixtures.json"))
+    fixture_records = fixture_payload.get("scenarios", []) if isinstance(fixture_payload, dict) else []
+    seeded_records: list[dict[str, object]] = []
+    for fixture in fixture_records:
+        if not isinstance(fixture, dict) or not fixture.get("id") or str(fixture["id"]) in existing_ids:
+            continue
+        seeded = _benchmark_scenario(
+            str(fixture.get("cityId", "boston")),
+            int(fixture.get("budgetUsd", 0) or 0),
+            label=str(fixture.get("label")) if fixture.get("label") else None,
+            preset_key=str(fixture.get("presetKey")) if fixture.get("presetKey") else None,
+            planning_mode=str(fixture.get("planningMode", "best_under_budget")),
+        )
+        seeded["id"] = str(fixture["id"])
+        seeded_records.append(seeded)
+    if seeded_records:
+        records.extend(seeded_records)
+        _persist_runtime_table("runtime_scenarios", records, ordered=True)
     return records
 
 
