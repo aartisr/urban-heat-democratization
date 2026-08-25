@@ -17,6 +17,7 @@
     { "path": "/science/", "title": "Science field guide", "description": "An accessible guide to methods and interpretation.", "priority": "0.6", "changefreq": "monthly" },
     { "path": "/community/", "title": "Community field guide", "description": "A guide to local knowledge and accountable urban heat collaboration.", "priority": "0.6", "changefreq": "monthly" },
     { "path": "/wiki/", "title": "Urban Heat Research Wiki", "description": "Methods, interpretation, reproducibility, and governance.", "priority": "0.7", "changefreq": "monthly" },
+    { "path": "/wiki/civic-guide/", "title": "Civic Starter Guide", "description": "A plain-language guide for communities and public teams using urban heat evidence responsibly.", "priority": "0.6", "changefreq": "monthly" },
     { "path": "/wiki/contact/", "title": "Collaborate and contact", "description": "A clear path for communities, mentors, and public partners.", "priority": "0.6", "changefreq": "monthly" },
     { "path": "/wiki/participate/", "title": "Help operationalize the work", "description": "How to contribute to an accountable urban heat workflow.", "priority": "0.6", "changefreq": "monthly" },
     { "path": "/wiki/worked-example/", "title": "Graph theory worked example", "description": "A simple, practical explanation of a Cheeger-style graph cut.", "priority": "0.6", "changefreq": "monthly" },

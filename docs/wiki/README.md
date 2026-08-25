@@ -21,6 +21,7 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 | Can you show me graph theory with a small, concrete example? | [A practical graph-theory worked example](08-graph-theory-worked-example.md) |
 | What can I safely conclude from a scenario or impact preview? | [Evidence and responsible use](04-evidence-and-responsible-use.md) |
 | How could my city participate responsibly? | [City onboarding and partnership](05-city-onboarding-and-partnership.md) |
+| How do I use this with my community or public team? | [Civic starter guide](12-civic-starter-guide.md) |
 | Could an address receive useful heat-mitigation guidance, and what remains before it can use an address? | [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md) |
 
 ## Read in this order
@@ -30,15 +31,16 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 3. [Science and interpretation](03-science-and-interpretation.md)
 4. [Evidence and responsible use](04-evidence-and-responsible-use.md)
 5. [City onboarding and partnership](05-city-onboarding-and-partnership.md)
-6. [Roadmap, governance, and contribution](06-roadmap-governance-and-contribution.md)
-7. [Technical reference](07-technical-reference.md)
-8. [Glossary](GLOSSARY.md)
-9. [Urban Thermal Math Deep Dive](../Urban_Thermal_Math_Deep_Dive.md) — the equation-level companion, with assumptions and interpretation notes.
-10. [A Practical Graph-Theory Worked Example](08-graph-theory-worked-example.md) — a four-cell example from map to question.
-11. [Spectral Theory Contract](09-spectral-theory-contract.md) — exact guarantees, implementation scope, and validation boundaries.
-12. [Repeatability and Real-World Validation](10-repeatability-and-real-world-validation.md) — what is repeatable now and the pathway to responsible field use.
-13. [Help Operationalize Urban Heat Democratization](11-community-and-mentor-invitation.md) — roles for community members, mentors, public agencies, and partners.
-14. [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md) — the evidence, privacy, safety, validation, and product contract required before address-informed guidance is offered.
+6. [Civic starter guide](12-civic-starter-guide.md)
+7. [Roadmap, governance, and contribution](06-roadmap-governance-and-contribution.md)
+8. [Technical reference](07-technical-reference.md)
+9. [Glossary](GLOSSARY.md)
+10. [Urban Thermal Math Deep Dive](../Urban_Thermal_Math_Deep_Dive.md) — the equation-level companion, with assumptions and interpretation notes.
+11. [A Practical Graph-Theory Worked Example](08-graph-theory-worked-example.md) — a four-cell example from map to question.
+12. [Spectral Theory Contract](09-spectral-theory-contract.md) — exact guarantees, implementation scope, and validation boundaries.
+13. [Repeatability and Real-World Validation](10-repeatability-and-real-world-validation.md) — what is repeatable now and the pathway to responsible field use.
+14. [Help Operationalize Urban Heat Democratization](11-community-and-mentor-invitation.md) — roles for community members, mentors, public agencies, and partners.
+15. [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md) — the evidence, privacy, safety, validation, and product contract required before address-informed guidance is offered.
 
 ## The short version
 
@@ -64,6 +66,7 @@ This is a place for the community to learn about urban heat: how heat patterns a
 
 - [Boston Study Guide](../BOSTON_STUDY_GUIDE.md)
 - [City Onboarding Recipes](../CITY_ONBOARDING_RECIPES.md)
+- [Civic Starter Guide](12-civic-starter-guide.md)
 - [Live Thermal Setup](../LIVE_THERMAL_SETUP.md)
 - [Artifact Strategy](../ARTIFACT_STRATEGY.md)
 - [Research Sharing and Publication Strategy](../RESEARCH_SHARING_AND_PUBLICATION_STRATEGY.md)

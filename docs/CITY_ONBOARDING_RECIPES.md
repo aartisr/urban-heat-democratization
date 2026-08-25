@@ -2,6 +2,17 @@
 
 This document gives copy-friendly onboarding patterns for common city cases.
 
+## Fastest path: preconfigured city starters
+
+The Cities workspace includes preconfigured starters for New York City,
+Chicago, Los Angeles, and Houston. Choosing one pre-fills the city identity,
+regional context, and onboarding note. The remaining required input is a
+valid local boundary GeoJSON. This removes repetitive form setup while keeping
+the evidence status honest: a starter is not a bundled local analysis.
+
+For a plain-language explanation of this workflow, see the [Civic Starter
+Guide](wiki/12-civic-starter-guide.md).
+
 ## Before you begin
 
 Start the API:

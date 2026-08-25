@@ -44,6 +44,8 @@ Community knowledge is not a decorative validation step. It can identify missing
 8. Publish a plain-language account of inputs, limitations, decisions, and subsequent outcomes where safe and appropriate.
 
 For API and UI specifics, use [City Onboarding Recipes](../CITY_ONBOARDING_RECIPES.md).
+For a non-technical, meeting-ready route through the workspace, use the
+[Civic Starter Guide](12-civic-starter-guide.md).
 
 ## A practical test of success
 
