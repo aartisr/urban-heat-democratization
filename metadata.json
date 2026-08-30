@@ -1,0 +1,6 @@
+{
+  "name": "Urban Heat Democratization Evaluation",
+  "description": "An interactive, multi-dimensional evaluation of the urban-heat-democratization open-source repository on a scale of 1 to 10.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
