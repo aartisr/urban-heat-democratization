@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GitPullRequest, Copy, Check, Terminal, FileCode2, ExternalLink, Sparkles } from 'lucide-react';
+import { GitPullRequest, Copy, Check, Terminal, FileCode2, ExternalLink, Sparkles } from './legacy-icons';
 
 interface PRItem {
   id: string;

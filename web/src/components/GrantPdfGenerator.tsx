@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { FileText, Download, Check, Sparkles, Building2, MapPin, DollarSign, ShieldAlert, Award, Printer, Share2, Layers, BarChart3, ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { FileText, Download, Check, Sparkles, Building2, MapPin, DollarSign, ShieldAlert, Award, Printer, Share2, Layers, BarChart3, ArrowRight } from './legacy-icons';
+import { motion } from './legacy-motion';
 
 interface GrantTemplate {
   id: string;
