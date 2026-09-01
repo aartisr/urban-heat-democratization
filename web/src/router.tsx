@@ -61,9 +61,9 @@ const navItems: Array<{
   search?: typeof baseScenarioSearch;
 }> = [
   { label: "Overview", shortLabel: "OV", to: "/" },
+  { label: "Choose a path", shortLabel: "PA", to: "/modes" },
   { label: "Cities", shortLabel: "CI", to: "/cities" },
   { label: "Scenarios", shortLabel: "SC", to: "/scenarios", search: baseScenarioSearch },
-  { label: "10/10 Solution Suite", shortLabel: "10", to: "/solution-suite" },
 ];
 
 const secondaryNavItems: Array<{
@@ -71,13 +71,12 @@ const secondaryNavItems: Array<{
   to: "/modes" | "/exports" | "/runs" | "/robustness" | "/mitigation-lab" | "/contact" | "/address-plan" | "/solution-suite";
   search?: typeof baseScenarioSearch;
 }> = [
-  { label: "10/10 Solution Suite", to: "/solution-suite" },
-  { label: "Choose a path", to: "/modes" },
-  { label: "Exports", to: "/exports" },
-  { label: "Run history", to: "/runs" },
-  { label: "Robustness lab", to: "/robustness" },
   { label: "Mitigation lab", to: "/mitigation-lab" },
   { label: "My cooling plan", to: "/address-plan" },
+  { label: "Evidence-to-Action Suite", to: "/solution-suite" },
+  { label: "Robustness lab", to: "/robustness" },
+  { label: "Exports", to: "/exports" },
+  { label: "Run history", to: "/runs" },
   { label: "Collaborate", to: "/contact" },
 ];
 
@@ -287,7 +286,7 @@ function RootLayout() {
         title: nav.label,
         description: nav.label === "Overview"
           ? "Start from one coherent narrative, then move into city, scenario, export, and run workflows."
-          : nav.label === "Modes"
+          : nav.to === "/modes"
             ? "Choose the audience lens, then keep the same science with role-specific framing."
             : nav.label === "Cities"
               ? "Open a bundled city or onboard a new one without changing the decision workflow."
@@ -351,7 +350,7 @@ function RootLayout() {
             ))}
             {!sidebarCollapsed ? (
               <details className="app-nav-more">
-                <summary>More tools</summary>
+                <summary>Continue your workflow</summary>
                 <div>
                   {secondaryNavItems.map((item) => (
                     <Link key={item.to} to={item.to} search={item.search} preload="intent" activeProps={{ "aria-current": "page" }}>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Languages, Globe2, HeartHandshake, Volume2, Check, Sparkles, MapPin, ShieldCheck, BookOpen, Layers } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { Languages, Globe2, HeartHandshake, Volume2, Check, Sparkles, MapPin, ShieldCheck, BookOpen, Layers } from './legacy-icons';
+import { motion, AnimatePresence } from './legacy-motion';
 
 export type SupportedLanguage = 'en' | 'es' | 'zh' | 'ht' | 'pt';
 
