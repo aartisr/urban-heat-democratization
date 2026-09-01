@@ -22,6 +22,7 @@ const RobustnessPage = lazy(() => import("./routes/robustness").then((module) =>
 const MitigationLabPage = lazy(() => import("./routes/mitigation-lab").then((module) => ({ default: module.MitigationLabPage })));
 const ContactPage = lazy(() => import("./routes/contact").then((module) => ({ default: module.ContactPage })));
 const AddressPlanPage = lazy(() => import("./routes/address-plan").then((module) => ({ default: module.AddressPlanPage })));
+const SolutionSuitePage = lazy(() => import("./routes/solution-suite").then((module) => ({ default: module.SolutionSuitePage })));
 
 function withPageSuspense(node: JSX.Element) {
   return (
@@ -56,19 +57,21 @@ const baseScenarioSearch = {
 const navItems: Array<{
   label: string;
   shortLabel: string;
-  to: "/" | "/modes" | "/cities" | "/scenarios" | "/exports" | "/runs";
+  to: "/" | "/modes" | "/cities" | "/scenarios" | "/exports" | "/runs" | "/solution-suite";
   search?: typeof baseScenarioSearch;
 }> = [
   { label: "Overview", shortLabel: "OV", to: "/" },
   { label: "Cities", shortLabel: "CI", to: "/cities" },
   { label: "Scenarios", shortLabel: "SC", to: "/scenarios", search: baseScenarioSearch },
+  { label: "10/10 Solution Suite", shortLabel: "10", to: "/solution-suite" },
 ];
 
 const secondaryNavItems: Array<{
   label: string;
-  to: "/modes" | "/exports" | "/runs" | "/robustness" | "/mitigation-lab" | "/contact" | "/address-plan";
+  to: "/modes" | "/exports" | "/runs" | "/robustness" | "/mitigation-lab" | "/contact" | "/address-plan" | "/solution-suite";
   search?: typeof baseScenarioSearch;
 }> = [
+  { label: "10/10 Solution Suite", to: "/solution-suite" },
   { label: "Choose a path", to: "/modes" },
   { label: "Exports", to: "/exports" },
   { label: "Run history", to: "/runs" },
@@ -495,6 +498,7 @@ const robustnessRoute = createRoute({ getParentRoute: () => rootRoute, path: "ro
 const mitigationLabRoute = createRoute({ getParentRoute: () => rootRoute, path: "mitigation-lab", component: () => withPageSuspense(<MitigationLabPage />) });
 const contactRoute = createRoute({ getParentRoute: () => rootRoute, path: "contact", component: () => withPageSuspense(<ContactPage />) });
 const addressPlanRoute = createRoute({ getParentRoute: () => rootRoute, path: "address-plan", component: () => withPageSuspense(<AddressPlanPage />) });
+const solutionSuiteRoute = createRoute({ getParentRoute: () => rootRoute, path: "solution-suite", component: () => withPageSuspense(<SolutionSuitePage />) });
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
@@ -509,6 +513,7 @@ const routeTree = rootRoute.addChildren([
   mitigationLabRoute,
   addressPlanRoute,
   contactRoute,
+  solutionSuiteRoute,
 ]);
 
 export const router = createRouter({ routeTree });
