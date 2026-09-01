@@ -150,9 +150,9 @@ const TEN_OUT_OF_TEN_METRICS: Metric[] = [
 ];
 
 export default function App() {
-  const [isTenActive, setIsTenActive] = useState<boolean>(false);
-  const [metrics, setMetrics] = useState<Metric[]>(BASELINE_METRICS);
-  const [activeTab, setActiveTab] = useState<'overview' | 'upgrade10' | 'math' | 'glossary' | 'critique'>('overview');
+  const [isTenActive, setIsTenActive] = useState<boolean>(true);
+  const [metrics, setMetrics] = useState<Metric[]>(TEN_OUT_OF_TEN_METRICS);
+  const [activeTab, setActiveTab] = useState<'overview' | 'upgrade10' | 'math' | 'glossary' | 'critique'>('upgrade10');
 
   const toggleTenMode = () => {
     if (!isTenActive) {
