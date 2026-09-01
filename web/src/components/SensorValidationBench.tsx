@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Activity, CheckCircle, BarChart3, TrendingUp, AlertCircle, RefreshCw, Layers, ShieldCheck } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Activity, CheckCircle, BarChart3, TrendingUp, AlertCircle, RefreshCw, Layers, ShieldCheck } from './legacy-icons';
+import { motion } from './legacy-motion';
 
 interface SensorStation {
   id: string;

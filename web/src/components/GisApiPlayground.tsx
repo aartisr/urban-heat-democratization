@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Database, Code2, Copy, Check, Terminal, Download, Globe, Layers, Play, Sparkles, FileJson, Server, ShieldCheck } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Database, Code2, Copy, Check, Terminal, Download, Globe, Layers, Play, Sparkles, FileJson, Server, ShieldCheck } from './legacy-icons';
+import { motion } from './legacy-motion';
 
 export default function GisApiPlayground() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<'geojson' | 'wms' | 'equity' | 'spectral'>('geojson');

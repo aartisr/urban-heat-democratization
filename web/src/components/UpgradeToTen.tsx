@@ -1,160 +1,88 @@
-import React, { useState } from 'react';
-import { Sparkles, Globe, Activity, Waves, GitPullRequest, Award, FileText, Languages, Server } from 'lucide-react';
-import OsmPlayground from './OsmPlayground';
-import SensorValidationBench from './SensorValidationBench';
-import SpectralGraphFilter from './SpectralGraphFilter';
-import PullRequestSuite from './PullRequestSuite';
-import GrantPdfGenerator from './GrantPdfGenerator';
-import MultilingualLocalization from './MultilingualLocalization';
-import GisApiPlayground from './GisApiPlayground';
-import { motion } from 'motion/react';
+import OsmPlayground from "./OsmPlayground";
+import SensorValidationBench from "./SensorValidationBench";
+import SpectralGraphFilter from "./SpectralGraphFilter";
+import GrantPdfGenerator from "./GrantPdfGenerator";
+import MultilingualLocalization from "./MultilingualLocalization";
+import GisApiPlayground from "./GisApiPlayground";
+import PullRequestSuite from "./PullRequestSuite";
 
-interface UpgradeToTenProps {
-  onActivateTen: () => void;
-  isTenActive: boolean;
+type SuiteTool = {
+  id: string;
+  number: string;
+  title: string;
+  outcome: string;
+  description: string;
+  detail: string;
+};
+
+const suiteTools: SuiteTool[] = [
+  { id: "city-input", number: "01", title: "Import a city map", outcome: "Start with a boundary and street network.", description: "Create the geographic foundation for a city analysis from OpenStreetMap data.", detail: "Boundary · street network · analysis context" },
+  { id: "ground-truth", number: "02", title: "Validate with sensors", outcome: "Check the model against observed conditions.", description: "Compare modeled heat stress with field and sensor readings before relying on a finding.", detail: "Observed readings · residuals · limits" },
+  { id: "connected-geography", number: "03", title: "Test complex geography", outcome: "Keep coasts and islands interpretable.", description: "Use component-aware graph methods when disconnected places affect the analysis.", detail: "Connected components · access barriers · assumptions" },
+  { id: "brief", number: "04", title: "Create a grant brief", outcome: "Package a decision-ready story.", description: "Generate a concise policy brief with the evidence and context needed for review.", detail: "Brief · source trail · caveats" },
+  { id: "language", number: "05", title: "Translate the story", outcome: "Make the evidence understandable.", description: "Prepare plain-language and multilingual explanations around the same underlying evidence.", detail: "Plain language · local context · access" },
+  { id: "api", number: "06", title: "Publish GIS data", outcome: "Connect evidence to other tools.", description: "Explore and reuse documented geographic outputs through the GIS API workspace.", detail: "Open formats · provenance · reusable layers" },
+  { id: "review", number: "07", title: "Contribute an improvement", outcome: "Make the platform more trustworthy.", description: "Review and prepare upstream changes with a visible record of what improves and why.", detail: "Peer review · changes · accountable iteration" },
+];
+
+type UpgradeToTenProps = { activeTool: string; onChooseTool: (id: string) => void };
+
+function ToolWorkspace({ toolId }: { toolId: string }) {
+  switch (toolId) {
+    case "city-input": return <OsmPlayground />;
+    case "ground-truth": return <SensorValidationBench />;
+    case "connected-geography": return <SpectralGraphFilter />;
+    case "brief": return <GrantPdfGenerator />;
+    case "language": return <MultilingualLocalization />;
+    case "api": return <GisApiPlayground />;
+    case "review": return <PullRequestSuite />;
+    default: return null;
+  }
 }
 
-export default function UpgradeToTen({ onActivateTen, isTenActive }: UpgradeToTenProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'osm' | 'sensor' | 'filter' | 'pdf' | 'i18n' | 'api' | 'pr'>('osm');
+export default function UpgradeToTen({ activeTool, onChooseTool }: UpgradeToTenProps) {
+  const selectedTool = suiteTools.find((tool) => tool.id === activeTool) ?? suiteTools[0];
 
   return (
-    <div id="upgrade-to-ten-container" className="space-y-6">
-      {/* Hero Banner for 10/10 Upgrade Engine */}
-      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-lg border border-emerald-500/30">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-3.5 py-1 rounded-full text-xs font-bold mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>10/10 Master Edition Roadmap</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              The 10/10 Upgrade Engine & Solution Suite
-            </h2>
-            <p className="text-slate-300 text-xs sm:text-sm mt-2 leading-relaxed">
-              We have engineered the exact mathematical algorithms, automated data pipelines, 3-page EPA policy brief generators, multilingual localization, and open GIS endpoints required to make <strong>urban-heat-democratization</strong> an immaculate 10/10 platform.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
-            <button
-              onClick={onActivateTen}
-              className={`w-full sm:w-auto px-6 py-3.5 rounded-2xl font-black text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
-                isTenActive
-                  ? 'bg-emerald-400 text-slate-950 ring-4 ring-emerald-400/30'
-                  : 'bg-white text-slate-900 hover:bg-slate-100 hover:scale-105'
-              }`}
-            >
-              <Award className="w-5 h-5 text-amber-500" />
-              <span>{isTenActive ? '★ 10.0/10 Mode Active' : 'Upgrade Rating to 10.0/10'}</span>
-            </button>
-          </div>
+    <section className="solution-suite" aria-labelledby="solution-suite-title">
+      <header className="solution-suite-hero">
+        <div className="solution-suite-hero-copy">
+          <p className="eyebrow">Evidence-to-action suite</p>
+          <h1 id="solution-suite-title">One clear tool<br /><em>for the next step.</em></h1>
+          <p>Choose what you need to do. The relevant workspace opens below, with the original method and controls intact.</p>
+          <a className="button-link" href="#solution-suite-path">Choose a tool</a>
         </div>
-      </div>
+      </header>
 
-      {/* Navigation Sub-Tabs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
-        <button
-          onClick={() => setActiveSubTab('osm')}
-          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeSubTab === 'osm'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Globe className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-          <span className="truncate">1. OSM Pipeline</span>
-        </button>
+      <section className="solution-suite-path" id="solution-suite-path" aria-labelledby="suite-path-title">
+        <div className="solution-suite-heading">
+          <p className="eyebrow">Choose a tool</p>
+          <h2 id="suite-path-title">What do you need to do?</h2>
+          <p>Pick one. You can change tools at any time.</p>
+        </div>
+        <div className="solution-suite-tools" role="list">
+          {suiteTools.map((tool) => {
+            const isActive = selectedTool.id === tool.id;
+            return (
+              <button key={tool.id} type="button" className={`solution-suite-tool ${isActive ? "is-active" : ""}`} onClick={() => onChooseTool(tool.id)} aria-pressed={isActive} aria-controls="tool-workspace" role="listitem">
+                <span className="solution-suite-tool-number">{tool.number}</span>
+                <span className="solution-suite-tool-copy"><strong>{tool.title}</strong><small>{tool.outcome}</small></span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
-        <button
-          onClick={() => setActiveSubTab('sensor')}
-          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeSubTab === 'sensor'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Activity className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-          <span className="truncate">2. Ground Truth</span>
-        </button>
+      <section className="solution-suite-selection" aria-live="polite">
+        <div className="solution-suite-selection-number" aria-hidden="true">{selectedTool.number}</div>
+        <div><p className="eyebrow">Selected tool</p><h2>{selectedTool.title}</h2><p>{selectedTool.description}</p><p className="solution-suite-detail">{selectedTool.detail}</p></div>
+        <a className="button-link solution-suite-action" href="#tool-workspace">Open workspace <span aria-hidden="true">↓</span></a>
+      </section>
 
-        <button
-          onClick={() => setActiveSubTab('filter')}
-          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeSubTab === 'filter'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Waves className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
-          <span className="truncate">3. Laplacian</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('pdf')}
-          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeSubTab === 'pdf'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-          <span className="truncate">4. Grant PDF Brief</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('i18n')}
-          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeSubTab === 'i18n'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Languages className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-          <span className="truncate">5. Multilingual</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('api')}
-          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeSubTab === 'api'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <Server className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-          <span className="truncate">6. GIS REST API</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('pr')}
-          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
-            activeSubTab === 'pr'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <GitPullRequest className="w-3.5 h-3.5 text-slate-700 shrink-0" />
-          <span className="truncate">7. Upstream PRs</span>
-        </button>
-      </div>
-
-      {/* Sub-Tab Viewport */}
-      <motion.div
-        key={activeSubTab}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-      >
-        {activeSubTab === 'osm' && <OsmPlayground />}
-        {activeSubTab === 'sensor' && <SensorValidationBench />}
-        {activeSubTab === 'filter' && <SpectralGraphFilter />}
-        {activeSubTab === 'pdf' && <GrantPdfGenerator />}
-        {activeSubTab === 'i18n' && <MultilingualLocalization />}
-        {activeSubTab === 'api' && <GisApiPlayground />}
-        {activeSubTab === 'pr' && <PullRequestSuite />}
-      </motion.div>
-    </div>
+      <section className="solution-suite-workspace" id="tool-workspace" aria-label={`${selectedTool.title} workspace`}>
+        <div className="solution-suite-workspace-heading"><p className="eyebrow">Workspace</p><p>{selectedTool.title}</p></div>
+        <ToolWorkspace toolId={selectedTool.id} />
+      </section>
+    </section>
   );
 }
