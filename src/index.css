@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* Custom KaTeX styling for professional dark-mode LaTeX rendering */
+.katex {
+  font-size: 1.08em;
+  color: #fcd34d; /* Amber-300 */
+}
+
+.katex-display {
+  margin: 0.5em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25em 0;
+}
+
+.katex-display > .katex {
+  white-space: normal;
+}
+
+/* Base math symbol styling */
+.katex .mord, .katex .mbin, .katex .mrel, .katex .mopen, .katex .mclose, .katex .mpunct {
+  color: #fcd34d;
+}
+
+.katex .mord.mathnormal {
+  color: #fbbf24; /* Amber-400 for variables */
+  font-style: italic;
+}
+
+.katex .mord.text {
+  color: #cbd5e1; /* Slate-300 for embedded text in formulas */
+}
+
+.katex .mbin {
+  color: #f59e0b;
+}
+
+.katex .mrel {
+  color: #38bdf8; /* Sky blue for equality / relations */
+}
+
+.katex .mop {
+  color: #a855f7; /* Purple for operators like cos, sin, arctan */
+}
+
+.katex .mopen, .katex .mclose {
+  color: #94a3b8;
+}
+
+.katex .frac-line {
+  border-bottom-color: #f59e0b !important;
+  border-bottom-width: 1.5px !important;
+}
+
+.katex .sqrt .root {
+  color: #10b981;
+}
+
+.katex-html {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+

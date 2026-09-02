@@ -1,0 +1,6 @@
+{
+  "name": "Spectral Urbanism: Urban Thermal Math Lab",
+  "description": "An interactive educational lab and toy calculator breaking down Urban Heat Island physics, Surface Energy Balance, Sky View Factor, Thermal Inertia, and GMRF Spatial Thermal Modeling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
