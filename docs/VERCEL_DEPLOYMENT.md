@@ -34,7 +34,8 @@ that serverless scratch state is a persistent research record.
 3. Vercel reads the committed configuration:
    - framework: Vite, explicitly selected so `/` is served by the static web
      application rather than being inferred as a FastAPI-only project;
-   - build command: `cd web && npm ci && npm run build`
+   - install command: `npm ci --prefix web`
+   - build command: `npm run build --prefix web`
    - static output: `web/dist`
    - Python entry point: `api/main.py`; its targeted `includeFiles` glob keeps
      only runtime-read research assets in the function bundle, while
@@ -43,12 +44,14 @@ that serverless scratch state is a persistent research record.
    - API routing: `/api/*`
    - SPA fallback: every non-API route resolves to `index.html`, including
    direct links such as `/cities/boston`.
+   - public deployment metadata: enabled. This makes Vercel's deployment
+     source and build logs public, matching this public repository.
 4. Add the environment variables below, deploy, then test the verification
    checklist.
 
-Use Node.js 22 or newer for the Vercel build. The frontend package declares
-this requirement so the deployment uses a runtime supported by its resolved
-dependencies. The repository pins Python 3.12 in `.python-version`; this is
+The root `package.json` pins Node.js 22.x for the Vercel build, avoiding the
+platform default changing under the frontend's resolved dependencies. The
+repository pins Python 3.12 in `.python-version`; this is
 the oldest Python version currently supported by Vercel's Python runtime.
 `pyproject.toml` repeats that requirement as `==3.12.*`, which makes the
 constraint explicit to Vercel's `uv` dependency resolver.

@@ -5,7 +5,7 @@ export const TARGET_METADATA = {
   platformName: "Urban Heat Democratization",
   creator: "Aarti S Ravikumar",
   organization: "ai-aarti.com",
-  canonicalRepo: "github.com/ai-aarti/urban-heat",
+  canonicalRepo: "github.com/aartisr/urban-heat-democratization",
   overallScore: 8.9,
   ratingGrade: "A+ / Exceptional (8.9 / 10)",
   verdictTitle: "Exemplary Open-Science Civic Climate Tech",
