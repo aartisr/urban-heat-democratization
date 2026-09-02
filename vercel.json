@@ -1,11 +1,13 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "buildCommand": "cd web && npm ci && npm run build",
+  "public": true,
+  "installCommand": "npm ci --prefix web",
+  "buildCommand": "npm run build --prefix web",
   "outputDirectory": "web/dist",
   "functions": {
     "api/main.py": {
-      "includeFiles": "{data/*.json,data/*.geojson,data/metadata/thermal_sources.json,data/thermal/*.npy,docs/IMPLEMENTATION_STATUS.md,01_master_plan.md,03_phase_roadmap.md}",
+      "includeFiles": "{data/*.json,data/*.geojson,data/metadata/thermal_sources.json,data/thermal/*.npy,docs/**/*.md,01_master_plan.md,03_phase_roadmap.md}",
       "excludeFiles": "{.venv/**,web/**,site/**,tests/**,data/runtime/**,docs/screenshots/**}",
       "maxDuration": 60
     }

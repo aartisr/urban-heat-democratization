@@ -17,5 +17,12 @@
     "jsx": "react-jsx"
   },
   "include": ["src"],
+  "exclude": [
+    "src/components/CategoryCard.tsx",
+    "src/components/CritiqueSection.tsx",
+    "src/components/Glossary.tsx",
+    "src/components/MathExplainer.tsx",
+    "src/components/ScoreGauge.tsx"
+  ],
   "references": []
 }
