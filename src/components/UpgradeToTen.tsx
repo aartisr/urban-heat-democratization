@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { Sparkles, Globe, Activity, Waves, GitPullRequest, Award, ArrowUpRight, CheckCircle } from 'lucide-react';
+import { Sparkles, Globe, Activity, Waves, GitPullRequest, Award, FileText, Languages, Server } from 'lucide-react';
 import OsmPlayground from './OsmPlayground';
 import SensorValidationBench from './SensorValidationBench';
 import SpectralGraphFilter from './SpectralGraphFilter';
 import PullRequestSuite from './PullRequestSuite';
+import GrantPdfGenerator from './GrantPdfGenerator';
+import MultilingualLocalization from './MultilingualLocalization';
+import GisApiPlayground from './GisApiPlayground';
 import { motion } from 'motion/react';
 
 interface UpgradeToTenProps {
@@ -12,7 +15,7 @@ interface UpgradeToTenProps {
 }
 
 export default function UpgradeToTen({ onActivateTen, isTenActive }: UpgradeToTenProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'osm' | 'sensor' | 'filter' | 'pr'>('osm');
+  const [activeSubTab, setActiveSubTab] = useState<'osm' | 'sensor' | 'filter' | 'grant' | 'localization' | 'gis_api' | 'pr'>('osm');
 
   return (
     <div id="upgrade-to-ten-container" className="space-y-6">
@@ -51,53 +54,89 @@ export default function UpgradeToTen({ onActivateTen, isTenActive }: UpgradeToTe
       </div>
 
       {/* Navigation Sub-Tabs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200/60">
         <button
           onClick={() => setActiveSubTab('osm')}
-          className={`py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
             activeSubTab === 'osm'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Globe className="w-4 h-4 text-emerald-600" />
-          <span className="truncate">1. OSM Auto-Pipeline</span>
+          <Globe className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span className="truncate">1. Multi-City Ingestion</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('sensor')}
-          className={`py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
             activeSubTab === 'sensor'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Activity className="w-4 h-4 text-blue-600" />
+          <Activity className="w-4 h-4 text-blue-600 shrink-0" />
           <span className="truncate">2. Sensor Ground Truth</span>
         </button>
 
         <button
           onClick={() => setActiveSubTab('filter')}
-          className={`py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
             activeSubTab === 'filter'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <Waves className="w-4 h-4 text-indigo-600" />
+          <Waves className="w-4 h-4 text-indigo-600 shrink-0" />
           <span className="truncate">3. Island Laplacian</span>
         </button>
 
         <button
+          onClick={() => setActiveSubTab('grant')}
+          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeSubTab === 'grant'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <FileText className="w-4 h-4 text-amber-600 shrink-0" />
+          <span className="truncate">4. Grant PDF Brief</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('localization')}
+          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeSubTab === 'localization'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Languages className="w-4 h-4 text-teal-600 shrink-0" />
+          <span className="truncate">5. Localization</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('gis_api')}
+          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            activeSubTab === 'gis_api'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Server className="w-4 h-4 text-blue-600 shrink-0" />
+          <span className="truncate">6. Open GIS API</span>
+        </button>
+
+        <button
           onClick={() => setActiveSubTab('pr')}
-          className={`py-3 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+          className={`py-3 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
             activeSubTab === 'pr'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          <GitPullRequest className="w-4 h-4 text-slate-700" />
-          <span className="truncate">4. Upstream PRs</span>
+          <GitPullRequest className="w-4 h-4 text-slate-700 shrink-0" />
+          <span className="truncate">7. Upstream PRs</span>
         </button>
       </div>
 
@@ -111,8 +150,12 @@ export default function UpgradeToTen({ onActivateTen, isTenActive }: UpgradeToTe
         {activeSubTab === 'osm' && <OsmPlayground />}
         {activeSubTab === 'sensor' && <SensorValidationBench />}
         {activeSubTab === 'filter' && <SpectralGraphFilter />}
+        {activeSubTab === 'grant' && <GrantPdfGenerator />}
+        {activeSubTab === 'localization' && <MultilingualLocalization />}
+        {activeSubTab === 'gis_api' && <GisApiPlayground />}
         {activeSubTab === 'pr' && <PullRequestSuite />}
       </motion.div>
     </div>
   );
 }
+
