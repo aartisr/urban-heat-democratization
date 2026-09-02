@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Play, Download, Copy, Check, MapPin, Globe, Sparkles, Code2, ArrowRight } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Play, Download, Copy, Check, MapPin, Globe, Sparkles, Code2, ArrowRight } from './legacy-icons';
+import { motion } from './legacy-motion';
 
 interface CityPreset {
   id: string;
