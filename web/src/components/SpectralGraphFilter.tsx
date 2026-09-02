@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Sigma, Waves, CheckCircle2, Split, Sparkles, Layers, Sliders } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Sigma, Waves, CheckCircle2, Split, Sparkles, Layers, Sliders } from './legacy-icons';
+import { motion } from './legacy-motion';
 
 export default function SpectralGraphFilter() {
   const [filterMode, setFilterMode] = useState<'standard' | 'component_aware'>('component_aware');
