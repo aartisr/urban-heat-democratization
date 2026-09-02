@@ -5,67 +5,74 @@ import { motion } from 'motion/react';
 interface SensorStation {
   id: string;
   name: string;
-  stationType: 'NOAA Surface' | 'Citizen Ambient' | 'EPA Urban Monitor' | 'Mobile Trajectory';
+  stationType: 'NOAA Surface' | 'Citizen Ambient' | 'EPA Urban Monitor' | 'Bicycle Mobile Transect' | 'Car-Mounted Sensor' | 'PurpleAir IoT Logger';
   observedTempC: number;
   modeledSpectralStress: number; // 0 to 1
   coolingAccessScore: number; // 0 to 100
   residualVariance: number;
+  ingestSource?: string;
 }
 
 const SAMPLE_STATIONS: SensorStation[] = [
   {
-    id: 'BOS-01',
-    name: 'East Boston Urban Canopy Station',
-    stationType: 'EPA Urban Monitor',
-    observedTempC: 34.2,
-    modeledSpectralStress: 0.88,
-    coolingAccessScore: 24,
-    residualVariance: 0.04
+    id: 'MOB-BKE-01',
+    name: 'East Boston Bicycle Microclimate Run #4',
+    stationType: 'Bicycle Mobile Transect',
+    observedTempC: 36.2,
+    modeledSpectralStress: 0.91,
+    coolingAccessScore: 21,
+    residualVariance: 0.03,
+    ingestSource: 'GPS Transect Logger (1-sec interval)'
   },
   {
-    id: 'BOS-02',
-    name: 'Roxbury Community Garden Node',
-    stationType: 'Citizen Ambient',
+    id: 'IOT-PURP-88',
+    name: 'Chelsea Creek PurpleAir Outdoor Node #88',
+    stationType: 'PurpleAir IoT Logger',
     observedTempC: 35.8,
-    modeledSpectralStress: 0.94,
-    coolingAccessScore: 16,
-    residualVariance: 0.03
+    modeledSpectralStress: 0.89,
+    coolingAccessScore: 24,
+    residualVariance: 0.04,
+    ingestSource: 'Live PurpleAir API Stream'
+  },
+  {
+    id: 'MOB-CAR-12',
+    name: 'Roxbury Dudley Sq Car Sensor Transect',
+    stationType: 'Car-Mounted Sensor',
+    observedTempC: 36.9,
+    modeledSpectralStress: 0.96,
+    coolingAccessScore: 14,
+    residualVariance: 0.03,
+    ingestSource: 'Roof-Mounted Fast-Response Thermistor'
   },
   {
     id: 'BOS-03',
-    name: 'Boston Common Core Sensor',
+    name: 'Boston Common Core Weather Station',
     stationType: 'NOAA Surface',
     observedTempC: 28.4,
     modeledSpectralStress: 0.22,
     coolingAccessScore: 88,
-    residualVariance: 0.02
+    residualVariance: 0.02,
+    ingestSource: 'NOAA Automated Surface Observing System'
   },
   {
     id: 'BOS-04',
-    name: 'Dorchester Transit Corridor',
+    name: 'Dorchester Transit Corridor Monitor',
     stationType: 'EPA Urban Monitor',
     observedTempC: 33.9,
     modeledSpectralStress: 0.81,
     coolingAccessScore: 31,
-    residualVariance: 0.05
+    residualVariance: 0.05,
+    ingestSource: 'EPA AirNow Fixed Station'
   },
   {
-    id: 'BOS-05',
-    name: 'Back Bay Esplanade Breeze Station',
-    stationType: 'NOAA Surface',
-    observedTempC: 29.1,
-    modeledSpectralStress: 0.29,
-    coolingAccessScore: 82,
-    residualVariance: 0.03
-  },
-  {
-    id: 'BOS-06',
-    name: 'Mattapan Blue Hill Ave Mobile Transect',
-    stationType: 'Mobile Trajectory',
+    id: 'MOB-BKE-02',
+    name: 'Mattapan Blue Hill Ave Bike Logger',
+    stationType: 'Bicycle Mobile Transect',
     observedTempC: 36.4,
     modeledSpectralStress: 0.96,
     coolingAccessScore: 12,
-    residualVariance: 0.04
+    residualVariance: 0.04,
+    ingestSource: 'Volunteer Cyclist Microclimate Stream'
   }
 ];
 
@@ -129,10 +136,10 @@ export default function SensorValidationBench() {
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-800 tracking-tight">
-                Enhancement 2: In-Situ Ground Truth Sensor Validation Bench
+                Hyperlocal IoT & Mobile Sensor Stream Ingestion & Validation
               </h3>
               <p className="text-xs text-slate-500">
-                Solves the critical "Repeatability vs Real-World Validity" gap with statistical cross-validation against live ground-level weather sensor transects.
+                Ingest street-level mobile temperature runs (bicycle/car-mounted sensors) and PurpleAir/heat loggers to ground-truth orbital radiometric satellite readings.
               </p>
             </div>
           </div>
