@@ -44,8 +44,6 @@ that serverless scratch state is a persistent research record.
    - API routing: `/api/*`
    - SPA fallback: every non-API route resolves to `index.html`, including
    direct links such as `/cities/boston`.
-   - public deployment metadata: enabled. This makes Vercel's deployment
-     source and build logs public, matching this public repository.
 4. Add the environment variables below, deploy, then test the verification
    checklist.
 
