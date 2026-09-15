@@ -1,5 +1,8 @@
 # The Case for Democratizing Urban Heat
 
+> 🌐 **Interactive Live Application:** Explore the live heat atlas, transparent mitigation scenarios, and GIS tools on the official platform: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com/) | [Boston Study](https://urban-heat.ai-aarti.com/cities/boston) | [Scenario Lab](https://urban-heat.ai-aarti.com/scenarios) | [Solution Suite](https://urban-heat.ai-aarti.com/solution-suite) | [Mitigation Lab](https://urban-heat.ai-aarti.com/mitigation-lab)
+
+
 ## Heat is not only a temperature problem
 
 When a heat emergency is described only as a regional temperature record, the places where it becomes dangerous can disappear from view. People encounter heat through a bus stop without shade, a night in a poorly cooled home, a walk across a large paved area, outdoor work, medication, disability, age, energy costs, and the ability—or inability—to leave. The physical city and the social city meet in the body.
@@ -49,3 +52,14 @@ The aspiration is a world in which a resident does not need privileged access to
 See these principles in action in the [Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/). The [Boston study](https://urban-heat.ai-aarti.com/cities/boston) is the best place to begin with a real bundled city, and the [scenario workspace](https://urban-heat.ai-aarti.com/scenarios) makes tradeoffs available for inspection.
 
 *Authored by [Aarti S Ravikumar](https://ai-aarti.com).*
+
+---
+
+### Connect with the Living Platform
+
+- 🗺️ **[Boston Urban Heat Atlas](https://urban-heat.ai-aarti.com/cities/boston)** — Inspect satellite thermal layers, Cheeger cuts, and cooling equity overlays.
+- 🧪 **[Mitigation Scenarios](https://urban-heat.ai-aarti.com/scenarios)** — Model urban tree canopy, cool roofs, and pavements with cost constraints.
+- 🛠️ **[Solution Suite & GIS Tools](https://urban-heat.ai-aarti.com/solution-suite)** — Interactive Overpass OSM query builder, microclimate sensor validation, and federal grant generator.
+- 🔬 **[Interactive Mitigation Lab](https://urban-heat.ai-aarti.com/mitigation-lab)** — Real-time temperature response and cost-benefit trade-off exploration.
+- 📈 **[Robustness & Science Lab](https://urban-heat.ai-aarti.com/robustness)** — Inspect spectral graph conductance, Fiedler vectors, and percolation dynamics.
+- 🤝 **[Collaborate on Heat Action](https://urban-heat.ai-aarti.com/contact)** — Join research mentors, civic leaders, and community partners.

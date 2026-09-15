@@ -18,6 +18,9 @@ Urban Heat Democratization supports residents, educators, planners, researchers,
 - [Urban heat data exports](https://urban-heat.ai-aarti.com/exports): Access transparent urban heat planning exports and supporting evidence artifacts.
 - [Urban heat run history](https://urban-heat.ai-aarti.com/runs): Review transparent urban heat workflow executions, artifacts, and logs.
 - [Urban heat robustness lab](https://urban-heat.ai-aarti.com/robustness): Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.
+- [Interactive urban heat mitigation lab](https://urban-heat.ai-aarti.com/mitigation-lab): Model reflective cool roofs, tree canopy expansion, cool pavements, and urban parks with real-time temperature and cost-benefit analysis.
+- [Address-level cooling action plan](https://urban-heat.ai-aarti.com/address-plan): Build a privacy-first, evidence-bounded starting plan for heat safety, local observation, and collective cooling action.
+- [Urban heat solution suite and GIS tools](https://urban-heat.ai-aarti.com/solution-suite): Interactive GIS API playgrounds, OSM infrastructure query builders, sensor validation benches, and federal climate grant generators.
 - [Collaborate on urban heat action](https://urban-heat.ai-aarti.com/contact): A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.
 - [Research wiki](https://aartisr.github.io/urban-heat-democratization/wiki/): Methods, interpretation, reproducibility, and governance in a crawler-friendly format.
 - [Source repository](https://github.com/aartisr/urban-heat-democratization): Open-source code, data contracts, and reusable city-onboarding materials.
