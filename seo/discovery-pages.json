@@ -9,6 +9,9 @@
     { "path": "/exports", "sourceRoute": "exports", "title": "Urban heat data exports", "description": "Access transparent urban heat planning exports and supporting evidence artifacts.", "priority": "0.6", "changefreq": "monthly" },
     { "path": "/runs", "sourceRoute": "runs", "title": "Urban heat run history", "description": "Review transparent urban heat workflow executions, artifacts, and logs.", "priority": "0.5", "changefreq": "weekly" },
     { "path": "/robustness", "sourceRoute": "robustness", "title": "Urban heat robustness lab", "description": "Explore a transparent synthetic demonstration of spectral, reliability, and percolation reasoning for urban heat planning.", "priority": "0.6", "changefreq": "monthly" },
+    { "path": "/mitigation-lab", "sourceRoute": "mitigation-lab", "title": "Interactive urban heat mitigation lab", "description": "Model reflective cool roofs, tree canopy expansion, cool pavements, and urban parks with real-time temperature and cost-benefit analysis.", "priority": "0.8", "changefreq": "weekly" },
+    { "path": "/address-plan", "sourceRoute": "address-plan", "title": "Address-level cooling action plan", "description": "Build a privacy-first, evidence-bounded starting plan for heat safety, local observation, and collective cooling action.", "priority": "0.7", "changefreq": "monthly" },
+    { "path": "/solution-suite", "sourceRoute": "solution-suite", "title": "Urban heat solution suite and GIS tools", "description": "Interactive GIS API playgrounds, OSM infrastructure query builders, sensor validation benches, and federal climate grant generators.", "priority": "0.8", "changefreq": "weekly" },
     { "path": "/contact", "sourceRoute": "contact", "title": "Collaborate on urban heat action", "description": "A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.", "priority": "0.7", "changefreq": "monthly" }
   ],
   "githubPagesPages": [

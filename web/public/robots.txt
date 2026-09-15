@@ -1,7 +1,46 @@
 User-agent: *
 Allow: /
 
-# Keep this URL aligned with VITE_SITE_URL / seo/site.config.json when deploying elsewhere.
-Sitemap: https://urban-heat.ai-aarti.com/sitemap.xml
+# Explicit Search Engine Crawlers
+User-agent: Googlebot
+Allow: /
 
-# AI and research context: https://urban-heat.ai-aarti.com/llms.txt
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+# Explicit AI and Research Indexers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Sitemaps
+Sitemap: https://urban-heat.ai-aarti.com/sitemap.xml
+Sitemap: https://aartisr.github.io/urban-heat-democratization/sitemap.xml
+
+# AI & LLM Discovery Context
+# Markdown summary: https://urban-heat.ai-aarti.com/llms.txt
+# Research brief: https://urban-heat.ai-aarti.com/ai.txt
+

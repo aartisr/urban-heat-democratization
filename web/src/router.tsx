@@ -154,6 +154,16 @@ function RootLayout() {
         description: "A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.",
         keywords: ["urban heat collaboration", "climate resilience partnership", "heat equity community", "urban heat research mentorship"],
       },
+      "/runs": {
+        title: "Urban heat run history | Urban Heat Democratization",
+        description: "Review transparent urban heat workflow executions, artifacts, and logs.",
+        keywords: ["urban heat runs", "reproducible climate science", "data provenance"],
+      },
+      "/solution-suite": {
+        title: "Urban Heat Solution Suite & GIS Tools | Urban Heat Democratization",
+        description: "Interactive GIS API playgrounds, OSM infrastructure query builders, sensor validation benches, and federal climate grant generators.",
+        keywords: ["urban heat GIS tools", "microclimate sensor validation", "climate grant generator", "OSM heat infrastructure"],
+      },
       "/address-plan": {
         title: "Your cooling action plan | Urban Heat Democratization",
         description: "Build a privacy-first, evidence-bounded starting plan for heat safety, local observation, and collective cooling action.",

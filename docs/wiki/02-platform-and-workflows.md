@@ -1,5 +1,8 @@
 # Platform and Workflows
 
+> 🌐 **Interactive Live Application:** Explore the live heat atlas, transparent mitigation scenarios, and GIS tools on the official platform: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com/) | [Boston Study](https://urban-heat.ai-aarti.com/cities/boston) | [Scenario Lab](https://urban-heat.ai-aarti.com/scenarios) | [Solution Suite](https://urban-heat.ai-aarti.com/solution-suite) | [Mitigation Lab](https://urban-heat.ai-aarti.com/mitigation-lab)
+
+
 ## From observation to a documented conversation
 
 The application connects an atlas, scenario workspace, city onboarding flow, exports, and run history. These are not isolated features: each is intended to carry context forward so that a map observation can become a documented, bounded planning discussion.
@@ -51,3 +54,14 @@ The platform can asynchronously refresh configured, city-ready thermal adapter p
 Go directly to the [Urban Heat Democratization platform](https://urban-heat.ai-aarti.com/) to follow this sequence. Start with the [Boston atlas](https://urban-heat.ai-aarti.com/cities/boston), then move to [transparent scenarios](https://urban-heat.ai-aarti.com/scenarios) only after you have inspected the evidence and limits.
 
 *Authored by [Aarti S Ravikumar](https://ai-aarti.com).*
+
+---
+
+### Connect with the Living Platform
+
+- 🗺️ **[Boston Urban Heat Atlas](https://urban-heat.ai-aarti.com/cities/boston)** — Inspect satellite thermal layers, Cheeger cuts, and cooling equity overlays.
+- 🧪 **[Mitigation Scenarios](https://urban-heat.ai-aarti.com/scenarios)** — Model urban tree canopy, cool roofs, and pavements with cost constraints.
+- 🛠️ **[Solution Suite & GIS Tools](https://urban-heat.ai-aarti.com/solution-suite)** — Interactive Overpass OSM query builder, microclimate sensor validation, and federal grant generator.
+- 🔬 **[Interactive Mitigation Lab](https://urban-heat.ai-aarti.com/mitigation-lab)** — Real-time temperature response and cost-benefit trade-off exploration.
+- 📈 **[Robustness & Science Lab](https://urban-heat.ai-aarti.com/robustness)** — Inspect spectral graph conductance, Fiedler vectors, and percolation dynamics.
+- 🤝 **[Collaborate on Heat Action](https://urban-heat.ai-aarti.com/contact)** — Join research mentors, civic leaders, and community partners.

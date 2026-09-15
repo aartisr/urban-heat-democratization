@@ -173,6 +173,57 @@
     },
     {
       "@type": "WebPage",
+      "name": "Interactive urban heat mitigation lab | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/mitigation-lab",
+      "description": "Model reflective cool roofs, tree canopy expansion, cool pavements, and urban parks with real-time temperature and cost-benefit analysis.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Address-level cooling action plan | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/address-plan",
+      "description": "Build a privacy-first, evidence-bounded starting plan for heat safety, local observation, and collective cooling action.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
+      "name": "Urban heat solution suite and GIS tools | Urban Heat Democratization",
+      "url": "https://urban-heat.ai-aarti.com/solution-suite",
+      "description": "Interactive GIS API playgrounds, OSM infrastructure query builders, sensor validation benches, and federal climate grant generators.",
+      "dateModified": "2026-08-24T00:00:00Z",
+      "author": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
+      "@type": "WebPage",
       "name": "Collaborate on urban heat action | Urban Heat Democratization",
       "url": "https://urban-heat.ai-aarti.com/contact",
       "description": "A clear path for communities, mentors, public partners, and researchers to contribute to accountable urban heat work.",
