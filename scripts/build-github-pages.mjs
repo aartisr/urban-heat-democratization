@@ -125,10 +125,114 @@ if (generatedDiscoveryPaths.join("\n") !== registeredDiscoveryPaths.join("\n")) 
   throw new Error("GitHub Pages output and seo/discovery-pages.json disagree. Register every generated guide and wiki page before building.");
 }
 
+const analyticsHead = `
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+      c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "uhd_clarity_prod");
+  </script>
+  <!-- PostHog Analytics -->
+  <script type="text/javascript">
+    !(function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}p=t.createElement("script"),p.type="text/javascript",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)})(document,window.posthog||[]);
+    if (typeof posthog !== "undefined" && posthog.init) {
+      posthog.init("phc_urban_heat_democratization", {
+        api_host: "https://us.i.posthog.com",
+        autocapture: true,
+        capture_pageview: true,
+        mask_all_text: true
+      });
+    }
+  </script>`;
+
+const topBanner = `
+<div class="main-platform-banner">
+  <div class="banner-inner">
+    <div class="banner-badge-group">
+      <span class="banner-tag">Live Platform</span>
+      <span class="banner-text">Explore interactive maps, spectral graphs & cooling scenarios at <strong><a href="${main}">urban-heat.ai-aarti.com</a></strong></span>
+    </div>
+    <div class="banner-actions">
+      <a href="${main}" class="banner-btn primary">Launch Platform ↗</a>
+      <a href="${main}cities/boston" class="banner-btn">Boston Atlas</a>
+      <a href="${main}scenarios" class="banner-btn">Mitigation Lab</a>
+      <a href="${main}solution-suite" class="banner-btn">GIS Tools</a>
+    </div>
+  </div>
+</div>`;
+
+const crosslinksSection = `
+<section class="wiki-crosslinks" aria-label="Interactive platform links">
+  <div class="crosslink-title">
+    <h3>Explore on the Canonical Platform</h3>
+    <p>Connect this research guide to live interactive modules on <a href="${main}">urban-heat.ai-aarti.com</a>:</p>
+  </div>
+  <div class="crosslink-grid">
+    <a href="${main}cities/boston" class="crosslink-card">
+      <span class="crosslink-icon" aria-hidden="true">🗺️</span>
+      <div>
+        <strong>Boston Heat &amp; Cooling Atlas</strong>
+        <p>Inspect satellite thermal layers, bottleneck cuts, and localized cooling access.</p>
+      </div>
+    </a>
+    <a href="${main}scenarios" class="crosslink-card">
+      <span class="crosslink-icon" aria-hidden="true">🧪</span>
+      <div>
+        <strong>Mitigation Scenarios</strong>
+        <p>Explore transparent what-if cooling options, budgets, and equity trade-offs.</p>
+      </div>
+    </a>
+    <a href="${main}solution-suite" class="crosslink-card">
+      <span class="crosslink-icon" aria-hidden="true">🛠️</span>
+      <div>
+        <strong>Solution Suite &amp; GIS Tools</strong>
+        <p>Interactive OSM queries, microclimate sensor bench, and federal grant generator.</p>
+      </div>
+    </a>
+    <a href="${main}mitigation-lab" class="crosslink-card">
+      <span class="crosslink-icon" aria-hidden="true">🔬</span>
+      <div>
+        <strong>Interactive Mitigation Lab</strong>
+        <p>Model reflective roofs, urban canopy, and cool pavements with live feedback.</p>
+      </div>
+    </a>
+    <a href="${main}robustness" class="crosslink-card">
+      <span class="crosslink-icon" aria-hidden="true">📈</span>
+      <div>
+        <strong>Robustness Lab</strong>
+        <p>Explore spectral graph conductance, Fiedler vectors, and percolation dynamics.</p>
+      </div>
+    </a>
+    <a href="${main}contact" class="crosslink-card">
+      <span class="crosslink-icon" aria-hidden="true">🤝</span>
+      <div>
+        <strong>Collaborate &amp; Partner</strong>
+        <p>Partner with research mentors, community advocates, and public agencies.</p>
+      </div>
+    </a>
+  </div>
+</section>`;
+
 function renderWiki(article) {
   const title = `${article.title} | ${config.projectName}`;
+  const canonical = main;
+  const pageUrl = `${wikiHome}${article.slug ? `${article.slug}/` : ""}`;
+  const schema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: article.title,
+    description: article.deck,
+    url: pageUrl,
+    mainEntityOfPage: main,
+    author: { "@type": "Person", name: config.authorName },
+    publisher: { "@type": "Organization", name: config.projectName, url: main },
+    about: ["Urban Heat", "Spectral Graph Theory", "Heat Equity", "Cheeger Conductance", "Urban Climate Adaptation"],
+    isPartOf: { "@type": "WebSite", name: config.projectName, url: main }
+  });
   const nav = `<a href="${wikiHome}">Wiki home</a><a href="${pages}wiki/civic-guide/">Civic guide</a><a href="${pages}wiki/contact/">Collaborate</a><a href="${pages}wiki/participate/">Participate</a><a href="${pages}wiki/worked-example/">Worked example</a><a href="${pages}wiki/theory-contract/">Theory contract</a><a href="${pages}wiki/repeatability/">Repeatability</a><a href="${pages}wiki/math/">Math</a><a href="${pages}wiki/interpretation/">Interpretation</a><a href="${pages}wiki/technical/">Technical reference</a>`;
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(article.deck)}"><meta name="author" content="${esc(config.authorName)}"><meta name="robots" content="index,follow"><link rel="canonical" href="${main}"><link rel="icon" href="${pages}assets/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="${pages}assets/field-guide.css"></head><body><a class="skip-link" href="#main">Skip to article</a><header class="site-header">${logo(pages)}<nav aria-label="Research wiki">${nav}</nav><a class="header-cta" href="${main}">Open platform <span aria-hidden="true">↗</span></a></header><main id="main"><article class="article ${article.slug ? "" : "wiki-hero"}"><p class="eyebrow">Urban Heat Democratization · Research wiki</p><h1>${esc(article.title)}</h1><p class="deck">${esc(article.deck)}</p>${article.body}</article></main><footer><div>${logo(main)}<p>Authored by <a href="${config.contactUrl}">${esc(config.authorName)}</a> · Open public-interest research.</p></div><div><a href="${main}">Canonical platform</a><a href="${repoDocs}">Repository wiki</a></div></footer></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(article.deck)}"><meta name="author" content="${esc(config.authorName)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1"><link rel="canonical" href="${canonical}"><link rel="icon" href="${pages}assets/favicon.svg" type="image/svg+xml"><meta property="og:type" content="article"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(article.deck)}"><meta property="og:url" content="${canonical}"><meta property="og:site_name" content="${esc(config.projectName)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(article.deck)}"><script type="application/ld+json">${schema.replaceAll("<", "\\u003c")}</script>${analyticsHead}<link rel="stylesheet" href="${pages}assets/field-guide.css"></head><body><a class="skip-link" href="#main">Skip to article</a>${topBanner}<header class="site-header">${logo(pages)}<nav aria-label="Research wiki">${nav}</nav><a class="header-cta" href="${main}">Open platform <span aria-hidden="true">↗</span></a></header><main id="main"><article class="article ${article.slug ? "" : "wiki-hero"}"><p class="eyebrow">Urban Heat Democratization · Research wiki</p><h1>${esc(article.title)}</h1><p class="deck">${esc(article.deck)}</p>${article.body}${crosslinksSection}</article></main><footer><div>${logo(main)}<p>Authored by <a href="${config.contactUrl}">${esc(config.authorName)}</a> · Open public-interest research.</p></div><div><a href="${main}">Canonical platform</a><a href="${repoDocs}">Repository wiki</a></div></footer></body></html>`;
 }
 
 function renderPage(page) {
@@ -138,11 +242,11 @@ function renderPage(page) {
   const title = `${page.title} | ${config.projectName}`;
   const schema = JSON.stringify({
     "@context": "https://schema.org", "@type": "WebPage", name: title, description: page.deck, url: canonical,
-    about: ["Urban heat", "Heat equity", "Climate resilience", "Public-interest research"],
+    about: ["Urban heat", "Heat equity", "Climate resilience", "Public-interest research", "Urban cooling"],
     author: { "@type": "Person", name: config.authorName }, isPartOf: { "@type": "WebSite", name: config.projectName, url: main }, mainEntityOfPage: main,
   });
   const nav = guides.map((guide) => `<a ${guide.slug === page.slug ? 'aria-current="page"' : ""} href="${absolute(guide.slug)}">${guide.slug ? esc(guide.slug) : "Field guide"}</a>`).join("");
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(page.deck)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1"><link rel="canonical" href="${canonical}"><link rel="icon" href="${pages}assets/favicon.svg" type="image/svg+xml"><meta property="og:type" content="website"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(page.deck)}"><meta property="og:url" content="${canonical}"><script type="application/ld+json">${schema.replaceAll("<", "\\u003c")}</script><link rel="stylesheet" href="${pages}assets/field-guide.css"></head><body><a class="skip-link" href="#main">Skip to the guide</a><header class="site-header">${logo(pages)}<nav aria-label="Field guide">${nav}</nav><a class="header-cta" href="${main}">Open platform <span aria-hidden="true">↗</span></a></header><main id="main"><section class="hero"><div class="hero-copy"><p class="eyebrow">${esc(page.eyebrow)}</p><h1>${esc(page.title)}</h1><p class="deck">${esc(page.deck)}</p><div class="hero-actions"><a class="button primary" href="${esc(page.primary[1])}">${esc(page.primary[0])} <span aria-hidden="true">↗</span></a><a class="button quiet" href="${esc(page.secondary[1])}">${esc(page.secondary[0])}</a></div><p class="credibility-note">A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.</p></div><figure class="hero-visual"><img src="${pages}assets/${page.image}" alt="${esc(page.imageAlt)}" loading="eager"><figcaption>Explore the living workspace; cite the underlying methods and evidence.</figcaption></figure></section><section class="principles" aria-label="Key ideas">${page.sections.map(card).join("")}</section><section class="path"><div><p class="eyebrow">A clear next step</p><h2>Go from curiosity to an informed question.</h2><p>Use the interactive experience to investigate the evidence, then return to the methods and sources before treating any output as a conclusion.</p></div><a class="button primary" href="${main}">Explore Urban Heat Democratization <span aria-hidden="true">↗</span></a></section><section class="resources"><div><p class="eyebrow">Continue your research</p><h2>Primary sources, not a content maze.</h2></div><div class="resource-grid">${page.links.map(resource).join("")}</div></section></main><footer><div>${logo(main)}<p>Created by <a href="${config.contactUrl}">${esc(config.authorName)}</a> · Open public-interest research.</p></div><div><a href="${main}">Main platform</a><a href="${wikiHome}">Research wiki</a><a href="${config.repositoryUrl}">Source repository</a></div></footer></body></html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(page.deck)}"><meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1"><link rel="canonical" href="${canonical}"><link rel="icon" href="${pages}assets/favicon.svg" type="image/svg+xml"><meta property="og:type" content="website"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(page.deck)}"><meta property="og:url" content="${canonical}"><meta property="og:site_name" content="${esc(config.projectName)}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(page.deck)}"><script type="application/ld+json">${schema.replaceAll("<", "\\u003c")}</script>${analyticsHead}<link rel="stylesheet" href="${pages}assets/field-guide.css"></head><body><a class="skip-link" href="#main">Skip to the guide</a>${topBanner}<header class="site-header">${logo(pages)}<nav aria-label="Field guide">${nav}</nav><a class="header-cta" href="${main}">Open platform <span aria-hidden="true">↗</span></a></header><main id="main"><section class="hero"><div class="hero-copy"><p class="eyebrow">${esc(page.eyebrow)}</p><h1>${esc(page.title)}</h1><p class="deck">${esc(page.deck)}</p><div class="hero-actions"><a class="button primary" href="${esc(page.primary[1])}">${esc(page.primary[0])} <span aria-hidden="true">↗</span></a><a class="button quiet" href="${esc(page.secondary[1])}">${esc(page.secondary[0])}</a></div><p class="credibility-note">A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.</p></div><figure class="hero-visual"><img src="${pages}assets/${page.image}" alt="${esc(page.imageAlt)}" loading="eager"><figcaption>Explore the living workspace; cite the underlying methods and evidence.</figcaption></figure></section><section class="principles" aria-label="Key ideas">${page.sections.map(card).join("")}</section><section class="path"><div><p class="eyebrow">A clear next step</p><h2>Go from curiosity to an informed question.</h2><p>Use the interactive experience to investigate the evidence, then return to the methods and sources before treating any output as a conclusion.</p></div><a class="button primary" href="${main}">Explore Urban Heat Democratization <span aria-hidden="true">↗</span></a></section><section class="resources"><div><p class="eyebrow">Continue your research</p><h2>Primary sources, not a content maze.</h2></div><div class="resource-grid">${page.links.map(resource).join("")}</div></section></main><footer><div>${logo(main)}<p>Created by <a href="${config.contactUrl}">${esc(config.authorName)}</a> · Open public-interest research.</p></div><div><a href="${main}">Main platform</a><a href="${wikiHome}">Research wiki</a><a href="${config.repositoryUrl}">Source repository</a></div></footer></body></html>`;
 }
 
 const css = `:root{--ink:#102728;--muted:#587174;--paper:#f6f7f1;--line:#d9e2db;--ocean:#075f72;--gold:#d99a35;--shadow:0 24px 80px rgba(13,43,43,.12)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 92% -10%,#d6eee8 0,transparent 31rem),var(--paper);color:var(--ink);font:16px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.skip-link{position:fixed;left:1rem;top:-4rem;z-index:10;background:#fff;padding:.6rem 1rem;color:var(--ink)}.skip-link:focus{top:1rem}.site-header,footer{display:flex;align-items:center;justify-content:space-between;gap:1.5rem;max-width:1320px;margin:auto;padding:1.3rem clamp(1.2rem,4vw,4rem)}.site-header{border-bottom:1px solid var(--line)}.wordmark{color:var(--ink);font-size:.95rem;font-weight:800;letter-spacing:.025em;text-decoration:none;white-space:nowrap}.wordmark span{color:var(--ocean)}nav{display:flex;gap:1rem;align-items:center}nav a,footer a{color:var(--muted);font-size:.86rem;font-weight:700;text-decoration:none;text-transform:capitalize}nav a:hover,nav a[aria-current=page],footer a:hover{color:var(--ocean)}.header-cta{color:var(--ocean);font-size:.85rem;font-weight:800;text-decoration:none;white-space:nowrap}main{max-width:1320px;margin:auto;padding:clamp(3rem,7vw,7rem) clamp(1.2rem,4vw,4rem) 4rem}.hero{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(310px,.92fr);align-items:center;gap:clamp(2rem,6vw,7rem);min-height:32rem}.eyebrow{margin:0 0:.7rem;color:var(--ocean);font-size:.72rem;font-weight:850;letter-spacing:.13em;text-transform:uppercase}.hero h1,.path h2,.resources h2{max-width:13ch;margin:0;color:#102d2d;font-family:Georgia,"Times New Roman",serif;font-size:clamp(3rem,6.4vw,6.5rem);font-weight:500;letter-spacing:-.055em;line-height:.91}.deck{max-width:39rem;margin:1.5rem 0;color:#395558;font-size:clamp(1.1rem,1.65vw,1.35rem);line-height:1.55}.hero-actions{display:flex;flex-wrap:wrap;gap:.75rem;margin:1.7rem 0}.button{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:1px solid var(--ocean);border-radius:999px;padding:.78rem 1.15rem;font-weight:800;text-decoration:none}.button.primary{background:var(--ocean);color:#fff}.button.primary:hover{background:#034e60}.button.quiet{color:var(--ocean)}.credibility-note{max-width:38rem;margin:2rem 0 0;border-left:2px solid var(--gold);padding-left:.8rem;color:var(--muted);font-size:.86rem}.hero-visual{position:relative;margin:0}.hero-visual:before{position:absolute;inset:-1rem 1rem 1rem -1rem;z-index:-1;border-radius:1.3rem;background:#c4e3dc;content:""}.hero-visual img{display:block;width:100%;min-height:19rem;object-fit:cover;border:1px solid rgba(13,70,72,.12);border-radius:1rem;box-shadow:var(--shadow)}figcaption{margin-top:.7rem;color:var(--muted);font-size:.78rem}.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:6rem}.principle-card{min-height:17rem;padding:1.5rem;border:1px solid var(--line);border-radius:1rem;background:rgba(255,255,250,.8)}.card-index{color:var(--gold);font-size:.76rem;font-weight:900;letter-spacing:.12em}.principle-card h2{margin:2.2rem 0 .6rem;font-family:Georgia,serif;font-size:1.65rem;font-weight:500;line-height:1.08}.principle-card p{margin:0;color:var(--muted)}.path{display:flex;align-items:end;justify-content:space-between;gap:2rem;margin:5.5rem 0;padding:clamp(2rem,5vw,4rem);border-radius:1.2rem;background:#143b3d;color:#ecf3ed}.path h2{font-size:clamp(2.4rem,4vw,4.5rem);color:#fff}.path p:not(.eyebrow){max-width:48rem;color:#cfe0d9}.path .eyebrow{color:#f2c573}.path .button{flex:0 0 auto;border-color:#fff;background:#fff;color:#0f3b3c}.resources{display:grid;grid-template-columns:.8fr 1.2fr;gap:4rem;align-items:start;padding-bottom:2rem}.resources h2{font-size:clamp(2.2rem,3.6vw,3.6rem)}.resource-grid{display:grid;gap:.7rem}.resource-link{display:flex;justify-content:space-between;gap:1rem;padding:1.05rem 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none}.resource-link strong{display:block;font-size:1.05rem}.resource-link small{display:block;margin-top:.2rem;color:var(--muted)}.resource-link b{color:var(--ocean);font-size:1.2rem}.wiki-hero{max-width:60rem}.wiki-hero h1{font-size:clamp(3rem,6vw,6rem)}.wiki-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:3rem}.wiki-card{display:block;padding:1.5rem;border:1px solid var(--line);border-radius:1rem;background:#fff;color:var(--ink);text-decoration:none;transition:transform .2s,box-shadow .2s}.wiki-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}.wiki-card p{color:var(--muted)}.article{max-width:52rem;margin:auto}.article h1{font-family:Georgia,serif;font-size:clamp(3rem,6vw,5.5rem);line-height:.94;letter-spacing:-.05em}.article h2{margin-top:3rem;font-family:Georgia,serif;font-size:2rem;line-height:1.1}.article p,.article li{color:#395558}.equation{margin:1.5rem 0;padding:1.35rem 1.5rem;border-left:3px solid var(--gold);border-radius:.5rem;background:#eaf3ef;color:#123f42;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:1.08rem;overflow:auto}.callout{margin:2rem 0;padding:1.2rem 1.4rem;border:1px solid #b9d8d0;border-radius:.8rem;background:#f0f8f5}.article a{color:var(--ocean);font-weight:700}footer{margin-top:2rem;border-top:1px solid var(--line);align-items:flex-start}footer p{margin:.5rem 0 0;color:var(--muted);font-size:.8rem}footer>div:last-child{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:1rem}@media(max-width:800px){.site-header nav{display:none}.site-header{padding-top:1rem;padding-bottom:1rem}.hero,.resources,.wiki-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero h1{max-width:11ch}.hero-visual{max-width:38rem}.principles{grid-template-columns:1fr;margin-top:4rem}.principle-card{min-height:0}.path{align-items:start;flex-direction:column;margin:4rem 0}.resources{gap:2rem}footer{flex-direction:column}footer>div:last-child{justify-content:flex-start}}`;
@@ -159,6 +263,30 @@ main{padding-top:clamp(2.6rem,6vw,6rem)}.hero{position:relative;min-height:35rem
 @media(max-width:1050px){.site-header nav{display:none}.site-header{position:relative}.wiki-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:800px){.site-header{padding:.85rem 1rem}.header-cta{font-size:.72rem}.article{padding:1.35rem;border-radius:1rem}.wiki-grid{grid-template-columns:1fr}.wiki-card{min-height:0}.hero-visual:before{inset:-.7rem .6rem .7rem -.6rem}}
 `;
 
+const bannerAndCrosslinksCss = `
+.main-platform-banner{background:linear-gradient(90deg,#05283a 0%,#075f72 50%,#08776f 100%);color:#eaf8f5;padding:.65rem clamp(1rem,4vw,3rem);font-size:.84rem;border-bottom:1px solid rgba(239,188,87,.3);position:relative;z-index:20}
+.banner-inner{max-width:1320px;margin:auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+.banner-badge-group{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.banner-tag{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:999px;background:rgba(239,188,87,.2);border:1px solid rgba(239,188,87,.4);color:#ffd875;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.banner-text a{color:#ffd875;text-decoration:underline;font-weight:700}
+.banner-actions{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.banner-btn{padding:.35rem .75rem;border-radius:999px;font-size:.75rem;font-weight:700;text-decoration:none;transition:all .15s ease;display:inline-flex;align-items:center}
+.banner-btn.primary{background:#efbc57;color:#05283a}
+.banner-btn.primary:hover{background:#ffd875}
+.banner-btn:not(.primary){background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.banner-btn:not(.primary):hover{background:rgba(255,255,255,.2)}
+.wiki-crosslinks{margin-top:3.5rem;padding-top:2rem;border-top:2px solid var(--line)}
+.crosslink-title h3{font-family:var(--display);font-size:1.6rem;margin:0 0 .4rem;color:var(--night)}
+.crosslink-title p{margin:0 0 1.5rem;color:var(--muted);font-size:.92rem}
+.crosslink-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem}
+.crosslink-card{display:flex;align-items:flex-start;gap:.85rem;padding:1rem 1.15rem;border:1px solid rgba(8,89,89,.15);border-radius:1rem;background:rgba(255,255,252,.9);text-decoration:none;transition:all .18s ease;box-shadow:0 4px 14px rgba(5,40,58,.04)}
+.crosslink-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(5,40,58,.09);border-color:var(--teal)}
+.crosslink-icon{font-size:1.5rem;line-height:1}
+.crosslink-card strong{display:block;color:var(--night);font-size:.92rem;margin-bottom:.2rem}
+.crosslink-card p{margin:0;color:var(--muted);font-size:.8rem;line-height:1.4}
+@media(max-width:768px){.banner-inner{flex-direction:column;align-items:flex-start}.banner-actions{width:100%;overflow-x:auto;padding-bottom:.2rem}}
+`;
+
 await mkdir(resolve(out, "assets/screenshots"), { recursive: true });
 await Promise.all(["home.png", "city-detail.png", "scenarios.png", "cities.png"].map((file) => copyFile(resolve(root, `docs/screenshots/${file}`), resolve(out, `assets/screenshots/${file}`))));
 await copyFile(resolve(root, "docs/wiki/assets/cheeger-cut-walkthrough.svg"), resolve(out, "assets/cheeger-cut-walkthrough.svg"));
@@ -167,8 +295,41 @@ await writeFile(resolve(out, ".nojekyll"), "");
 await copyFile(resolve(root, "web/public/UHD-INDEXNOW-2026-AARTI-7F3C9D2E5B8A1C4D.txt"), resolve(out, "UHD-INDEXNOW-2026-AARTI-7F3C9D2E5B8A1C4D.txt"));
 await copyFile(resolve(root, "web/public/BingSiteAuth.xml"), resolve(out, "BingSiteAuth.xml"));
 await copyFile(resolve(root, "web/public/google7801621f642d3e9c.html"), resolve(out, "google7801621f642d3e9c.html"));
-await writeFile(resolve(out, "assets/field-guide.css"), `${css}${polish}.process-figure{margin:2rem 0}.process-figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:1rem;background:#f6f7f1}.process-figure figcaption{margin-top:.7rem;color:var(--muted);font-size:.86rem}`);
-await writeFile(resolve(out, "robots.txt"), `User-agent: *\nAllow: /\nSitemap: ${pages}sitemap.xml\n`);
+await copyFile(resolve(root, "web/public/llms.txt"), resolve(out, "llms.txt"));
+await copyFile(resolve(root, "web/public/ai.txt"), resolve(out, "ai.txt"));
+await writeFile(resolve(out, "assets/field-guide.css"), `${css}${polish}${bannerAndCrosslinksCss}.process-figure{margin:2rem 0}.process-figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:1rem;background:#f6f7f1}.process-figure figcaption{margin-top:.7rem;color:var(--muted);font-size:.86rem}`);
+await writeFile(resolve(out, "robots.txt"), `User-agent: *
+Allow: /
+
+# Explicit Search Engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Explicit AI Indexers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: ${pages}sitemap.xml
+Sitemap: ${main}sitemap.xml
+`);
 await writeFile(resolve(out, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${[...guides.map((page) => absolute(page.slug)), ...wikiArticles.map((article) => `${wikiHome}${article.slug ? `${article.slug}/` : ""}`)].map((url) => `<url><loc>${url}</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>`).join("")}</urlset>\n`);
 await Promise.all(guides.map(async (page) => { const directory = page.slug ? resolve(out, page.slug) : out; await mkdir(directory, { recursive: true }); await writeFile(resolve(directory, "index.html"), renderPage(page)); }));
 await Promise.all(wikiArticles.map(async (article) => { const directory = article.slug ? resolve(out, "wiki", article.slug) : resolve(out, "wiki"); await mkdir(directory, { recursive: true }); await writeFile(resolve(directory, "index.html"), renderWiki(article)); }));

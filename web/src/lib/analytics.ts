@@ -86,8 +86,18 @@ export function initializeAnalytics() {
 }
 
 export function captureAnalyticsEvent(name: string, properties: Record<string, string | number | boolean> = {}) {
-  if (getAnalyticsConsent() !== "accepted") return;
-  posthogClient?.capture(name, properties);
+  try {
+    if (posthogClient) {
+      posthogClient.capture(name, properties);
+    } else if (typeof window !== "undefined" && (window as any).posthog?.capture) {
+      (window as any).posthog.capture(name, properties);
+    }
+    if (typeof window !== "undefined" && typeof (window as any).clarity === "function") {
+      (window as any).clarity("event", name);
+    }
+  } catch {
+    // Non-blocking fallback for analytics
+  }
 }
 
 export function capturePageView(pathname: string) {
