@@ -252,7 +252,7 @@ For the maintained feature-level record, see [Implementation Status](docs/IMPLEM
 
 ## Authorship and AI acknowledgement
 
-AI tools supported acceleration tasks during development, including drafting, refactoring, testing support, and documentation refinement. The original idea, research direction, solution design, mathematical framing, and project intent are authored by [Aarti S Ravikumar](https://ai-aarti.com).
+AI tools supported acceleration tasks during development, including drafting, refactoring, testing support, and documentation refinement. The original idea, research direction, solution design, mathematical framing, and project intent are authored by [Aarti Sri Ravikumar](https://ai-aarti.com).
 
 ## An invitation
 
