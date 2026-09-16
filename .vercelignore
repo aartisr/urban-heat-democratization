@@ -2,7 +2,6 @@
 .pytest_cache
 **/__pycache__
 **/*.pyc
-web/node_modules
-web/dist
-web/test-results
-data/runtime
+node_modules
+dist
+.git
