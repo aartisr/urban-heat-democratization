@@ -1,6 +1,6 @@
 {
-  "name": "Urban Heat Democratization Evaluation",
-  "description": "An interactive, multi-dimensional evaluation and research platform for urban heat equity, cooling access, and transparent mitigation scenarios.",
+  "name": "Urban Heat Democratization & Spectral Microclimate Studio",
+  "description": "Groundbreaking spectral graph geometry, Cheeger bottleneck analysis, and stochastic percolation platform for urban heat democratization and socio-economic equity.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
