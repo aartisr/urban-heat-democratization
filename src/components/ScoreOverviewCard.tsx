@@ -77,7 +77,7 @@ export const ScoreOverviewCard: React.FC<ScoreOverviewCardProps> = ({ onNavigate
                 <span>{TARGET_METADATA.verdictTitle}</span>
               </h2>
               <p className="text-sm text-slate-300 leading-relaxed mt-2">
-                <strong>https://urban-heat.ai-aarti.com</strong> is an exemplary open-research and civic-science platform engineered by <strong>Aarti S Ravikumar</strong>. It succeeds where conventional academic remote sensing tools stumble: by turning dense radiometric satellite thermal data into transparent, human-centered cooling equity insights and interactive mitigation simulations for communities and planners.
+                <strong>https://urban-heat.ai-aarti.com</strong> is an exemplary open-research and civic-science platform engineered by <strong>Aarti S Ravikumar</strong> of <strong>Pioneer Charter School of Science II (PCSS II)</strong>. It succeeds where conventional academic remote sensing tools stumble: by turning dense radiometric satellite thermal data into transparent, human-centered cooling equity insights and interactive mitigation simulations for communities and planners.
               </p>
             </div>
 
