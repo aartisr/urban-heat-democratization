@@ -12,10 +12,17 @@ import { motion } from 'motion/react';
 interface UpgradeToTenProps {
   onActivateTen: () => void;
   isTenActive: boolean;
+  defaultSubTab?: 'osm' | 'sensor' | 'filter' | 'grant' | 'localization' | 'gis_api' | 'pr';
 }
 
-export default function UpgradeToTen({ onActivateTen, isTenActive }: UpgradeToTenProps) {
-  const [activeSubTab, setActiveSubTab] = useState<'osm' | 'sensor' | 'filter' | 'grant' | 'localization' | 'gis_api' | 'pr'>('osm');
+export default function UpgradeToTen({ onActivateTen, isTenActive, defaultSubTab = 'osm' }: UpgradeToTenProps) {
+  const [activeSubTab, setActiveSubTab] = useState<'osm' | 'sensor' | 'filter' | 'grant' | 'localization' | 'gis_api' | 'pr'>(defaultSubTab);
+
+  React.useEffect(() => {
+    if (defaultSubTab) {
+      setActiveSubTab(defaultSubTab);
+    }
+  }, [defaultSubTab]);
 
   return (
     <div id="upgrade-to-ten-container" className="space-y-6">
