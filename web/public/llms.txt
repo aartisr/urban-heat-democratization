@@ -39,3 +39,7 @@ Created by [Aarti S Ravikumar](https://ai-aarti.com/). Licensed under MIT where 
 ## Citation and attribution
 
 For software or platform citation, use [CITATION.cff](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff). For a substantive claim, cite the relevant platform page and its linked method or source record. Preserve stated limitations and do not present exploratory scenarios as measured effects.
+
+## Publication record
+
+Related publications and research writing by Aarti S Ravikumar are available at [publications.ai-aarti.com](https://publications.ai-aarti.com/). This record provides scholarly context; use the canonical platform and its linked sources for current product behavior and evidence boundaries.
