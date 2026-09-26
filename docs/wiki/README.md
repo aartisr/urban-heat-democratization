@@ -68,6 +68,7 @@ This is a place for the community to learn about urban heat: how heat patterns a
 
 ## Related documentation
 
+- [Documentation Guide](../README.md)
 - [Boston Study Guide](../BOSTON_STUDY_GUIDE.md)
 - [City Onboarding Recipes](../CITY_ONBOARDING_RECIPES.md)
 - [Civic Starter Guide](12-civic-starter-guide.md)

@@ -1,7 +1,8 @@
 # Responsive and Usability Audit
 
-> Reviewed: 2026-08-25. This is an engineering audit, not a substitute for
-> moderated usability research or accessibility conformance testing.
+> Engineering baseline, not a substitute for moderated usability research or
+> accessibility conformance testing. Current repository capability is tracked
+> in [Repository Capability Status](IMPLEMENTATION_STATUS.md).
 
 ## What was checked
 
@@ -48,6 +49,6 @@ the initial application CSS bundle.
 No automated suite can truthfully certify “10/10 usability” or “zero cognitive
 overload.” The next validation should include keyboard-only and screen-reader
 passes, current-browser/device matrix checks, and short moderated task tests
-with people who did not build the product. The stylesheet is also marginally
-over its current performance budget and should be reduced or route-split before
-claiming a clean performance gate.
+with people who did not build the product. The city route now uses route-level
+CSS splitting and the enforced initial-CSS budget passes. Continue to measure
+it as the shared design system grows.

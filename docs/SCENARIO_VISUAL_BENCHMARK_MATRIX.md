@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This matrix translates the existing reference set in [docs/TOP_25_CITY_ANALYSIS_REFERENCES.md](docs/TOP_25_CITY_ANALYSIS_REFERENCES.md)
+This matrix translates the existing reference set in [Top 25 City Analysis References](TOP_25_CITY_ANALYSIS_REFERENCES.md)
 into actionable guidance for the three Scenarios visuals:
 
 - Sunburst (hierarchy)
@@ -90,7 +90,7 @@ From the reference set, the best reusable features are:
 - `ensureReadableSunburstColor`
   - prevents low-contrast slice coloring
 
-File: [web/src/components/sunburst-card.tsx](web/src/components/sunburst-card.tsx)
+File: [`web/src/components/sunburst-card.tsx`](../web/src/components/sunburst-card.tsx)
 
 ### Packed bubble helpers
 
@@ -99,7 +99,7 @@ File: [web/src/components/sunburst-card.tsx](web/src/components/sunburst-card.ts
 - `packBubbles`, `overlaps`
   - create non-overlapping concentration layout
 
-File: [web/src/components/scenario-packed-bubble-card.tsx](web/src/components/scenario-packed-bubble-card.tsx)
+File: [`web/src/components/scenario-packed-bubble-card.tsx`](../web/src/components/scenario-packed-bubble-card.tsx)
 
 ### Sankey helpers
 
@@ -110,7 +110,7 @@ File: [web/src/components/scenario-packed-bubble-card.tsx](web/src/components/sc
 - `linkPath`
   - routes causal flow curves for scanability
 
-File: [web/src/components/scenario-sankey-card.tsx](web/src/components/scenario-sankey-card.tsx)
+File: [`web/src/components/scenario-sankey-card.tsx`](../web/src/components/scenario-sankey-card.tsx)
 
 ## Why three views champion understanding
 

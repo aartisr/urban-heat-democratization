@@ -3,8 +3,8 @@
 > Status: active staged implementation — Phase 1 and browser-deliverable Phase
 > 2 foundations are implemented; no city-specific cooling prediction is enabled
 > by this document.  
-> Owner: Urban Heat Democratization  
-> Last updated: 2026-08-25
+> Owner: Urban Heat Democratization. Current cross-project capability is
+> summarized in [Repository Capability Status](IMPLEMENTATION_STATUS.md).
 
 ## Delivery status snapshot
 

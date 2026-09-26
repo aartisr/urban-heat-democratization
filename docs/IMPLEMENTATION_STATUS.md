@@ -1,8 +1,10 @@
-# Implementation Status
+# Repository Capability Status
 
-> Last reviewed: 2026-08-25. This is the concise repository-wide status
-> register. For the authoritative Address-Level Spectral Urbanism roadmap and
-> release gates, see [Address-Level Spectral Urbanism Advice](ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md).
+> Canonical concise status for the repository. For navigation across all
+> documents, begin with the [Documentation Guide](README.md). For the detailed
+> city-experience phase record, see [City Evidence Experience: Delivery
+> Status](CITY_EVIDENCE_EXPERIENCE_STATUS.md); for address-level release gates,
+> see [Address-Level Spectral Urbanism Advice](ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md).
 
 ## Implemented
 
@@ -10,7 +12,9 @@
   city onboarding, scenario planning, runs, exports, trust/provenance views,
   and SQLite-backed runtime persistence.
 - A reusable city-experience contract with bundled Boston study and classroom
-  variants, thermal-source metadata, local overlays, and atlas inspection.
+  variants, thermal-source metadata, local overlays, and a generic Read /
+  Explore / Audit experience that distinguishes bundled, partial, upload-first,
+  and processing city states.
 - Graph, spectral, conductance, percolation, and sink-reliability methods;
   reproducibility tests; and an interactive robustness lab that teaches the
   same method family alongside a bundled Landsat graph reference.
@@ -20,8 +24,8 @@
   browser; no geocoding, address transmission, or address-level spectral result
   is enabled.
 - Operator documentation, setup guides, screenshots, design/accessibility
-  guidance, API health checks, package validation, and initial browser smoke
-  coverage.
+  guidance, API health checks, package validation, and browser coverage for the
+  city Read, Explore, and Audit flows.
 - A route-by-route responsive engineering audit: [Responsive and Usability
   Audit](RESPONSIVE_USABILITY_AUDIT.md).
 - Preconfigured city starters for New York City, Chicago, Los Angeles, and
@@ -49,6 +53,9 @@
   and sketch controls, keyboard/focus descriptions, vertically wrapping
   bounded tooltips, and an explicit high heat-pressure teaching node. These
   are usability improvements; they do not alter the graph topology or claims.
+- Public discovery and citation foundations: canonical metadata, sitemap and
+  machine-readable discovery files, `CITATION.cff`, GitHub Pages reference
+  material, and a reciprocal link to the companion publication.
 
 ## Partial / constrained
 
@@ -61,8 +68,8 @@
 | Execution | Run queue, progress markers, and inspection exist; full production worker lifecycle and live logs do not. |
 | Live thermal data | Adapter and bridge patterns exist, but the API does not directly ingest and raster-process fresh orbital scenes. |
 | Frontend performance | Heavy atlas code is deferred and split, but MapLibre remains substantial once the interactive map is opened. |
-| Stylesheet budget | Current global CSS is marginally above its performance budget; route-level CSS splitting or reduction is still needed. |
-| Test coverage | Unit, contract, and smoke coverage exist; broader end-to-end persona-flow coverage remains incomplete. |
+| Stylesheet budget | City-route CSS splitting is in place and the enforced initial-CSS budget passes. Continue to protect the budget as new work lands. |
+| Test coverage | Unit, contract, and focused browser coverage exist, including city Read / Explore / Audit flows. Broader multi-browser and human persona validation remains incomplete. |
 | Interactive Mitigation Lab | Synthetic Explore mode is implemented. Moderated comprehension walkthroughs, richer source review, and all city/Boston/calibrated pathways remain gated. |
 | Boston mitigation adapter | A coarse server-produced study aggregate is available in the lab; it deliberately omits source geometry and temperature claims. Review gates and calibrated local study work remain incomplete. |
 | Mitigation graph math | The shared graph is the nine-node teaching scenario used by the robustness lab. It is not a Boston graph, and only the bounded cooling-access-node mapping changes graph topology. |
@@ -84,13 +91,15 @@ The phase-by-phase implementation and exit-gate ledger is maintained in the
    gates—especially comprehension testing, partner governance, privacy review,
    sensitivity validation, and field evaluation. See the canonical
    [address-level status](ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md#current-delivery-status-and-what-remains).
-7. Implement the browser-first [Interactive Heat-Mitigation Lab](INTERACTIVE_MITIGATION_LAB_PLAN.md)
-   through its evidence, accessibility, performance, and comprehension gates;
-   do not present planning output as a city-specific temperature forecast.
+7. Complete the browser-first [Interactive Heat-Mitigation Lab](INTERACTIVE_MITIGATION_LAB_PLAN.md)
+   through its remaining source-review, accessibility, performance, and
+   moderated-comprehension gates; do not present planning output as a
+   city-specific temperature forecast.
 
 ## Status maintenance rule
 
 When work changes, update this summary and the relevant canonical roadmap.
 Do not duplicate phase status in readiness contracts; link to the canonical
-record instead. Do not describe planned, externally gated, or benchmark-based
-work as implemented.
+record instead. Keep dates only where they document verification, provenance,
+or a release event. Do not describe planned, externally gated, or
+benchmark-based work as implemented.
