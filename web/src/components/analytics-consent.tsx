@@ -20,7 +20,19 @@ export function AnalyticsConsent() {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-  if (!analyticsIsConfigured() || consent) return null;
+  if (!analyticsIsConfigured() || consent === "declined") return null;
+
+  if (consent === "accepted") {
+    return (
+      <button
+        className="analytics-preferences"
+        type="button"
+        onClick={() => { declineAnalytics(); setConsent("declined"); }}
+      >
+        Optional analytics enabled · Turn off
+      </button>
+    );
+  }
 
   return (
     <aside className="analytics-consent" aria-label="Optional analytics choice">

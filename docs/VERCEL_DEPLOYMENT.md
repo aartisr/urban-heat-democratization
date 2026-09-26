@@ -102,7 +102,12 @@ Optional analytics stay disabled unless configured and a visitor consents:
 VITE_POSTHOG_KEY=phc_...
 VITE_POSTHOG_HOST=https://us.i.posthog.com
 VITE_CLARITY_PROJECT_ID=your-clarity-project-id
+VITE_CLARITY_CONSENT_SOURCE=your-clarity-consent-api-v2-source-id
 ```
+
+Enable Clarity only after obtaining its Consent API v2 source ID and configuring
+Consent Mode in Clarity. Leave analytics variables unset for Preview deployments
+unless you intentionally use separate, non-production analytics projects.
 
 `VITE_` values are visible in the browser bundle. Do not put credentials,
 access tokens, or database URLs in them. For access control, set

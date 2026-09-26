@@ -16,11 +16,12 @@ Create a PostHog project and a Microsoft Clarity project for the production doma
 VITE_POSTHOG_KEY=phc_…
 VITE_POSTHOG_HOST=https://us.i.posthog.com
 VITE_CLARITY_PROJECT_ID=your-clarity-project-id
+VITE_CLARITY_CONSENT_SOURCE=your-clarity-consent-api-v2-source-id
 ```
 
-Use the appropriate regional/self-hosted PostHog host when applicable. `VITE_` values are intentionally visible to the browser; never put a PostHog personal API key, a Microsoft account credential, or any other secret in them.
+Use the appropriate regional/self-hosted PostHog host when applicable. Obtain the Clarity Consent API v2 source ID from Microsoft before enabling Clarity; the application intentionally leaves Clarity disabled when that source ID is absent. `VITE_` values are intentionally visible to the browser; never put a PostHog personal API key, a Microsoft account credential, or any other secret in them.
 
-Leave either variable unset to disable that provider. Local development stays analytics-free unless a developer adds those values to an uncommitted `web/.env.local` file.
+Leave `VITE_POSTHOG_KEY` unset to disable PostHog. Leave either Clarity variable unset to disable Clarity. Local development stays analytics-free unless a developer adds those values to an uncommitted `web/.env.local` file.
 
 ## Verify after deploy
 
@@ -29,8 +30,9 @@ Leave either variable unset to disable that provider. Local development stays an
 3. Accept optional analytics and confirm one `page_viewed` event in PostHog and Clarity’s installation signal/dashboard.
 4. Navigate between Read, Explore, and Audit; confirm the two documented city-experience event names contain only `view` or `step`, with no city-selection, scenario, form, or personally identifying values.
 5. Decline in another fresh session; confirm the providers do not load.
+6. After accepting, use **Optional analytics enabled · Turn off** and confirm PostHog opts out and Clarity receives a denied Consent API v2 signal.
 
-Microsoft says each Clarity project has its own tracking code and recommends confirming setup through its dashboard or requests to `clarity.ms/collect`. PostHog's JavaScript SDK supports explicit events and asynchronous loading; this implementation deliberately avoids its automatic interaction capture and session replay.
+Microsoft says each Clarity project has its own tracking code and recommends confirming setup through its dashboard or requests to `clarity.ms/collect`. PostHog's JavaScript SDK supports explicit events and asynchronous loading; this implementation deliberately avoids its automatic interaction capture and session replay. The GitHub Pages field guide contains no behavioral analytics because it has no consent surface.
 
 ## Operating rules
 

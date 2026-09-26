@@ -10,8 +10,12 @@ function configured(value: string | undefined) {
   return Boolean(value && value.trim());
 }
 
+function clarityIsConfigured() {
+  return configured(import.meta.env.VITE_CLARITY_PROJECT_ID) && configured(import.meta.env.VITE_CLARITY_CONSENT_SOURCE);
+}
+
 export function analyticsIsConfigured() {
-  return configured(import.meta.env.VITE_POSTHOG_KEY) || configured(import.meta.env.VITE_CLARITY_PROJECT_ID);
+  return configured(import.meta.env.VITE_POSTHOG_KEY) || clarityIsConfigured();
 }
 
 export function getAnalyticsConsent(): AnalyticsConsent {
@@ -31,9 +35,31 @@ function rememberConsent(consent: Exclude<AnalyticsConsent, null>) {
   }
 }
 
+function sendClarityConsent(granted: boolean) {
+  const source = import.meta.env.VITE_CLARITY_CONSENT_SOURCE?.trim();
+  if (!source || typeof window === "undefined") return;
+
+  type ClarityQueue = ((...args: unknown[]) => void) & { q?: unknown[][] };
+  const clarityWindow = window as typeof window & { clarity?: ClarityQueue };
+  if (!clarityWindow.clarity) {
+    const queue = ((...args: unknown[]) => {
+      queue.q = queue.q ?? [];
+      queue.q.push(args);
+    }) as ClarityQueue;
+    clarityWindow.clarity = queue;
+  }
+  clarityWindow.clarity("consentv2", {
+    source,
+    analytics_Storage: granted ? "granted" : "denied",
+    ad_Storage: "denied",
+  });
+}
+
 function startClarity() {
   const projectId = import.meta.env.VITE_CLARITY_PROJECT_ID?.trim();
-  if (!projectId || document.getElementById(CLARITY_SCRIPT_ID)) return;
+  if (!projectId || !clarityIsConfigured() || document.getElementById(CLARITY_SCRIPT_ID)) return;
+
+  sendClarityConsent(true);
 
   const script = document.createElement("script");
   script.id = CLARITY_SCRIPT_ID;
@@ -76,6 +102,7 @@ export async function enableAnalytics() {
 export function declineAnalytics() {
   rememberConsent("declined");
   posthogClient?.opt_out_capturing();
+  sendClarityConsent(false);
 }
 
 export function initializeAnalytics() {
