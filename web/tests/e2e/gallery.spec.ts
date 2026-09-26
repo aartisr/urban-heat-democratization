@@ -190,7 +190,50 @@ test.beforeEach(async ({ page }) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify([]),
+      body: JSON.stringify([
+        {
+          id: "scenario-boston-001",
+          label: "Boston mock scenario",
+          cityId: "boston",
+          planningMode: "best_under_budget",
+          budgetUsd: 250000,
+          estimatedCostUsd: 250000,
+          heatReductionC: 1.2,
+          equityScore: 78,
+          confidence: 0.68,
+          summary: "Mock scenario for gallery capture",
+          recommendedActions: [],
+          allocationSummary: {
+            totalAllocatedBudgetUsd: 250000,
+            unallocatedBudgetUsd: 0,
+            allocationCoveragePct: 1,
+            allocationMethod: "mock",
+          },
+          evidenceSummary: {
+            verifiedUnitCostCount: 1,
+            rankingOnlyCount: 0,
+            benchmarkOnlyCount: 0,
+            readinessLabel: "ready",
+            explanation: "Mock",
+          },
+          benchmarkSummary: {
+            wholeCityBenchmarkUsd: 1000000,
+            budgetGapUsd: 750000,
+            budgetCoveragePct: 25,
+            benchmarkLabel: "Mock",
+            explanation: "Mock",
+          },
+          exhaustiveEstimateSummary: {
+            available: true,
+            estimatedCostUsd: 1200000,
+            fundedCostUsd: 250000,
+            remainingGapUsd: 950000,
+            coveragePct: 20.8,
+            costableActions: 4,
+            methodology: "Mock",
+          },
+        },
+      ]),
     });
   });
 
@@ -258,9 +301,25 @@ test.beforeEach(async ({ page }) => {
         body: JSON.stringify({
           cityId: "boston",
           cityName: "Boston",
-          viewBox: { minLng: -71.3, minLat: 42.2, maxLng: -70.9, maxLat: 42.45 },
+          viewBox: { width: 1000, height: 700 },
+          bounds: { minLng: -71.3, minLat: 42.2, maxLng: -70.9, maxLat: 42.45 },
           boundary: [],
-          heatZones: [],
+          heatZones: [
+            {
+              id: "priority-a",
+              label: "Priority area A",
+              score: 92,
+              scoreClass: "high",
+              points: [{ x: -71.2, y: 42.25 }, { x: -71.08, y: 42.25 }, { x: -71.08, y: 42.36 }, { x: -71.2, y: 42.36 }],
+            },
+            {
+              id: "priority-b",
+              label: "Priority area B",
+              score: 54,
+              scoreClass: "moderate",
+              points: [{ x: -71.07, y: 42.28 }, { x: -70.96, y: 42.28 }, { x: -70.96, y: 42.39 }, { x: -71.07, y: 42.39 }],
+            },
+          ],
           accessZones: [],
           legend: [],
           highlights: [],
@@ -442,5 +501,32 @@ test("capture documentation screenshots", async ({ page }) => {
 
   await page.goto("/scenarios");
   await expect(page.getByRole("heading", { name: "See what this budget can fund." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Compare a cooling investment" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "What this budget is allowed to fund" })).toBeVisible();
   await captureSettledPage("scenarios.png");
+  await page.getByRole("button", { name: "$10k", exact: true }).click();
+  await expect(page.getByText("No exact $10,000 scenario is loaded.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Generate $10,000 scenario" })).toBeVisible();
+  await page.getByRole("button", { name: "Difference", exact: true }).click();
+  await expect(page.getByRole("region", { name: "After scenario required for $10,000" })).toBeVisible();
+  await page.getByRole("button", { name: "$250k", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Difference · modeled priority reduction" })).toBeVisible();
+  await page.getByRole("button", { name: /Priority area A/ }).first().click();
+  await expect(page.getByText(/Baseline priority 92\.0 → modeled priority/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Priority area A" })).toBeVisible();
+  await expect(page.getByText(/Assumption:.*planning-priority transformation/)).toBeVisible();
+
+  await page.getByRole("button", { name: "Before / scenario", exact: true }).click();
+  const mapsAtDesktop = page.locator(".scenario-comparison-maps .scenario-comparison-map svg");
+  await expect(mapsAtDesktop).toHaveCount(2);
+  const initialViewBox = await mapsAtDesktop.nth(0).getAttribute("viewBox");
+  await page.getByRole("button", { name: "Zoom in", exact: true }).click();
+  await expect(mapsAtDesktop.nth(0)).not.toHaveAttribute("viewBox", initialViewBox ?? "");
+  await expect(mapsAtDesktop.nth(1)).toHaveAttribute("viewBox", await mapsAtDesktop.nth(0).getAttribute("viewBox") ?? "");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("tablist", { name: "Mobile comparison view" })).toBeVisible();
+  await page.getByRole("tab", { name: "Scenario", exact: true }).click();
+  await expect(page.getByRole("region", { name: /After · Modeled priority after scenario/ })).toBeVisible();
+  await page.getByRole("tab", { name: "Difference", exact: true }).click();
+  await expect(page.getByRole("region", { name: "Difference · modeled priority reduction" })).toBeVisible();
 });

@@ -255,18 +255,35 @@ def _ranked_actions(
     interventions: list[dict[str, object]],
     *,
     allocation_method_label: str,
+    include_verified_unit_cost: bool = False,
 ) -> list[dict[str, object]]:
     actions: list[dict[str, object]] = []
     ranked = sorted(
-        [item for item in interventions if item.get("costStatus") == "ranking_only" and item.get("priorityRank") is not None],
+        [
+            item
+            for item in interventions
+            if item.get("priorityRank") is not None
+            and (
+                item.get("costStatus") == "ranking_only"
+                or (include_verified_unit_cost and item.get("costStatus") == "verified_unit_cost")
+            )
+        ],
         key=lambda item: int(item.get("priorityRank", 9999)),
     )
-    weights = [1 / (index + 1) for index in range(len(ranked))]
+    # Use the same inverse-rank weights both to normalize and to allocate.
+    # The previous implementation normalized by list position but allocated by
+    # priority rank, which could strand most of the budget (for example, a
+    # single rank-8 action received only one eighth of the available budget).
+    weights = [1 / max(1, int(item.get("priorityRank", 1) or 1)) for item in ranked]
     total_weight = sum(weights) or 1.0
-    for item in ranked:
+    allocations = [int(budget_usd * (weight / total_weight)) for weight in weights]
+    # Keep the budget ledger exact. Rounding remainder goes to the highest
+    # ranked envelope; it remains explicitly provisional unless it has a
+    # verified unit cost.
+    if allocations:
+        allocations[0] += max(0, budget_usd - sum(allocations))
+    for item, allocated_budget in zip(ranked, allocations):
         rank = int(item.get("priorityRank")) if item.get("priorityRank") is not None else None
-        weight = (1 / rank) if rank else 0.0
-        allocated_budget = int(round(budget_usd * (weight / total_weight))) if rank else None
         actions.append(
             {
                 "interventionId": str(item.get("id")),
@@ -332,6 +349,7 @@ def recommended_actions(
             budget_usd,
             interventions,
             allocation_method_label=allocation_method_label,
+            include_verified_unit_cost=True,
         )
 
     if planning_mode == "best_under_budget":
