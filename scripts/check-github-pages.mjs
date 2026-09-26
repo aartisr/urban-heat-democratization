@@ -22,6 +22,9 @@ for (const page of registry.githubPagesPages) {
   for (const fragment of required) {
     if (!output.includes(fragment)) throw new Error(`${page.path} is missing discoverability or backlink fragment: ${fragment}`);
   }
+  for (const forbidden of ["clarity.ms", "posthog"]) {
+    if (output.includes(forbidden)) throw new Error(`${page.path} includes ${forbidden} despite having no analytics-consent surface.`);
+  }
 }
 
 console.log(`Verified canonical URLs and primary backlinks for ${registry.githubPagesPages.length} GitHub Pages documents.`);
