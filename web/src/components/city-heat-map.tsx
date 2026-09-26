@@ -3249,6 +3249,23 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     setFullPageMap(true);
   };
 
+  const resetMapView = () => {
+    // A reset should restore orientation, not silently change the visitor's
+    // chosen question/lens. Clear the inspection state and return to the
+    // complete governed city extent instead.
+    setSelectedKey(null);
+    popupRef.current?.remove();
+    const map = mapRef.current;
+    if (!map || !data.bounds) return;
+    map.fitBounds(
+      [
+        [data.bounds.minLng, data.bounds.minLat],
+        [data.bounds.maxLng, data.bounds.maxLat],
+      ],
+      { padding: fullPageMap ? 56 : 36, duration: 500 },
+    );
+  };
+
   const revealSelectedEvidence = () => {
     if (fullPageMap) {
       setFullPageLayerTrayOpen(true);
@@ -3267,6 +3284,15 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             <span className="map-fullpage-hint">The map stays clear by default. Press Esc to close controls, then again to exit.</span>
           </div>
           <div className="map-fullpage-header-actions">
+            <button
+              type="button"
+              className="map-fullpage-reset"
+              onClick={resetMapView}
+              aria-label="Reset map view to the full city"
+              title="Return to the full city and clear the selected area"
+            >
+              ↺ Reset view
+            </button>
             <button
               type="button"
               className="map-fullpage-layers"
@@ -3481,17 +3507,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                   <button
                     type="button"
                     className="map-toggle active"
-                    onClick={() => {
-                      const map = mapRef.current;
-                      if (!map || !data.bounds) return;
-                      map.fitBounds(
-                        [
-                          [data.bounds.minLng, data.bounds.minLat],
-                          [data.bounds.maxLng, data.bounds.maxLat],
-                        ],
-                        { padding: 36, duration: 500 },
-                      );
-                    }}
+                    onClick={resetMapView}
                   >
                     Reset extent
                   </button>
