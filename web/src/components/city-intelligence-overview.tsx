@@ -54,6 +54,7 @@ export type CityIntelligenceOverviewProps = {
   nextCards: InfoCard[];
   nextAction?: HeroAction | null;
   onOpenAtlas?: () => void;
+  showJourney?: boolean;
 };
 
 export function CityIntelligenceOverview({
@@ -66,6 +67,7 @@ export function CityIntelligenceOverview({
   journeyCards,
   nextAction,
   onOpenAtlas,
+  showJourney = true,
 }: CityIntelligenceOverviewProps) {
   const primaryJourney = journeyCards.slice(0, 3);
   return (
@@ -115,24 +117,26 @@ export function CityIntelligenceOverview({
         </div>
       </header>
 
-      <nav className="city-journey-nav" aria-label="How to use this city page">
-        {primaryJourney.map((card, index) => {
-          const action = index === 0
-            ? <button type="button" onClick={onOpenAtlas}>Open the atlas</button>
-            : index === 1
-              ? <a href="#evidence">Read the evidence</a>
-              : nextAction
-                ? <Link to={nextAction.to} search={nextAction.search}>Test a scenario</Link>
-                : null;
-          return (
-            <div key={card.title} className="city-journey-nav-step">
-              <span>{card.eyebrow}</span>
-              <div><strong>{card.title}</strong><p>{card.description}</p></div>
-              {action}
-            </div>
-          );
-        })}
-      </nav>
+      {showJourney ? (
+        <nav className="city-journey-nav" aria-label="How to use this city page">
+          {primaryJourney.map((card, index) => {
+            const action = index === 0
+              ? <button type="button" onClick={onOpenAtlas}>Open the atlas</button>
+              : index === 1
+                ? <a href="#evidence">Read the evidence</a>
+                : nextAction
+                  ? <Link to={nextAction.to} search={nextAction.search}>Test a scenario</Link>
+                  : null;
+            return (
+              <div key={card.title} className="city-journey-nav-step">
+                <span>{card.eyebrow}</span>
+                <div><strong>{card.title}</strong><p>{card.description}</p></div>
+                {action}
+              </div>
+            );
+          })}
+        </nav>
+      ) : null}
     </>
   );
 }

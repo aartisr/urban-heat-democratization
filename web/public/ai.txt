@@ -43,3 +43,7 @@ Urban Heat Democratization is an open, public-interest web platform for understa
 ## Questions it cannot answer on its own
 
 The platform cannot determine an individual's health risk; prove that a specified investment will produce a stated local temperature change; establish that an intervention is equitable; replace public-health guidance, engineering design, environmental review, procurement, community partnership, or consent.
+
+## Citation and attribution
+
+For software or platform citation, use [CITATION.cff](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff). For a substantive claim, cite the relevant platform page and its linked method or source record. Preserve stated limitations and do not present exploratory scenarios as measured effects.

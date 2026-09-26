@@ -24,9 +24,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Build static field guide
         run: node scripts/refresh-discovery.mjs && node scripts/build-github-pages.mjs
+      - name: Verify canonicals and backlinks
+        run: node scripts/check-github-pages.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

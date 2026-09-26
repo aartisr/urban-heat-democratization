@@ -4,7 +4,7 @@ Urban Heat Democratization can use **PostHog** and **Microsoft Clarity** to unde
 
 ## What is collected
 
-The app sends only the explicit `page_viewed` event to PostHog, with the route pathname. Autocapture, page-leave capture, session recording, and user identification are disabled. Microsoft Clarity loads only after consent; do not use Clarity Identify API or custom tags to send names, email addresses, addresses, health information, uploaded files, or scenario inputs.
+The app sends the explicit `page_viewed` event, plus the following city-experience events after consent: `city_evidence_view_opened` with one of `read`, `explore`, or `audit`; and `city_guided_brief_step_viewed` with one of `context`, `signal`, or `next`. These events deliberately omit city IDs, selected areas, scenario inputs, addresses, uploaded files, and identity. Autocapture, page-leave capture, session recording, and user identification are disabled. Microsoft Clarity loads only after consent; do not use Clarity Identify API or custom tags to send names, email addresses, addresses, health information, uploaded files, or scenario inputs.
 
 Review provider settings before launch. Keep Clarity's masking safeguards on, set the retention and access controls that match the project policy, and ensure the privacy notice accurately describes these optional providers and their purposes.
 
@@ -27,7 +27,7 @@ Leave either variable unset to disable that provider. Local development stays an
 1. Open the deployed site in a fresh private window.
 2. Confirm no request goes to PostHog or `clarity.ms` before choosing **Help improve it**.
 3. Accept optional analytics and confirm one `page_viewed` event in PostHog and Clarity’s installation signal/dashboard.
-4. Navigate between pages; confirm pathnames are present but no city-selection, scenario, form, or personally identifying values are sent.
+4. Navigate between Read, Explore, and Audit; confirm the two documented city-experience event names contain only `view` or `step`, with no city-selection, scenario, form, or personally identifying values.
 5. Decline in another fresh session; confirm the providers do not load.
 
 Microsoft says each Clarity project has its own tracking code and recommends confirming setup through its dashboard or requests to `clarity.ms/collect`. PostHog's JavaScript SDK supports explicit events and asynchronous loading; this implementation deliberately avoids its automatic interaction capture and session replay.

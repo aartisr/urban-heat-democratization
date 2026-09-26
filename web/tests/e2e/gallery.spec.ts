@@ -411,23 +411,27 @@ test.beforeEach(async ({ page }) => {
 
 test("capture documentation screenshots", async ({ page }) => {
   await ensureScreenshotsDir();
+  const captureSettledPage = async (fileName: string) => {
+    await page.waitForTimeout(700);
+    await page.screenshot({ path: path.join(screenshotsDir, fileName), fullPage: true });
+  };
 
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Make heat visible. Make action possible." })).toBeVisible();
-  await page.screenshot({ path: path.join(screenshotsDir, "home.png"), fullPage: true });
+  await captureSettledPage("home.png");
 
   await page.getByRole("link", { name: "Explore Boston" }).click();
   await expect(page).toHaveURL(/\/cities\/boston$/);
-  await page.getByRole("link", { name: "Back to cities" }).click();
+  await page.locator('a[href="/cities"]').first().click();
   await expect(page).toHaveURL(/\/cities$/);
-  await page.screenshot({ path: path.join(screenshotsDir, "cities.png"), fullPage: true });
+  await captureSettledPage("cities.png");
 
   await page.getByRole("link", { name: "Open Boston" }).click();
   await expect(page).toHaveURL(/\/cities\/boston$/);
   await expect(page.getByRole("heading", { name: "Planning readiness" })).toBeVisible();
-  await page.screenshot({ path: path.join(screenshotsDir, "city-detail.png"), fullPage: true });
+  await captureSettledPage("city-detail.png");
 
   await page.goto("/scenarios");
-  await expect(page.getByRole("heading", { name: "Review spectral evidence and verified cost benchmarks." })).toBeVisible();
-  await page.screenshot({ path: path.join(screenshotsDir, "scenarios.png"), fullPage: true });
+  await expect(page.getByRole("heading", { name: "See what this budget can fund." })).toBeVisible();
+  await captureSettledPage("scenarios.png");
 });
