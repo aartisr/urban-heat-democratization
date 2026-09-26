@@ -42,6 +42,9 @@ test("live backend: full page map toggle does not freeze", async ({ page }) => {
 
   await openButton.click({ timeout: 10_000 });
   await expect(page.locator("article.map-card-fullpage")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("button", { name: "Reset map view to the full city" })).toBeVisible();
+  await page.getByRole("button", { name: "Reset map view to the full city" }).click();
+  await expect(page.locator(".maplibre-stage canvas")).toBeVisible({ timeout: 20_000 });
 
   await page.keyboard.press("Escape");
   await expect(page.locator("article.map-card-fullpage")).toHaveCount(0, { timeout: 20_000 });

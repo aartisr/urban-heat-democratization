@@ -4084,7 +4084,8 @@ body.map-fullpage-lock .sidebar-restore {
   justify-content: flex-end;
 }
 
-.map-fullpage-layers {
+.map-fullpage-layers,
+.map-fullpage-reset {
   flex: none;
   padding: 10px 14px;
   border: 1px solid rgba(2, 132, 199, 0.2);
@@ -4097,7 +4098,8 @@ body.map-fullpage-lock .sidebar-restore {
   transition: all 140ms ease;
 }
 
-.map-fullpage-layers:hover {
+.map-fullpage-layers:hover,
+.map-fullpage-reset:hover {
   border-color: rgba(2, 132, 199, 0.3);
   background: linear-gradient(135deg, rgba(2, 132, 199, 0.18), rgba(14, 116, 144, 0.14));
 }
@@ -9670,6 +9672,7 @@ body.map-fullpage-lock .sidebar-restore {
   }
 
   .map-fullpage-layers,
+  .map-fullpage-reset,
   .map-fullpage-exit {
     padding: 9px 14px;
     font-size: 12px;
