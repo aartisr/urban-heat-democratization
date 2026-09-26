@@ -512,6 +512,7 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
   await page.keyboard.press("Escape");
   await expect(page.locator("article.map-card-fullpage")).toHaveCount(0, { timeout: 10_000 });
   await expect(openButton).toBeVisible({ timeout: 10_000 });
+  await page.locator(".map-atlas-pulse > summary").click();
 
   for (let i = 0; i < 4; i += 1) {
     await openButton.click();
