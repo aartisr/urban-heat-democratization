@@ -1,16 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "@tanstack/react-router";
+import { Link, useNavigate, useParams, useSearch } from "@tanstack/react-router";
+
+import "../styles/city-detail.css";
 
 import { artifactDownloadUrl, getCity, getCityDataRegistration, getCityExperience, getCityLiveThermal, getCityMap, getCityReadiness, getCitySpectral, getCityTrustAudit, getRobustnessLab, listRuns, listScenarios, queueRun, registerCityData } from "../lib/api";
 import { CityAtlasShell } from "../components/city-atlas-shell";
 import { CityDetailSectionGrid } from "../components/city-detail-section-grid";
+import { CityEvidenceLedger } from "../components/city-evidence-ledger";
+import { CityExperienceNavigation } from "../components/city-experience-navigation";
+import { CityGuidedEvidenceBrief } from "../components/city-guided-evidence-brief";
 import { CityIntelligenceOverview } from "../components/city-intelligence-overview";
 import { CityScienceSpotlight } from "../components/city-science-spotlight";
 import { buildCityDetailViewConfig, buildRegistrationStatusCards } from "../lib/city-detail-config";
+import { captureAnalyticsEvent } from "../lib/analytics";
 
 export function CityDetailPage() {
   const { cityId } = useParams({ from: "/cities/$cityId" });
+  const { view: requestedView } = useSearch({ from: "/cities/$cityId" });
+  const view = requestedView ?? "read";
+  const navigate = useNavigate({ from: "/cities/$cityId" });
   const queryClient = useQueryClient();
   const [registrationMessage, setRegistrationMessage] = useState<string | null>(null);
   const [atlasActivated, setAtlasActivated] = useState(false);
@@ -41,7 +50,7 @@ export function CityDetailPage() {
   const cityMapQuery = useQuery({
     queryKey: ["city-map", cityId],
     queryFn: () => getCityMap(cityId),
-    enabled: atlasActivated,
+    enabled: atlasActivated || view === "audit",
     refetchInterval: (query) => {
       const payload = query.state.data;
       if (!payload?.liveThermalAdapter?.autoRefreshEnabled) {
@@ -106,8 +115,11 @@ export function CityDetailPage() {
 
   const openAtlas = () => {
     setAtlasActivated(true);
-    window.requestAnimationFrame(() => {
-      document.getElementById("city-atlas")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    void navigate({
+      to: "/cities/$cityId",
+      params: { cityId },
+      search: { view: "explore" },
+      hash: "city-atlas",
     });
   };
 
@@ -128,41 +140,119 @@ export function CityDetailPage() {
   }, [cityDataRegistrationQuery.data]);
 
   useEffect(() => {
-    if (cityExperienceQuery.data?.bundled) {
+    if (view === "explore") {
       setAtlasActivated(true);
     }
-  }, [cityExperienceQuery.data?.bundled]);
+  }, [view]);
+
+  useEffect(() => {
+    captureAnalyticsEvent("city_evidence_view_opened", { view });
+  }, [view]);
 
   return (
     <section className="page-stack city-detail-page">
       <CityIntelligenceOverview
         {...detailConfig.overview}
         onOpenAtlas={openAtlas}
+        showJourney={false}
       />
 
-      <CityAtlasShell
+      <CityExperienceNavigation
+        cityId={cityId}
         cityName={cityName}
-        data={cityMapQuery.data}
-        scenarios={scenariosQuery.data}
-        loading={cityMapQuery.isLoading}
-        summary={cityMapQuery.data?.narrative ?? citySpectralQuery.data?.summary ?? "Open the atlas to inspect bottlenecks, cooling gaps, and study-layer evidence."}
-        onActivate={() => setAtlasActivated(true)}
-        forceActivated={atlasActivated}
-        onMapRefresh={() => {
-          void cityMapQuery.refetch();
-          void cityLiveThermalQuery.refetch();
-          void cityTrustAuditQuery.refetch();
-        }}
+        view={view}
+        isBundled={cityExperienceQuery.data?.bundled ?? false}
       />
 
-      <CityScienceSpotlight
-        cityName={cityName}
-        spectral={citySpectralQuery.data}
-        robustness={robustnessQuery.data}
-        trustAudit={cityTrustAuditQuery.data}
-      />
+      {view === "read" ? (
+        <>
+          <CityGuidedEvidenceBrief
+            cityName={cityName}
+            bundled={cityExperienceQuery.data?.bundled ?? false}
+            readinessLabel={cityReadinessQuery.data?.readinessLabel}
+            spectral={citySpectralQuery.data}
+            scenarioSearch={detailConfig.scenarioSearch}
+            onOpenAtlas={openAtlas}
+          />
 
-      {cityMapQuery.data ? (
+          <CityDetailSectionGrid
+            title="City snapshot and next steps"
+            cards={detailConfig.sections.snapshotCards.map((card, index) => (
+              index === 1
+                ? {
+                    ...card,
+                    children: (
+                      <div className="quick-links">
+                        <Link to="/scenarios" search={detailConfig.scenarioSearch} preload="intent" className="button-link">Build a what-if</Link>
+                        <details className="city-secondary-actions">
+                          <summary>More ways to work with this city</summary>
+                          <div className="quick-links">
+                            <Link to="/exports" preload="intent" className="button-link secondary">Export evidence</Link>
+                            <Link to="/address-plan" preload="intent" className="button-link secondary">Start a cooling plan</Link>
+                            <Link to="/runs" preload="intent" className="button-link secondary">Inspect runs</Link>
+                            <Link to="/cities" preload="intent" className="button-link secondary">Back to cities</Link>
+                            <button className="button-link secondary" type="button" onClick={() => queueRunMutation.mutate()} disabled={queueRunMutation.isPending}>
+                              {queueRunMutation.isPending ? "Queuing…" : "Queue a baseline run"}
+                            </button>
+                          </div>
+                        </details>
+                      </div>
+                    ),
+                  }
+                : card
+            ))}
+          />
+
+          <CityDetailSectionGrid
+            title="Planning readiness"
+            description={cityReadinessQuery.data?.narrative ?? "This panel checks whether the city is ready for bundled study, upload-first onboarding, or only partial scenario planning."}
+            cards={detailConfig.sections.readinessCards}
+          />
+
+          {!cityExperienceQuery.data?.bundled ? (
+            <article className="panel-card premium-section-card premium-city-data-card">
+              <h2>Register local data readiness</h2>
+              <p className="muted">Use this when an uploaded city has real local thermal inputs or derived overlays, so planner validation can reflect actual progress instead of only boundary presence.</p>
+              <div className="panel-grid two-col">
+                <label className="plan-card-mini premium-detail-card"><input type="checkbox" checked={dataRegistration.thermalInputsRegistered} onChange={(event) => setDataRegistration((prev) => ({ ...prev, thermalInputsRegistered: event.target.checked }))} /><strong>Thermal and land-cover inputs registered</strong><input value={dataRegistration.thermalInputsPath} onChange={(event) => setDataRegistration((prev) => ({ ...prev, thermalInputsPath: event.target.value }))} placeholder="Optional path to thermal inputs" /></label>
+                <label className="plan-card-mini premium-detail-card"><input type="checkbox" checked={dataRegistration.artifactBundleRegistered} onChange={(event) => setDataRegistration((prev) => ({ ...prev, artifactBundleRegistered: event.target.checked }))} /><strong>Local artifact bundle generated</strong><input value={dataRegistration.artifactBundlePath} onChange={(event) => setDataRegistration((prev) => ({ ...prev, artifactBundlePath: event.target.value }))} placeholder="Optional path to local artifact bundle" /></label>
+                <label className="plan-card-mini premium-detail-card"><input type="checkbox" checked={dataRegistration.bottleneckOverlayRegistered} onChange={(event) => setDataRegistration((prev) => ({ ...prev, bottleneckOverlayRegistered: event.target.checked }))} /><strong>Bottleneck overlay generated</strong><input value={dataRegistration.bottleneckOverlayPath} onChange={(event) => setDataRegistration((prev) => ({ ...prev, bottleneckOverlayPath: event.target.value }))} placeholder="Optional path to bottleneck overlay" /></label>
+                <label className="plan-card-mini premium-detail-card"><input type="checkbox" checked={dataRegistration.coolingOverlayRegistered} onChange={(event) => setDataRegistration((prev) => ({ ...prev, coolingOverlayRegistered: event.target.checked }))} /><strong>Cooling-access overlay generated</strong><input value={dataRegistration.coolingOverlayPath} onChange={(event) => setDataRegistration((prev) => ({ ...prev, coolingOverlayPath: event.target.value }))} placeholder="Optional path to cooling-access overlay" /></label>
+              </div>
+              <div className="quick-links"><button className="button-link" type="button" onClick={() => registerDataMutation.mutate()} disabled={registerDataMutation.isPending}>{registerDataMutation.isPending ? "Saving..." : "Save data registration"}</button></div>
+              {registrationMessage ? <p className="muted">{registrationMessage}</p> : null}
+              {registrationStatusCards.length ? <CityDetailSectionGrid title="Registered local data status" cards={registrationStatusCards} /> : null}
+            </article>
+          ) : null}
+
+          {cityExperienceQuery.data?.studyCards.length ? (
+            <CityDetailSectionGrid title={`${cityExperienceQuery.data.cityName} guided study workflow`} description={cityExperienceQuery.data.summary} cards={detailConfig.sections.workflowCards} actions={<>{cityExperienceQuery.data.studyGuideArtifactId ? <a href={artifactDownloadUrl(cityExperienceQuery.data.studyGuideArtifactId)} className="button-link">Open study guide</a> : null}<Link to="/scenarios" search={detailConfig.scenarioSearch} className="button-link secondary">Open scenarios</Link><Link to="/runs" className="button-link secondary">Open runs</Link></>} />
+          ) : null}
+        </>
+      ) : null}
+
+      {view === "explore" ? (
+        <CityAtlasShell
+          cityName={cityName}
+          data={cityMapQuery.data}
+          scenarios={scenariosQuery.data}
+          loading={cityMapQuery.isLoading}
+          summary={cityMapQuery.data?.narrative ?? citySpectralQuery.data?.summary ?? "Open the atlas to inspect bottlenecks, cooling gaps, and study-layer evidence."}
+          onActivate={() => setAtlasActivated(true)}
+          forceActivated={atlasActivated}
+          onMapRefresh={() => {
+            void cityMapQuery.refetch();
+            void cityLiveThermalQuery.refetch();
+            void cityTrustAuditQuery.refetch();
+          }}
+        />
+      ) : null}
+
+      {view === "audit" ? (
+        <>
+          <CityEvidenceLedger cityName={cityName} data={cityMapQuery.data} loading={cityMapQuery.isLoading} />
+          <CityScienceSpotlight cityName={cityName} spectral={citySpectralQuery.data} robustness={robustnessQuery.data} trustAudit={cityTrustAuditQuery.data} />
+          {cityMapQuery.data ? (
         <div id="evidence" tabIndex={-1}>
           <CityDetailSectionGrid
             title="Evidence and honesty"
@@ -170,162 +260,17 @@ export function CityDetailPage() {
             cards={detailConfig.sections.evidenceCards}
           />
         </div>
+          ) : <p className="panel-card muted">Loading the city evidence ledger…</p>}
+          <details className="panel-card premium-section-card" open>
+            <summary className="premium-summary">Planning robustness context</summary>
+            <div className="premium-details-stack"><CityDetailSectionGrid title="Planning robustness context" description="These scenario metrics are paired with the bundled thermal-graph reference, but they remain a teaching and decision-framing aid—not a city-specific resilience estimate." cards={detailConfig.sections.robustnessCards} /></div>
+          </details>
+          <details className="panel-card premium-section-card" open>
+            <summary className="premium-summary">Validation and reproducibility audit</summary>
+            <div className="premium-details-stack"><CityDetailSectionGrid title="Validation and reproducibility audit" description="This trust layer shows the benchmark protocol, manifest, and provenance checks that keep the city story inspectable." cards={detailConfig.sections.trustCards} /></div>
+          </details>
+        </>
       ) : null}
-
-      <CityDetailSectionGrid
-        title="Snapshot and actions"
-        cards={detailConfig.sections.snapshotCards.map((card, index) => (
-          index === 1
-            ? {
-                ...card,
-                children: (
-                  <div className="quick-links">
-                    <Link to="/scenarios" search={detailConfig.scenarioSearch} preload="intent" className="button-link">Build a what-if</Link>
-                    <details className="city-secondary-actions">
-                      <summary>More ways to work with this city</summary>
-                      <div className="quick-links">
-                        <Link to="/exports" preload="intent" className="button-link secondary">Export evidence</Link>
-                        <Link to="/address-plan" preload="intent" className="button-link secondary">Start a cooling plan</Link>
-                        <Link to="/runs" preload="intent" className="button-link secondary">Inspect runs</Link>
-                        <Link to="/cities" preload="intent" className="button-link secondary">Back to cities</Link>
-                        <button
-                          className="button-link secondary"
-                          type="button"
-                          onClick={() => queueRunMutation.mutate()}
-                          disabled={queueRunMutation.isPending}
-                        >
-                          {queueRunMutation.isPending ? "Queuing…" : "Queue a baseline run"}
-                        </button>
-                      </div>
-                    </details>
-                  </div>
-                ),
-              }
-            : card
-        ))}
-      />
-
-      <CityDetailSectionGrid
-        title="Planning readiness"
-        description={cityReadinessQuery.data?.narrative ?? "This panel checks whether the city is ready for bundled study, upload-first onboarding, or only partial scenario planning."}
-        cards={detailConfig.sections.readinessCards}
-      />
-
-      {!cityExperienceQuery.data?.bundled ? (
-        <article className="panel-card premium-section-card premium-city-data-card">
-          <h2>Register local data readiness</h2>
-          <p className="muted">
-            Use this when an uploaded city has real local thermal inputs or derived overlays, so planner validation can reflect actual progress instead of only boundary presence.
-          </p>
-          <div className="panel-grid two-col">
-            <label className="plan-card-mini premium-detail-card">
-              <input
-                type="checkbox"
-                checked={dataRegistration.thermalInputsRegistered}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, thermalInputsRegistered: event.target.checked }))}
-              />
-              <strong>Thermal and land-cover inputs registered</strong>
-              <input
-                value={dataRegistration.thermalInputsPath}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, thermalInputsPath: event.target.value }))}
-                placeholder="Optional path to thermal inputs"
-              />
-            </label>
-            <label className="plan-card-mini premium-detail-card">
-              <input
-                type="checkbox"
-                checked={dataRegistration.artifactBundleRegistered}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, artifactBundleRegistered: event.target.checked }))}
-              />
-              <strong>Local artifact bundle generated</strong>
-              <input
-                value={dataRegistration.artifactBundlePath}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, artifactBundlePath: event.target.value }))}
-                placeholder="Optional path to local artifact bundle"
-              />
-            </label>
-            <label className="plan-card-mini premium-detail-card">
-              <input
-                type="checkbox"
-                checked={dataRegistration.bottleneckOverlayRegistered}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, bottleneckOverlayRegistered: event.target.checked }))}
-              />
-              <strong>Bottleneck overlay generated</strong>
-              <input
-                value={dataRegistration.bottleneckOverlayPath}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, bottleneckOverlayPath: event.target.value }))}
-                placeholder="Optional path to bottleneck overlay"
-              />
-            </label>
-            <label className="plan-card-mini premium-detail-card">
-              <input
-                type="checkbox"
-                checked={dataRegistration.coolingOverlayRegistered}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, coolingOverlayRegistered: event.target.checked }))}
-              />
-              <strong>Cooling-access overlay generated</strong>
-              <input
-                value={dataRegistration.coolingOverlayPath}
-                onChange={(event) => setDataRegistration((prev) => ({ ...prev, coolingOverlayPath: event.target.value }))}
-                placeholder="Optional path to cooling-access overlay"
-              />
-            </label>
-          </div>
-          <div className="quick-links">
-            <button
-              className="button-link"
-              type="button"
-              onClick={() => registerDataMutation.mutate()}
-              disabled={registerDataMutation.isPending}
-            >
-              {registerDataMutation.isPending ? "Saving..." : "Save data registration"}
-            </button>
-          </div>
-          {registrationMessage ? <p className="muted">{registrationMessage}</p> : null}
-          {registrationStatusCards.length ? (
-            <CityDetailSectionGrid title="Registered local data status" cards={registrationStatusCards} />
-          ) : null}
-        </article>
-      ) : null}
-
-      {cityExperienceQuery.data?.studyCards.length ? (
-        <CityDetailSectionGrid
-          title={`${cityExperienceQuery.data.cityName} guided study workflow`}
-          description={cityExperienceQuery.data.summary}
-          cards={detailConfig.sections.workflowCards}
-          actions={
-            <>
-              {cityExperienceQuery.data.studyGuideArtifactId ? (
-                <a href={artifactDownloadUrl(cityExperienceQuery.data.studyGuideArtifactId)} className="button-link">Open study guide</a>
-              ) : null}
-              <Link to="/scenarios" search={detailConfig.scenarioSearch} className="button-link secondary">Open scenarios</Link>
-              <Link to="/runs" className="button-link secondary">Open runs</Link>
-            </>
-          }
-        />
-      ) : null}
-
-      <details className="panel-card premium-section-card">
-        <summary className="premium-summary">Show planning robustness context</summary>
-        <div className="premium-details-stack">
-          <CityDetailSectionGrid
-            title="Planning robustness context"
-            description="These scenario metrics are paired with the bundled thermal-graph reference, but they remain a teaching and decision-framing aid—not a city-specific resilience estimate."
-            cards={detailConfig.sections.robustnessCards}
-          />
-        </div>
-      </details>
-
-      <details className="panel-card premium-section-card">
-        <summary className="premium-summary">Show validation and reproducibility audit</summary>
-        <div className="premium-details-stack">
-          <CityDetailSectionGrid
-            title="Validation and reproducibility audit"
-            description="This trust layer shows the benchmark protocol, manifest, and provenance checks that keep the city story inspectable."
-            cards={detailConfig.sections.trustCards}
-          />
-        </div>
-      </details>
     </section>
   );
 }

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-08-24T00:00:00Z",
+  "updated": "2026-09-26T00:00:00Z",
   "canonicalPages": [
     { "path": "/", "sourceRoute": "home", "title": "Open urban heat planning", "description": "An open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios.", "priority": "1.0", "changefreq": "weekly" },
     { "path": "/cities", "sourceRoute": "cities", "title": "Cities and heat evidence", "description": "Explore city heat evidence, data readiness, and transparent public-interest urban heat workflows.", "priority": "0.9", "changefreq": "weekly" },

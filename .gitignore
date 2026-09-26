@@ -23,4 +23,5 @@ web/test-results/
 web/playwright-report/
 web/coverage/
 web/public/sw.js
+site/
 data/runtime/

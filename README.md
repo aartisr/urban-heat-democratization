@@ -18,6 +18,10 @@ This is not a claim that software alone can solve a public-health emergency. It 
 
 Official website: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [MIT License](LICENSE)
 
+## Cite and verify
+
+Use [CITATION.cff](CITATION.cff) to cite the platform in research, teaching, reporting, or public proposals. For a substantive claim, cite the specific platform page and its linked method or source record as well; preserve the stated evidence boundary. The project’s machine-readable research brief is available at [`/ai.txt`](https://urban-heat.ai-aarti.com/ai.txt), with a concise reader-and-agent index at [`/llms.txt`](https://urban-heat.ai-aarti.com/llms.txt).
+
 ## Begin in one minute
 
 | If you are… | Start here | You will leave with… |
@@ -33,13 +37,14 @@ and what would require local validation.
 
 ## Search, AI discovery, and GitHub Pages
 
-The project ships an ethical, reusable discovery layer for conventional search, AI search, and social previews: descriptive metadata, canonical URLs, crawl directives, a sitemap, Schema.org entities, and page-specific browser metadata. The static GitHub Pages field guide adds substantive, accessible context and links readers to the primary site and source materials; it deliberately avoids thin doorway pages or artificial link schemes that can harm search visibility.
+The project ships an ethical, reusable discovery layer for conventional search, answer engines, AI search, and social previews: descriptive metadata, self-referential canonical URLs, crawl directives, sitemaps, Schema.org entities, page-specific browser metadata, and a repository citation record. The static GitHub Pages field guide adds substantive, accessible context and links readers to primary methods and source materials; it deliberately avoids thin doorway pages, keyword stuffing, or artificial link schemes that can harm search visibility.
 
 The deployment identity lives in [seo/site.config.json](seo/site.config.json). The public-page registry lives in [seo/discovery-pages.json](seo/discovery-pages.json): add or revise a record there whenever a public route or GitHub Pages guide changes. Before deploying a fork or a custom domain, replace the site, repository, GitHub Pages, author, and contact URLs in the site config. For the frontend, set `VITE_SITE_URL` to the same canonical primary URL at build time; if unset, it uses `https://urban-heat.ai-aarti.com`.
 
 ```bash
 # Preview the deployable GitHub Pages companion locally
 node scripts/build-github-pages.mjs
+node scripts/check-github-pages.mjs
 ```
 
 ```bash
@@ -53,7 +58,7 @@ cd web && npm run discovery:check
 
 The [GitHub Pages workflow](.github/workflows/pages.yml) deploys it automatically on a `main` branch push once GitHub Pages is enabled in the repository’s **Settings → Pages → Source: GitHub Actions**. Submit both primary and companion sitemaps to Google Search Console and Bing Webmaster Tools after the public URLs are live. Search rankings cannot be guaranteed, but the implementation is designed around the practices search engines and AI systems can reliably consume.
 
-For AI and research discovery, the frontend also serves [`/llms.txt`](web/public/llms.txt), [`/humans.txt`](web/public/humans.txt), and an Atom feed at [`/feed.xml`](web/public/feed.xml). These are helpful machine-readable signposts, not ranking tricks. `npm run discovery:refresh` regenerates the sitemap, Schema.org manifest, AI briefs, feed, and IndexNow lists from the page registry; it does not promise rankings or replace substantive, accurate content.
+For AI and research discovery, the frontend also serves [`/llms.txt`](web/public/llms.txt), [`/ai.txt`](web/public/ai.txt), [`/humans.txt`](web/public/humans.txt), and an Atom feed at [`/feed.xml`](web/public/feed.xml). These are helpful machine-readable signposts, not ranking tricks. `npm run discovery:refresh` regenerates the sitemap, Schema.org manifest, AI briefs, feed, and IndexNow lists from the page registry; it does not promise rankings or replace substantive, accurate content.
 
 ## The problem is urgent—and unequal
 

@@ -35,3 +35,7 @@ Urban Heat Democratization supports residents, educators, planners, researchers,
 ## Contact and attribution
 
 Created by [Aarti S Ravikumar](https://ai-aarti.com/). Licensed under MIT where applicable; inspect the repository for data and source-specific terms.
+
+## Citation and attribution
+
+For software or platform citation, use [CITATION.cff](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff). For a substantive claim, cite the relevant platform page and its linked method or source record. Preserve stated limitations and do not present exploratory scenarios as measured effects.

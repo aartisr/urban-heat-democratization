@@ -18,7 +18,7 @@ test("live backend: full page map toggle does not freeze", async ({ page }) => {
     }
   });
 
-  await page.goto("/cities/boston?mapDebug=1", { waitUntil: "domcontentloaded" });
+  await page.goto("/cities/boston?view=explore", { waitUntil: "domcontentloaded" });
 
   const loadInteractiveAtlas = page.getByRole("button", { name: "Show the city atlas" });
   const openButton = page.getByRole("button", { name: "Open full page map" });

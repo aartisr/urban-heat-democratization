@@ -362,7 +362,7 @@ test("home page renders and navigates to cities", async ({ page }) => {
 
   await page.getByRole("link", { name: "Explore Boston" }).click();
   await expect(page).toHaveURL(/\/cities\/boston$/);
-  await page.getByRole("link", { name: "Back to cities" }).click();
+  await page.locator('a[href="/cities"]').first().click();
   await expect(page).toHaveURL(/\/cities$/);
   await expect(page.getByText("Onboard a city")).toBeVisible();
 });
@@ -373,26 +373,33 @@ test("landing page keeps its primary path usable on a narrow phone", async ({ pa
 
   await expect(page.getByRole("heading", { name: "Make heat visible. Make action possible." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Explore Boston" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Choose a path/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Choose a path", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-test("workspace controls stay available on demand", async ({ page }) => {
+test("city Read and Audit views reflow without page-level overflow on a narrow phone", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.goto("/cities/boston");
+
+  const experience = page.getByRole("navigation", { name: "Boston evidence experience" });
+  await expect(experience.getByRole("link", { name: /^Read/ })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("heading", { name: "One question at a time." })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+
+  await experience.getByRole("link", { name: /^Audit/ }).click();
+  await expect(page.getByRole("heading", { name: "What supports the Boston story?" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test("secondary workflow navigation stays available on demand", async ({ page }) => {
   await page.goto("/");
   const expandButton = page.getByRole("button", { name: "Expand menu" });
   if (await expandButton.isVisible()) {
     await expandButton.click();
   }
-  await page.locator("details.access-switcher > .access-switcher-head > summary").click();
-  await expect(page.getByText("default: admin")).toBeVisible();
-
-  const workspaceInput = page.getByLabel("Workspace");
-  await workspaceInput.fill("boston-lab");
-  await expect(workspaceInput).toHaveValue("boston-lab");
-
-  const apiKeyInput = page.getByLabel("API key");
-  await apiKeyInput.fill("demo-admin");
-  await expect(apiKeyInput).toHaveValue("demo-admin");
+  await page.getByText("Continue your workflow", { exact: true }).click();
+  await expect(page.getByRole("link", { name: "Exports" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Run history" })).toBeVisible();
 });
 
 test("five persona journeys persist mode and route guidance", async ({ page }) => {
@@ -409,7 +416,7 @@ test("five persona journeys persist mode and route guidance", async ({ page }) =
     const modeCard = page.locator(".persona-card").filter({ hasText: modeCase.label });
     await modeCard.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
     await expect(page).toHaveURL(/\/modes$/);
-    const matchingRoute = modeCase.expectedNextRoute === "/cities" ? /Explore cities|Inspect city|Browse cities/i
+    const matchingRoute = modeCase.expectedNextRoute === "/cities" ? /Explore cities|Inspect (a )?city|Browse cities/i
       : modeCase.expectedNextRoute === "/exports" ? /Review exports|Download artifacts|Download exports/i
         : /Try scenarios|Open scenarios|Review scenarios/i;
     await modeCard.getByRole("link", { name: matchingRoute }).first().click();
@@ -426,7 +433,6 @@ test("scenario defaults change with active persona mode", async ({ page }) => {
   await modeCard.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
   await page.goto("/scenarios");
   await expect(page).toHaveURL(/\/scenarios$/);
-  await expect(page.getByText("Researcher defaults for scenario science")).toBeVisible();
   await expect(page.getByLabel("Budget USD")).toHaveValue("500000");
   await expect(page.getByLabel("Planning mode")).toHaveValue("evidence_first");
 
@@ -447,7 +453,7 @@ test("planner persona can complete the city-detail journey", async ({ page }) =>
 
   await page.getByRole("link", { name: "Open Boston" }).click();
   await expect(page).toHaveURL(/\/cities\/boston$/);
-  await expect(page.getByRole("heading", { name: "A city is more than a hot-coloured map." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "One question at a time." })).toBeVisible();
   await expect(page.getByRole("button", { name: "See where heat needs attention" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planning readiness" })).toBeVisible();
   await page.getByText("More ways to work with this city").click();
@@ -455,4 +461,23 @@ test("planner persona can complete the city-detail journey", async ({ page }) =>
   await expect(page.getByText("You are here")).toBeVisible();
   await expect(page.getByText("City Detail")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open scenarios for this city" })).toBeVisible();
+});
+
+test("city evidence experience preserves guided reading, audit, and shareable views", async ({ page }) => {
+  await page.goto("/cities/boston");
+
+  const experience = page.getByRole("navigation", { name: "Boston evidence experience" });
+  await expect(experience.getByRole("link", { name: /^Read/ })).toHaveAttribute("aria-current", "page");
+  await expect(page.getByRole("heading", { name: "One question at a time." })).toBeVisible();
+
+  await page.getByRole("button", { name: "2. Signal" }).click();
+  await expect(page.getByRole("heading", { name: "What does the current study indicate?" })).toBeVisible();
+  await expect(page.getByText("A derived priority is not a diagnosis of harm, a temperature measurement, or an automatic policy recommendation.")).toBeVisible();
+
+  await experience.getByRole("link", { name: /^Explore/ }).click();
+  await expect(page).toHaveURL(/\/cities\/boston\?view=explore/);
+
+  await experience.getByRole("link", { name: /^Audit/ }).click();
+  await expect(page).toHaveURL(/\/cities\/boston\?view=audit/);
+  await expect(page.getByRole("heading", { name: "What supports the Boston story?" })).toBeVisible();
 });

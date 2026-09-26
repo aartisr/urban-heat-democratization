@@ -477,6 +477,10 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
 
   await page.goto("/cities/boston");
 
+  const experience = page.getByRole("navigation", { name: "Boston evidence experience" });
+  await experience.getByRole("link", { name: /^Explore/ }).click();
+  await expect(page).toHaveURL(/\/cities\/boston\?view=explore/);
+
   const loadAtlas = page.getByRole("button", { name: "Show the city atlas" });
   if (await loadAtlas.isVisible()) {
     await loadAtlas.click({ force: true, timeout: 40_000 });
@@ -530,6 +534,10 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
 test("mobile map begins with one question and keeps the map as the primary surface", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/cities/boston");
+
+  const experience = page.getByRole("navigation", { name: "Boston evidence experience" });
+  await experience.getByRole("link", { name: /^Explore/ }).click();
+  await expect(page).toHaveURL(/\/cities\/boston\?view=explore/);
 
   const loadAtlas = page.getByRole("button", { name: "Show the city atlas" });
   if (await loadAtlas.isVisible()) {

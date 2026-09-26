@@ -15,14 +15,12 @@ const footerCrosslinks = `
 
 ---
 
-### Connect with the Living Platform
+### Research links
 
-- 🗺️ **[Boston Urban Heat Atlas](${mainSiteUrl}cities/boston)** — Inspect satellite thermal layers, Cheeger cuts, and cooling equity overlays.
-- 🧪 **[Mitigation Scenarios](${mainSiteUrl}scenarios)** — Model urban tree canopy, cool roofs, and pavements with cost constraints.
-- 🛠️ **[Solution Suite & GIS Tools](${mainSiteUrl}solution-suite)** — Interactive Overpass OSM query builder, microclimate sensor validation, and federal grant generator.
-- 🔬 **[Interactive Mitigation Lab](${mainSiteUrl}mitigation-lab)** — Real-time temperature response and cost-benefit trade-off exploration.
-- 📈 **[Robustness & Science Lab](${mainSiteUrl}robustness)** — Inspect spectral graph conductance, Fiedler vectors, and percolation dynamics.
-- 🤝 **[Collaborate on Heat Action](${mainSiteUrl}contact)** — Join research mentors, civic leaders, and community partners.
+- **[Open the living platform](${mainSiteUrl})** — Explore the interactive evidence workspace.
+- **[Boston study](${mainSiteUrl}cities/boston)** — Inspect the bundled study and its source context.
+- **[Research wiki companion](https://aartisr.github.io/urban-heat-democratization/wiki/)** — Read accessible methods, interpretation, and reproducibility guidance.
+- **[Source repository](https://github.com/aartisr/urban-heat-democratization)** · **[Cite this work](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff)**
 `;
 
 const sidebarContent = `## [Urban Heat Democratization](${mainSiteUrl})
@@ -60,6 +58,7 @@ const sidebarContent = `## [Urban Heat Democratization](${mainSiteUrl})
 ### 🔗 Resources
 - [GitHub Repository](https://github.com/aartisr/urban-heat-democratization)
 - [GitHub Pages Companion](https://aartisr.github.io/urban-heat-democratization/)
+- [Cite this work](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff)
 - [Author: Aarti S Ravikumar](https://ai-aarti.com)
 `;
 

@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use Urban Heat Democratization in research, teaching, reporting, or a public proposal, please cite it using this record."
+title: "Urban Heat Democratization"
+type: software
+authors:
+  - family-names: Ravikumar
+    given-names: Aarti Sri
+url: "https://urban-heat.ai-aarti.com/"
+repository-code: "https://github.com/aartisr/urban-heat-democratization"
+license: MIT
+abstract: "An open, public-interest platform for inspecting urban heat evidence, cooling access, transparent mitigation scenarios, and their limits."
+keywords:
+  - urban heat
+  - heat equity
+  - climate resilience
+  - cooling access
+  - public-interest technology

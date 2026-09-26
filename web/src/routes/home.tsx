@@ -1,9 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import type { CSSProperties } from "react";
 
 import { artifactDownloadUrl, listCityExperiences } from "../lib/api";
-import urbanHeatHeroUrl from "../assets/urban-heat-hero-civic-atlas.jpg";
 
 export function HomePage() {
   const experiencesQuery = useQuery({ queryKey: ["city-experiences"], queryFn: listCityExperiences });
@@ -11,7 +9,7 @@ export function HomePage() {
 
   return (
     <section className="page-stack home-page calm-home-page">
-      <header className="hero-card premium-hero-card calm-hero-card" style={{ "--urban-hero-image": `url(${urbanHeatHeroUrl})` } as CSSProperties}>
+      <header className="hero-card premium-hero-card calm-hero-card">
         <div className="premium-hero-copy">
           <div className="hero-kicker"><span className="hero-kicker-orb" aria-hidden="true" />A public-interest climate observatory</div>
           <h1><span>Make heat</span><span className="hero-title-emphasis">visible.</span><span>Make action</span><span className="hero-title-emphasis hero-title-emphasis--cool">possible.</span></h1>
@@ -45,7 +43,7 @@ export function HomePage() {
           </div>
           <div className="hero-portrait-caption">
             <span>From signal to shared action</span>
-            <strong>Evidence people can see, question, and use.</strong>
+            <strong>Evidence people can see, question, and use together.</strong>
           </div>
           <div className="hero-portrait-metrics" aria-label="Platform principles">
             <div><strong>Observe</strong><span>See patterns</span></div>

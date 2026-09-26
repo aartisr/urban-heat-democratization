@@ -46,6 +46,15 @@ function validateScenariosSearch(search: Record<string, unknown>) {
   };
 }
 
+type CityDetailView = "read" | "explore" | "audit";
+
+function validateCityDetailSearch(search: Record<string, unknown>): { view?: CityDetailView } {
+  const view = search.view;
+  return {
+    view: view === "explore" || view === "audit" || view === "read" ? view : undefined,
+  };
+}
+
 const baseScenarioSearch = {
   cityId: undefined,
   budgetUsd: undefined,
@@ -479,6 +488,7 @@ const citiesRoute = createRoute({ getParentRoute: () => rootRoute, path: "cities
 const cityDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "cities/$cityId",
+  validateSearch: validateCityDetailSearch,
   component: () => withPageSuspense(<CityDetailPage />),
 });
 const scenariosRoute = createRoute({

@@ -3,6 +3,7 @@ Creator: Aarti S Ravikumar
 Project: Urban Heat Democratization
 Site: https://urban-heat.ai-aarti.com/
 Repository: https://github.com/aartisr/urban-heat-democratization
+Citation: https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff
 
 /* PURPOSE */
 Open, public-interest urban heat evidence and planning tools.
