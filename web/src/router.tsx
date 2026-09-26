@@ -471,6 +471,8 @@ function RootLayout() {
               <span aria-hidden="true">·</span>
               <span>Created by</span>
               <a href="https://ai-aarti.com/">Aarti S Ravikumar</a>
+              <span aria-hidden="true">·</span>
+              <a href="https://publications.ai-aarti.com/" target="_blank" rel="noreferrer">Publication record <span aria-hidden="true">↗</span></a>
             </div>
           </footer>
         </main>

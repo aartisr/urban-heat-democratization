@@ -17,6 +17,7 @@ for (const page of registry.githubPagesPages) {
     `<meta property="og:url" content="${url}">`,
     `href="${mainBase}/"`,
     `href="${config.repositoryUrl}`,
+    `href="${config.publicationsUrl}"`,
     "CITATION.cff",
   ];
   for (const fragment of required) {

@@ -58,6 +58,7 @@ const sidebarContent = `## [Urban Heat Democratization](${mainSiteUrl})
 ### 🔗 Resources
 - [GitHub Repository](https://github.com/aartisr/urban-heat-democratization)
 - [GitHub Pages Companion](https://aartisr.github.io/urban-heat-democratization/)
+- [Publication Record](https://publications.ai-aarti.com/)
 - [Cite this work](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff)
 - [Author: Aarti S Ravikumar](https://ai-aarti.com)
 `;

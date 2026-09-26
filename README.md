@@ -16,7 +16,7 @@
 
 This is not a claim that software alone can solve a public-health emergency. It is a practical contribution to a broader civic effort: making the evidence and reasoning needed for better heat decisions more legible and more widely available.
 
-Official website: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [MIT License](LICENSE)
+Official website: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [Publication record](https://publications.ai-aarti.com/) · [MIT License](LICENSE)
 
 ## Cite and verify
 

@@ -14,6 +14,21 @@
       }
     },
     {
+      "@type": "CreativeWork",
+      "name": "Aarti S Ravikumar publication record",
+      "url": "https://publications.ai-aarti.com/",
+      "creator": {
+        "@type": "Person",
+        "name": "Aarti S Ravikumar",
+        "url": "https://ai-aarti.com/"
+      },
+      "isRelatedTo": {
+        "@type": "SoftwareApplication",
+        "name": "Urban Heat Democratization",
+        "url": "https://urban-heat.ai-aarti.com/"
+      }
+    },
+    {
       "@type": "SoftwareApplication",
       "name": "Urban Heat Democratization",
       "applicationCategory": "EnvironmentalApplication",

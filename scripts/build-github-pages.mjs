@@ -140,6 +140,7 @@ const topBanner = `
       <a href="${main}cities/boston" class="banner-btn">Boston Atlas</a>
       <a href="${main}scenarios" class="banner-btn">Mitigation Lab</a>
       <a href="${main}solution-suite" class="banner-btn">GIS Tools</a>
+      <a href="${config.publicationsUrl}" class="banner-btn">Publication record</a>
     </div>
   </div>
 </div>`;
