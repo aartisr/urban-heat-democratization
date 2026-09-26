@@ -313,32 +313,6 @@ type ScenarioInfluenceResult = {
   afterAveragePriority: number;
 };
 
-type ScenarioPlaceHint = {
-  street: string;
-  area: string;
-  label: string;
-  explanation: string;
-};
-
-type PlaceAnchor = {
-  lng: number;
-  lat: number;
-  street: string;
-  area: string;
-  explanation: string;
-};
-
-// Bundled study-city place anchors. To swap in a different city's coordinates,
-// replace this array and update the defaultStudyCityId in lib/study-city.ts.
-const BUNDLED_CITY_PLACE_ANCHORS: PlaceAnchor[] = [
-  { lng: -71.062871, lat: 42.375193, street: "Cordis Street", area: "Charlestown", explanation: "a compact residential street with limited shade continuity" },
-  { lng: -71.064521, lat: 42.376851, street: "High Street", area: "Charlestown", explanation: "a hill-adjacent corridor where shade and cooling access matter" },
-  { lng: -71.05132, lat: 42.333735, street: "F Street", area: "South Boston", explanation: "a dense mixed-use corridor with exposed pedestrian movement" },
-  { lng: -71.04472, lat: 42.317152, street: "Mount Vernon Street", area: "Dorchester", explanation: "a neighborhood street where tree and facade interventions can compound" },
-  { lng: -70.995219, lat: 42.35861, street: "Cottage Park Road", area: "East Boston", explanation: "a waterfront-facing area where exposed walking routes benefit from shade" },
-  { lng: -71.057921, lat: 42.343685, street: "Foundry Street", area: "South Boston", explanation: "an industrial edge where surface cooling and shade can work together" },
-];
-
 function distanceSquared(leftLng: number, leftLat: number, rightLng: number, rightLat: number) {
   const dx = leftLng - rightLng;
   const dy = leftLat - rightLat;
@@ -449,29 +423,6 @@ function scenarioInfluencePreview(
     averagePriorityShift: Number(((beforeTotal - afterTotal) / Math.max(1, heatGeojson.features.length)).toFixed(1)),
     beforeAveragePriority: beforeTotal / heatGeojson.features.length,
     afterAveragePriority: afterTotal / heatGeojson.features.length,
-  };
-}
-
-function scenarioPlaceHint(marker: ScenarioMapMarker): ScenarioPlaceHint | null {
-  if (!BUNDLED_CITY_PLACE_ANCHORS.length) {
-    return null;
-  }
-
-  let best = BUNDLED_CITY_PLACE_ANCHORS[0];
-  let bestDistance = distanceSquared(marker.lng, marker.lat, best.lng, best.lat);
-  for (const candidate of BUNDLED_CITY_PLACE_ANCHORS.slice(1)) {
-    const candidateDistance = distanceSquared(marker.lng, marker.lat, candidate.lng, candidate.lat);
-    if (candidateDistance < bestDistance) {
-      best = candidate;
-      bestDistance = candidateDistance;
-    }
-  }
-
-  return {
-    street: best.street,
-    area: best.area,
-    label: `${best.street}, ${best.area}`,
-    explanation: best.explanation,
   };
 }
 
@@ -865,6 +816,8 @@ type ScenarioInterventionFeature = {
   color: string;
   budgetUsd: number;
   order: number;
+  evidenceArea?: string;
+  placementScore?: ScenarioPlacementScore;
 };
 
 type ScenarioMapMarker = ScenarioInterventionFeature & {
@@ -886,7 +839,6 @@ type ScenarioPlacementScore = {
   evidence: number;
   priority: number;
   layerFit: number;
-  slotFit: number;
   separation: number;
   total: number;
   explanation: string;
@@ -909,16 +861,8 @@ function normalizedAnchorDistance(left: ScenarioPlacementAnchor, right: Scenario
   return Math.sqrt((left.lng - right.lng) ** 2 + (left.lat - right.lat) ** 2) / cityDiagonal(bounds);
 }
 
-function scenarioPlacementTargetAnchor(index: number, cityBounds: CityMapData["bounds"]) {
-  const anchors = scenarioDistributedAnchors(cityBounds);
-  if (!anchors.length) {
-    return null;
-  }
-  return anchors[index % anchors.length] ?? null;
-}
-
 function formatScenarioPlacementExplanation(score: ScenarioPlacementScore, anchor: ScenarioPlacementAnchor) {
-  return `placement score ${score.total.toFixed(2)} = ${score.evidence.toFixed(2)} evidence + ${score.priority.toFixed(2)} priority + ${score.layerFit.toFixed(2)} layer fit + ${score.slotFit.toFixed(2)} slot fit + ${score.separation.toFixed(2)} separation near ${anchor.label}`;
+  return `evidence-placement score ${score.total.toFixed(2)} = ${score.evidence.toFixed(2)} evidence + ${score.priority.toFixed(2)} action rank + ${score.layerFit.toFixed(2)} evidence fit + ${score.separation.toFixed(2)} distribution, anchored to ${anchor.label}`;
 }
 
 function scenarioPlacementScore(
@@ -940,26 +884,22 @@ function scenarioPlacementScore(
     : preferredLayers.includes(candidate.layer)
       ? 0.82
       : 0.55;
-  const targetAnchor = scenarioPlacementTargetAnchor(index, cityBounds);
-  const slotFit = targetAnchor ? clamp01(1 - normalizedAnchorDistance(candidate, targetAnchor, cityBounds)) : 0.5;
   const separation = placedAnchors.length
     ? clamp01(Math.min(...placedAnchors.map((anchor) => normalizedAnchorDistance(candidate, anchor, cityBounds))))
     : 1;
   const total = (
-    (evidence * 0.30)
-    + (priority * 0.22)
-    + (layerFit * 0.18)
-    + (slotFit * 0.15)
+    (evidence * 0.40)
+    + (priority * 0.25)
+    + (layerFit * 0.20)
     + (separation * 0.15)
   );
   return {
     evidence,
     priority,
     layerFit,
-    slotFit,
     separation,
     total,
-    explanation: formatScenarioPlacementExplanation({ evidence, priority, layerFit, slotFit, separation, total, explanation: "" }, candidate),
+    explanation: formatScenarioPlacementExplanation({ evidence, priority, layerFit, separation, total, explanation: "" }, candidate),
   };
 }
 
@@ -971,15 +911,13 @@ function chooseScenarioPlacementAnchor(
   placedAnchors: ScenarioPlacementAnchor[],
   totalActions: number,
 ): { anchor: ScenarioPlacementAnchor; score: ScenarioPlacementScore } | null {
-  const fallbackAnchors = scenarioDistributedAnchors(cityBounds);
-  const candidates = [...fallbackAnchors, ...anchors];
-  if (!candidates.length) {
+  if (!anchors.length) {
     return null;
   }
 
   const uniqueCandidates: ScenarioPlacementAnchor[] = [];
   const seen = new Set<string>();
-  for (const candidate of candidates) {
+  for (const candidate of anchors) {
     const key = anchorKey(candidate);
     if (seen.has(key)) {
       continue;
@@ -1003,14 +941,7 @@ function chooseScenarioPlacementAnchor(
     return best;
   }
 
-  const fallback = uniqueCandidates[index % uniqueCandidates.length] ?? null;
-  if (!fallback) {
-    return null;
-  }
-  return {
-    anchor: fallback,
-    score: scenarioPlacementScore(action, fallback, index, cityBounds, placedAnchors, Math.max(1, totalActions)),
-  };
+  return null;
 }
 
 function scenarioPreferredLayers(action: ScenarioAction): OverlayLayer[] {
@@ -1030,53 +961,7 @@ function anchorKey(anchor: ScenarioPlacementAnchor) {
   return `${anchor.layer}:${anchor.lng.toFixed(4)}:${anchor.lat.toFixed(4)}`;
 }
 
-function fallbackPlacementAnchors(bounds: CityMapData["bounds"]): ScenarioPlacementAnchor[] {
-  if (!bounds) {
-    return [];
-  }
-
-  const lngSpan = Math.max(0.001, bounds.maxLng - bounds.minLng);
-  const latSpan = Math.max(0.001, bounds.maxLat - bounds.minLat);
-  const insetLng = lngSpan * 0.16;
-  const insetLat = latSpan * 0.16;
-  const centerLng = (bounds.minLng + bounds.maxLng) / 2;
-  const centerLat = (bounds.minLat + bounds.maxLat) / 2;
-
-  return [
-    { lng: bounds.minLng + insetLng, lat: bounds.maxLat - insetLat, layer: "heat", score: 96, label: "northwest heat edge" },
-    { lng: centerLng, lat: bounds.maxLat - insetLat * 0.7, layer: "heat", score: 94, label: "north corridor" },
-    { lng: bounds.maxLng - insetLng, lat: bounds.maxLat - insetLat * 0.9, layer: "heat", score: 92, label: "northeast heat edge" },
-    { lng: bounds.minLng + insetLng * 0.9, lat: centerLat, layer: "cooling", score: 90, label: "west cooling gap" },
-    { lng: centerLng, lat: centerLat, layer: "cooling", score: 88, label: "central cooling gap" },
-    { lng: bounds.maxLng - insetLng * 0.9, lat: centerLat, layer: "cooling", score: 86, label: "east cooling gap" },
-    { lng: bounds.minLng + insetLng, lat: bounds.minLat + insetLat, layer: "heat", score: 84, label: "southwest heat edge" },
-    { lng: centerLng, lat: bounds.minLat + insetLat * 0.75, layer: "cooling", score: 82, label: "south cooling gap" },
-    { lng: bounds.maxLng - insetLng, lat: bounds.minLat + insetLat, layer: "heat", score: 80, label: "southeast heat edge" },
-  ];
-}
-
-function scenarioDistributedAnchors(bounds: CityMapData["bounds"]): ScenarioPlacementAnchor[] {
-  const anchors = fallbackPlacementAnchors(bounds);
-  if (!anchors.length) {
-    return [];
-  }
-
-  const sequence = [
-    3, // west cooling gap
-    5, // east cooling gap
-    1, // north corridor
-    7, // south cooling gap
-    0, // northwest heat edge
-    2, // northeast heat edge
-    6, // southwest heat edge
-    8, // southeast heat edge
-    4, // central cooling gap
-  ];
-
-  return sequence.map((index) => anchors[index]).filter((anchor): anchor is ScenarioPlacementAnchor => Boolean(anchor));
-}
-
-function scenarioPlacementAnchors(heatEntries: OverlayEntry[], coolingEntries: OverlayEntry[], cityBounds: CityMapData["bounds"]) {
+function scenarioPlacementAnchors(heatEntries: OverlayEntry[], coolingEntries: OverlayEntry[]) {
   const ranked: ScenarioPlacementAnchor[] = [
     ...heatEntries
       .slice()
@@ -1123,40 +1008,7 @@ function scenarioPlacementAnchors(heatEntries: OverlayEntry[], coolingEntries: O
     deduped.push(anchor);
   }
 
-  const fallbackAnchors = fallbackPlacementAnchors(cityBounds);
-  for (const anchor of fallbackAnchors) {
-    const key = anchorKey(anchor);
-    if (seen.has(key)) {
-      continue;
-    }
-    seen.add(key);
-    deduped.push(anchor);
-  }
-
   return deduped;
-}
-
-function scenarioOffsets(index: number, total: number, anchor: ScenarioPlacementAnchor, cityBounds: CityMapData["bounds"]) {
-  const lngSpan = Math.max(0.001, cityBounds ? cityBounds.maxLng - cityBounds.minLng : 0.001);
-  const latSpan = Math.max(0.001, cityBounds ? cityBounds.maxLat - cityBounds.minLat : 0.001);
-  const spreadLng = Math.max(0.001, lngSpan * 0.035);
-  const spreadLat = Math.max(0.001, latSpan * 0.03);
-  const radiusScale = anchor.score >= 90 ? 0.7 : anchor.score >= 80 ? 0.9 : 1;
-  const crowding = Math.max(0.76, 1 - Math.max(0, total - 4) * 0.06);
-  const patterns = [
-    [0, 0],
-    [1, 0.18],
-    [-0.95, 0.4],
-    [0.25, -0.92],
-    [0.98, -0.6],
-    [-0.72, -0.8],
-  ];
-  const [dx, dy] = patterns[index % patterns.length] ?? [0, 0];
-  const fan = 1 + Math.floor(index / patterns.length) * 0.35;
-  return {
-    lng: dx * spreadLng * fan * radiusScale * crowding,
-    lat: dy * spreadLat * fan * radiusScale * crowding,
-  };
 }
 
 function scenarioInterventionsForEntry(entry: OverlayEntry | null, budgetUsd: number, planningMode: PlanningMode): ScenarioInterventionFeature[] {
@@ -1207,6 +1059,7 @@ function scenarioInterventionsForEntry(entry: OverlayEntry | null, budgetUsd: nu
         color: "#0f766e",
         budgetUsd,
         order: 1,
+        evidenceArea: entry.overlay.label,
       },
     ];
   }
@@ -1235,6 +1088,7 @@ function scenarioInterventionsForEntry(entry: OverlayEntry | null, budgetUsd: nu
       color: option.color,
       budgetUsd: Math.round(budgetUsd / Math.max(1, chosen.length)),
       order: index + 1,
+      evidenceArea: entry.overlay.label,
     };
   });
 }
@@ -1254,10 +1108,10 @@ function scenarioInterventionsForScenarioRecord(
     return [];
   }
 
-  const anchors = scenarioPlacementAnchors(heatEntries, coolingEntries, cityBounds);
+  const anchors = scenarioPlacementAnchors(heatEntries, coolingEntries);
   const placedAnchors: ScenarioPlacementAnchor[] = [];
 
-  return actions.map((action, index) => {
+  return actions.map<ScenarioInterventionFeature | null>((action, index) => {
     const theme = scenarioActionTheme(action);
     const placement = chooseScenarioPlacementAnchor(action, index, anchors, cityBounds, placedAnchors, actions.length);
     if (!placement) {
@@ -1265,17 +1119,17 @@ function scenarioInterventionsForScenarioRecord(
     }
     const { anchor, score } = placement;
     placedAnchors.push(anchor);
-    const { lng: offsetLng, lat: offsetLat } = scenarioOffsets(index, actions.length, anchor, cityBounds);
-    const bias = 0.12;
     return {
-      lng: anchor.lng + (offsetLng * bias),
-      lat: anchor.lat + (offsetLat * bias),
+      lng: anchor.lng,
+      lat: anchor.lat,
       kind: theme.kind,
       label: action.name,
       detail: `${scenario.label} · ${action.category}. ${action.rationale} ${score.explanation}.`,
       color: theme.color,
       budgetUsd: Math.max(0, action.allocatedBudgetUsd ?? Math.round(scenario.budgetUsd / Math.max(1, actions.length))),
       order: index + 1,
+      evidenceArea: anchor.label,
+      placementScore: score,
     };
   }).filter((item): item is ScenarioInterventionFeature => Boolean(item));
 }
@@ -1302,7 +1156,7 @@ function scenarioMarkersForScenarioRecord(
   }
   const actionsToShow = selected ? actions : actions.slice(0, Math.min(3, actions.length));
   const markers: ScenarioMapMarker[] = [];
-  const anchors = scenarioPlacementAnchors(heatEntries, coolingEntries, cityBounds);
+  const anchors = scenarioPlacementAnchors(heatEntries, coolingEntries);
   const placedAnchors: ScenarioPlacementAnchor[] = [];
 
   for (const [actionIndex, action] of actionsToShow.entries()) {
@@ -1312,11 +1166,10 @@ function scenarioMarkersForScenarioRecord(
     }
     const { anchor, score } = placement;
     placedAnchors.push(anchor);
-    const { lng: offsetLng, lat: offsetLat } = scenarioOffsets(actionIndex, actionsToShow.length, anchor, cityBounds);
     const theme = scenarioActionTheme(action);
     markers.push({
-      lng: anchor.lng + (offsetLng * 0.12),
-      lat: anchor.lat + (offsetLat * 0.12),
+      lng: anchor.lng,
+      lat: anchor.lat,
       kind: theme.kind,
       label: action.name,
       detail: `${scenario.label} · ${action.category}. ${action.rationale} ${score.explanation}.`,
@@ -1327,6 +1180,8 @@ function scenarioMarkersForScenarioRecord(
       scenarioLabel: scenario.label,
       icon: theme.kind,
       emphasis: selected,
+      evidenceArea: anchor.label,
+      placementScore: score,
     });
   }
 
@@ -1337,38 +1192,19 @@ function previewMarkersForEntry(
   entry: OverlayEntry | null,
   budgetUsd: number,
   planningMode: PlanningMode,
-  cityBounds: CityMapData["bounds"],
 ): ScenarioMapMarker[] {
   const items = scenarioInterventionsForEntry(entry, budgetUsd, planningMode);
   if (!items.length) {
     return [];
   }
 
-  const anchors = scenarioDistributedAnchors(cityBounds);
-  if (!anchors.length) {
-    return items.map((item, index) => ({
+  return items.map((item) => ({
       ...item,
       scenarioId: "preview",
       scenarioLabel: "Preview",
       icon: scenarioActionIconKind(item.kind, item.label),
       emphasis: true,
     }));
-  }
-
-  return items.map((item, index) => {
-    const anchor = anchors[index % anchors.length] ?? anchors[0];
-    const spread = scenarioOffsets(index, items.length, anchor, cityBounds);
-    const scale = anchor.score >= 90 ? 0.12 : anchor.score >= 80 ? 0.14 : 0.16;
-    return {
-      ...item,
-      lng: anchor.lng + (spread.lng * scale),
-      lat: anchor.lat + (spread.lat * scale),
-      scenarioId: "preview",
-      scenarioLabel: "Preview",
-      icon: scenarioActionIconKind(item.kind, item.label),
-      emphasis: true,
-    };
-  });
 }
 
 function suggestedScenarioBudget(entry: OverlayEntry) {
@@ -1410,8 +1246,9 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const [scenarioPlanningMode, setScenarioPlanningMode] = useState<PlanningMode>("best_under_budget");
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | null>(null);
   const [showScenarioInterventions, setShowScenarioInterventions] = useState(false);
+  const [showActionReadiness, setShowActionReadiness] = useState(false);
   const [liveThermalBusy, setLiveThermalBusy] = useState<"enable" | "disable" | "refresh" | null>(null);
-  const [sidebarTrayOpen, setSidebarTrayOpen] = useState(true);
+  const [sidebarTrayOpen, setSidebarTrayOpen] = useState(false);
   const [fullPageLayerTrayOpen, setFullPageLayerTrayOpen] = useState(false);
   const [liveScenePulse, setLiveScenePulse] = useState(false);
   const [fullPageMap, setFullPageMap] = useState(false);
@@ -1587,7 +1424,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         true,
       );
     }
-    return previewMarkersForEntry(selectedEntry, scenarioBudget, scenarioPlanningMode, data.bounds);
+    return previewMarkersForEntry(selectedEntry, scenarioBudget, scenarioPlanningMode);
   }, [
     coolingEntries,
     data.bounds,
@@ -1866,23 +1703,25 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
           {activeControlTab === "actions" ? (
             <div className="map-layer-section">
-              <div className="map-layer-section-title">Scenario intervention layers</div>
+              <div className="map-layer-section-title">Action-readiness surface</div>
               <p className="map-layer-summary">
-                The atlas now shows saved scenarios when they exist, so the map can tell one clean planning story per scenario instead of a crowded list of options.
+                Warm cells are real study areas with stronger bundled intervention signals. They tell you where to investigate feasibility—not where a project is approved, designed, or funded.
               </p>
               <div className="map-layer-control-row">
-                <label className="map-switch"><input type="checkbox" checked={showScenarioInterventions} onChange={() => setShowScenarioInterventions((value) => !value)} /><span>Show intervention layers on map</span></label>
+                <label className="map-switch"><input type="checkbox" checked={showActionReadiness} onChange={() => setShowActionReadiness((value) => !value)} /><span>Show action-readiness areas</span></label>
                 <MethodGuideLink guideKey="interventions" open={openMethodGuide === "interventions"} onToggle={() => setOpenMethodGuide((current) => current === "interventions" ? null : "interventions")} />
               </div>
+              <label className="map-switch">
+                <input type="checkbox" checked={showScenarioInterventions} onChange={() => setShowScenarioInterventions((value) => !value)} />
+                <span>Show evidence-anchored recommendations</span>
+              </label>
+              <p className="map-layer-summary">Each marker is placed at the centroid of a real ranked heat or cooling polygon. Its transparent score combines polygon evidence (40%), scenario action rank (25%), action-to-layer fit (20%), and separation from other recommendations (15%).</p>
+              <p className="map-layer-summary">Saved scenarios contain action categories and budgets, but this package has no verified site geometry. The atlas does not invent pins or street-level intervention locations.</p>
               <div className="map-layer-section-title">Impact evidence</div>
               <div className="scenario-impact-evidence">
                 <div className="scenario-impact-evidence-row">
                   <div><span className="truth-badge derived">Planning</span><strong>Scenario influence</strong></div>
-                  <p>
-                    {scenarioInfluence.available
-                      ? `${scenarioInfluence.affectedZoneCount} priority zones have a modeled local influence; mean priority shift ${scenarioInfluence.averagePriorityShift.toFixed(1)} points.`
-                      : "Choose a scenario with mapped actions to generate a planning influence preview."}
-                  </p>
+                  <p>Not available until an intervention has verified geometry and a documented modelling method. This view intentionally shows areas to investigate, not a simulated site-level benefit.</p>
                 </div>
                 <div className="scenario-impact-evidence-row">
                   <div><span className="truth-badge illustrative">Measured</span><strong>Observed impact</strong></div>
@@ -1958,20 +1797,15 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                           <strong>{selectedScenario.benchmarkSummary.benchmarkLabel}</strong>
                         </div>
                       </div>
-                      <p className="map-layer-summary">
-                        Placement math: 30% overlay evidence, 22% action priority, 18% layer fit, 15% slot fit, and 15% separation from already placed interventions.
-                      </p>
-                      {scenarioInfluence.available ? (
-                        <div className="scenario-comparison-card">
-                          <div className="scenario-comparison-head">
-                            <strong>Scenario influence preview</strong>
-                            <span>Planning model · not a temperature forecast</span>
-                          </div>
-                          <p className="scenario-comparison-note">
-                            {scenarioInfluence.affectedZoneCount} priority zones are within the modelled local influence of this scenario. The average priority shift is {scenarioInfluence.averagePriorityShift.toFixed(1)} points; this ranks planning attention and does not estimate degrees Celsius.
-                          </p>
+                      <div className="scenario-comparison-card">
+                        <div className="scenario-comparison-head">
+                          <strong>Site validation still required</strong>
+                          <span>Scenario package · no mapped sites</span>
                         </div>
-                      ) : null}
+                        <p className="scenario-comparison-note">
+                          This scenario specifies actions, budget, and planning assumptions—not verified project geometry. Use the action-readiness surface to choose areas to investigate, then validate ownership, site conditions, and community priorities before estimating impact.
+                        </p>
+                      </div>
                       <div className="map-layer-section-title">Recommended actions</div>
                       <div className="map-property-list map-property-list--scenario-actions">
                         {selectedScenario.recommendedActions.map((action, index) => (
@@ -1998,7 +1832,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               ) : (
                     <>
                       <p className="map-layer-summary">
-                        Pick a scenario mode and budget tier and the atlas will turn the currently selected bottleneck or cooling-gap polygon into a small set of visible intervention layers. This local preview remains available when no saved scenarios exist yet.
+                        Pick a scenario mode and budget tier to compare an intervention package for the selected evidence area. It is a planning package, not a map of proposed sites: use the action-readiness surface and local validation before locating any project.
                       </p>
                       <div className="map-segmented-control">
                         {[
@@ -2043,7 +1877,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                           <strong>{scenarioPlanningMode.replaceAll("_", " ")}</strong>
                         </div>
                         <div className="map-property-row">
-                          <span>Preview count</span>
+                          <span>Action categories</span>
                           <strong>{scenarioInterventions.length}</strong>
                         </div>
                         <div className="map-property-row">
@@ -2051,17 +1885,15 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                           <strong>${scenarioBudget.toLocaleString()}</strong>
                         </div>
                       </div>
-                      {scenarioInfluence.available ? (
-                        <div className="scenario-comparison-card">
-                          <div className="scenario-comparison-head">
-                            <strong>Scenario influence preview</strong>
-                            <span>Planning model · not a temperature forecast</span>
-                          </div>
-                          <p className="scenario-comparison-note">
-                            {scenarioInfluence.affectedZoneCount} priority zones are within the modelled local influence of this scenario. The average priority shift is {scenarioInfluence.averagePriorityShift.toFixed(1)} points; this ranks planning attention and does not estimate degrees Celsius.
-                          </p>
+                      <div className="scenario-comparison-card">
+                        <div className="scenario-comparison-head">
+                          <strong>Site validation still required</strong>
+                          <span>Planning package · no mapped sites</span>
                         </div>
-                      ) : null}
+                        <p className="scenario-comparison-note">
+                          The atlas deliberately does not place these actions at street locations. First use action readiness to investigate an area, then confirm site feasibility and community priorities before estimating benefits.
+                        </p>
+                      </div>
                       {scenarioInterventions.length ? (
                         <div className="map-focus-card map-focus-card-spectral">
                           <div className="map-insight-head">
@@ -2080,7 +1912,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                                   </div>
                                 </div>
                                 <div className="scenario-action-footer">
-                                  <span className="scenario-action-chip derived">Preview</span>
+                                  <span className="scenario-action-chip derived">Planning action</span>
                                   <span className="scenario-action-cost">Budget ${item.budgetUsd.toLocaleString()}</span>
                                 </div>
                               </div>
@@ -2374,12 +2206,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   }, [data.thermalSources, selectedThermalSourceId]);
 
   useEffect(() => {
-    if (!shellCollapsed) {
-      setSidebarTrayOpen(true);
-    }
-  }, [shellCollapsed]);
-
-  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && fullPageMapRef.current) {
         if (fullPageLayerTrayOpen) {
@@ -2424,11 +2250,27 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       return;
     }
 
-    // Safari changes its visual viewport when its browser controls appear or
-    // disappear. A few settled resizes keep MapLibre visible on iPhone.
+    // Moving the existing WebGL canvas into the fixed focus surface can leave
+    // MapLibre with its former embedded dimensions for a frame (notably in
+    // Safari, but also after a desktop layout transition). Retry only after
+    // the container has real dimensions, then refit and request a repaint.
     const resize = () => {
+      const container = mapContainerRef.current;
+      if (!container || container.clientWidth < 2 || container.clientHeight < 2) {
+        return;
+      }
       try {
         map.resize();
+        if (fullPageMap && data.bounds) {
+          map.fitBounds(
+            [
+              [data.bounds.minLng, data.bounds.minLat],
+              [data.bounds.maxLng, data.bounds.maxLat],
+            ],
+            { padding: 56, duration: 0 },
+          );
+        }
+        map.triggerRepaint();
       } catch {
         // Ignore transient resize failures during layout changes.
       }
@@ -2436,7 +2278,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     const timeoutIds: number[] = [];
     const frameId = window.requestAnimationFrame(() => {
       resize();
-      timeoutIds.push(window.setTimeout(resize, 120), window.setTimeout(resize, 320));
+      timeoutIds.push(
+        window.setTimeout(resize, 80),
+        window.setTimeout(resize, 220),
+        window.setTimeout(resize, 480),
+        window.setTimeout(resize, 900),
+      );
     });
     const visualViewport = window.visualViewport;
     visualViewport?.addEventListener("resize", resize);
@@ -2448,8 +2295,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       visualViewport?.removeEventListener("resize", resize);
       window.removeEventListener("orientationchange", resize);
     };
-  }, [fullPageMap, mapReady]);
+  }, [data.bounds, fullPageMap, mapReady]);
 
+  // A MapLibre canvas captures its container dimensions when it is created.
+  // Recreate it when crossing the embedded/focus boundary so it is always
+  // initialized in its final, visible layout. This is more reliable than
+  // moving an already-live WebGL canvas into a fixed modal surface.
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current || !data.bounds) {
       return;
@@ -2645,6 +2496,40 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         });
       }
 
+      // This is intentionally an investigation surface, not a set of proposed
+      // project sites. `street_intervention_signal` is supplied with the city
+      // study cells and represents where the package warrants a feasibility
+      // check before any intervention is located or funded.
+      const actionReadinessData = (data.accessGeojson ?? data.heatGeojson) as GeoJSON.FeatureCollection | null;
+      if (actionReadinessData) {
+        map.addSource("action-readiness", { type: "geojson", data: actionReadinessData });
+        map.addLayer({
+          id: "action-readiness-fill",
+          type: "fill",
+          source: "action-readiness",
+          layout: { visibility: "none" },
+          paint: {
+            "fill-color": [
+              "interpolate", ["linear"],
+              ["coalesce", ["to-number", ["get", "street_intervention_signal"]], ["to-number", ["get", "priority"]], 0],
+              0, "#e2e8f0",
+              35, "#fde68a",
+              60, "#fb923c",
+              80, "#dc2626",
+              100, "#7f1d1d",
+            ],
+            "fill-opacity": 0.56,
+          },
+        });
+        map.addLayer({
+          id: "action-readiness-line",
+          type: "line",
+          source: "action-readiness",
+          layout: { visibility: "none" },
+          paint: { "line-color": "rgba(127, 29, 29, 0.72)", "line-width": 1.1 },
+        });
+      }
+
       map.addSource("selection", {
         type: "geojson",
         data: {
@@ -2751,7 +2636,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [data.accessGeojson, data.boundaryGeojson, data.bounds, data.heatGeojson, data.studyAreaGeojson, data.thermalSources]);
+  }, [data.accessGeojson, data.boundaryGeojson, data.bounds, data.heatGeojson, data.studyAreaGeojson, data.thermalSources, fullPageMap]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -2778,6 +2663,8 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     updateLayerVisibility("heat-line", showHeat);
     updateLayerVisibility("cooling-fill", showCooling);
     updateLayerVisibility("cooling-line", showCooling);
+    updateLayerVisibility("action-readiness-fill", showActionReadiness);
+    updateLayerVisibility("action-readiness-line", showActionReadiness);
     updateLayerVisibility("scenario-interventions-circle", showScenarioInterventions && scenarioInterventions.length > 0);
   }, [
     data.thermalSources,
@@ -2786,6 +2673,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     selectedThermalSourceId,
     showBoundary,
     showCooling,
+    showActionReadiness,
     showHeat,
     showStudyArea,
     showThermalCorridors,
@@ -2894,7 +2782,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         if (!scenarioPopup) {
           return;
         }
-        const placeHint = scenarioPlaceHint(markerData);
         const mechanismLabel = scenarioMechanismLabel(markerData.icon, markerData.label);
         const popupContent = document.createElement("div");
         popupContent.className = "scenario-marker-popup";
@@ -2921,24 +2808,24 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         whereRow.className = "scenario-marker-popup-row";
         const whereLabel = document.createElement("span");
         whereLabel.className = "scenario-marker-popup-key";
-        whereLabel.textContent = "Where";
+        whereLabel.textContent = "Evidence area";
         whereRow.appendChild(whereLabel);
         const whereValue = document.createElement("span");
         whereValue.className = "scenario-marker-popup-value";
-        whereValue.textContent = placeHint ? placeHint.label : "Selected area";
+        whereValue.textContent = markerData.evidenceArea ?? "Selected evidence polygon";
         whereRow.appendChild(whereValue);
         details.appendChild(whereRow);
 
-        if (placeHint) {
+        if (markerData.placementScore) {
           const areaRow = document.createElement("div");
           areaRow.className = "scenario-marker-popup-row";
           const areaLabel = document.createElement("span");
           areaLabel.className = "scenario-marker-popup-key";
-          areaLabel.textContent = "Why here";
+          areaLabel.textContent = "Why this polygon";
           areaRow.appendChild(areaLabel);
           const areaValue = document.createElement("span");
           areaValue.className = "scenario-marker-popup-value";
-          areaValue.textContent = placeHint.explanation;
+          areaValue.textContent = markerData.placementScore.explanation;
           areaRow.appendChild(areaValue);
           details.appendChild(areaRow);
         }
@@ -2964,7 +2851,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
         const meta = document.createElement("div");
         meta.className = "scenario-marker-popup-meta";
-        meta.textContent = markerData.emphasis ? "Active scenario" : "Scenario intervention";
+        meta.textContent = "Recommendation marker · evidence-anchored, not a verified project site";
         popupContent.appendChild(meta);
 
         scenarioPopup
@@ -3122,6 +3009,49 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       }
     };
 
+    const actionEntryForFeature = (feature: MapGeoJSONFeature) => {
+      const featureId = String(feature.id ?? feature.properties?.cell_id ?? feature.properties?.id ?? "");
+      const entries = [...coolingEntries, ...heatEntries];
+      const idMatch = entries.find((entry) => {
+        const entryFeature = overlayFeature(entry.overlay);
+        const entryId = String(entry.overlay.id ?? entryFeature?.id ?? entryFeature?.properties?.cell_id ?? entryFeature?.properties?.id ?? "");
+        return entryId === featureId;
+      });
+      if (idMatch) return idMatch;
+
+      // The production API assigns stable shared IDs. The centroid fallback
+      // makes the interaction resilient to imported city files that preserve
+      // geometry but omit those IDs.
+      const clickedCentroid = geometryCentroid(feature as unknown as GeoJsonFeature);
+      if (!clickedCentroid) return null;
+      return entries.find((entry) => {
+        const centroid = overlayCentroid(entry.overlay);
+        return centroid
+          ? distanceSquared(clickedCentroid.lng, clickedCentroid.lat, centroid.lng, centroid.lat) < 1e-10
+          : false;
+      }) ?? null;
+    };
+
+    const onActionReadinessMove = (event: MapMouseEvent & { features?: MapGeoJSONFeature[] }) => {
+      const feature = event.features?.[0];
+      if (!feature || !popup) return;
+      const readiness = Number(feature.properties?.street_intervention_signal ?? feature.properties?.priority ?? 0).toFixed(1);
+      popup
+        .setLngLat(event.lngLat)
+        .setHTML(`<strong>Action-readiness area</strong><br/>Investigation signal ${readiness}<br/>Click to inspect the linked evidence cell`)
+        .addTo(map);
+      map.getCanvas().style.cursor = "pointer";
+    };
+
+    const onActionReadinessClick = (event: MapMouseEvent & { features?: MapGeoJSONFeature[] }) => {
+      const feature = event.features?.[0];
+      if (!feature) return;
+      const entry = actionEntryForFeature(feature);
+      if (entry) {
+        setSelectedKey(entry.key);
+      }
+    };
+
     const syncSourceFilter = (sourceLayer: "heat" | "cooling", entries: OverlayEntry[]) => {
       const layerId = sourceLayer === "heat" ? "heat-fill" : "cooling-fill";
       const lineId = sourceLayer === "heat" ? "heat-line" : "cooling-line";
@@ -3151,6 +3081,11 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       map.on("mouseleave", "cooling-fill", onLeave);
       map.on("click", "cooling-fill", onCoolingClick);
     }
+    if (safeHasLayer(map, "action-readiness-fill")) {
+      map.on("mousemove", "action-readiness-fill", onActionReadinessMove);
+      map.on("mouseleave", "action-readiness-fill", onLeave);
+      map.on("click", "action-readiness-fill", onActionReadinessClick);
+    }
     const thermalHandlers = data.thermalSources.map((thermalSource) => ({
       source: thermalSource,
       move: makeThermalMove(thermalSource.sourceName, thermalSource.provider),
@@ -3173,6 +3108,11 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         map.off("mouseleave", "cooling-fill", onLeave);
         map.off("click", "cooling-fill", onCoolingClick);
       }
+      if (safeHasLayer(map, "action-readiness-fill")) {
+        map.off("mousemove", "action-readiness-fill", onActionReadinessMove);
+        map.off("mouseleave", "action-readiness-fill", onLeave);
+        map.off("click", "action-readiness-fill", onActionReadinessClick);
+      }
       for (const handler of thermalHandlers) {
         if (safeHasLayer(map, `thermal-fill-${handler.source.id}`)) {
           map.off("mousemove", `thermal-fill-${handler.source.id}`, handler.move);
@@ -3180,7 +3120,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         }
       }
     };
-  }, [data.thermalSources, mapReady, selectedKey, showCooling, showHeat, visibleEntries, visibleKeys]);
+  }, [coolingEntries, data.thermalSources, heatEntries, mapReady, selectedKey, showCooling, showHeat, visibleEntries, visibleKeys]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -3274,6 +3214,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     if (lens === "priority") {
       setShowHeat(true);
       setShowCooling(true);
+      setShowActionReadiness(false);
       setShowThermalSurface(false);
       setShowThermalCorridors(false);
       setShowScenarioInterventions(false);
@@ -3282,6 +3223,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     if (lens === "evidence") {
       setShowHeat(false);
       setShowCooling(false);
+      setShowActionReadiness(false);
       setShowThermalSurface(true);
       setShowThermalCorridors(true);
       setShowScenarioInterventions(false);
@@ -3294,14 +3236,26 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     }
     setShowHeat(true);
     setShowCooling(true);
+    setShowActionReadiness(true);
     setShowThermalSurface(false);
     setShowThermalCorridors(false);
-    setShowScenarioInterventions(true);
+    // A saved scenario currently stores action categories and budgets, not
+    // site geometry. Do not turn it into a fictional point on the map.
+    setShowScenarioInterventions(false);
   };
 
   const openFocusedMap = (lens: Exclude<MapLens, "custom">) => {
     chooseMapLens(lens);
     setFullPageMap(true);
+  };
+
+  const revealSelectedEvidence = () => {
+    if (fullPageMap) {
+      setFullPageLayerTrayOpen(true);
+      return;
+    }
+    const panel = mapContainerRef.current?.closest(".map-card")?.querySelector<HTMLElement>(".map-selection-panel");
+    panel?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -3364,7 +3318,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             </button>
             <button type="button" className={`map-lens-card${mapLens === "action" ? " is-active" : ""}`} onClick={() => chooseMapLens("action")} aria-pressed={mapLens === "action"}>
               <i className="layer-swatch layer-swatch-intervention" aria-hidden="true" />
-              <span><strong>What could improve it?</strong><small>Priorities + proposed actions</small></span>
+              <span><strong>What could improve it?</strong><small>Action-readiness areas + next checks</small></span>
               <b>→</b>
             </button>
           </div>
@@ -3375,10 +3329,37 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showCooling} onChange={() => { setMapLens("custom"); setShowCooling((value) => !value); }} /><span><i className="layer-swatch layer-swatch-resistance" />Cooling gaps <small>derived</small></span></label>
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showThermalSurface} onChange={() => { setMapLens("custom"); setShowThermalSurface((value) => !value); }} /><span><i className="layer-swatch layer-swatch-thermal" />Surface heat <small>observed</small></span></label>
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showThermalCorridors} onChange={() => { setMapLens("custom"); setShowThermalCorridors((value) => !value); }} /><span><i className="layer-swatch layer-swatch-corridor" />Heat corridors <small>observed</small></span></label>
-              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showScenarioInterventions} onChange={() => { setMapLens("custom"); setShowScenarioInterventions((value) => !value); }} /><span><i className="layer-swatch layer-swatch-intervention" />Actions <small>scenario</small></span></label>
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showActionReadiness} onChange={() => { setMapLens("custom"); setShowActionReadiness((value) => !value); }} /><span><i className="layer-swatch layer-swatch-intervention" />Action readiness <small>derived</small></span></label>
+              <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showScenarioInterventions} onChange={() => { setMapLens("custom"); setShowScenarioInterventions((value) => !value); }} /><span><i className="layer-swatch layer-swatch-intervention" />Recommendations <small>evidence-anchored</small></span></label>
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showStudyArea} onChange={() => { setMapLens("custom"); setShowStudyArea((value) => !value); }} /><span><i className="layer-swatch layer-swatch-study-area" />Study edge <small>scope</small></span></label>
             </div>
           </details>
+          {selectedEntry ? (
+            <section className="map-fullpage-selected-evidence" aria-label="Selected evidence">
+              <span className="eyebrow">Selected evidence</span>
+              <h4>{selectedEntry.overlay.label}</h4>
+              <p>{overlayNarrative(selectedEntry, selectedEntryIsRanked)}</p>
+              <div className="map-fullpage-selected-evidence-metrics">
+                <span><b>{selectedEntryIsRanked ? selectedEntry.overlay.score.toFixed(1) : "Flagged"}</b>{selectedEntryIsRanked ? " priority" : " condition"}</span>
+                <span>{selectedEntry.layerLabel}</span>
+              </div>
+              <p className="map-fullpage-selected-evidence-why"><strong>Why it matters:</strong> {plainMathExplanation(selectedEntry, selectedEntryIsRanked)}</p>
+              {selectedMitigations.length ? (
+                <div className="mitigation-strip">
+                  {selectedMitigations.map((item) => (
+                    <Link
+                      key={item}
+                      to="/scenarios"
+                      search={{ cityId: data.cityId, budgetUsd: selectedScenarioBudget, focus: item, sourceLayer: selectedEntry.layerLabel, selectedLabel: selectedEntry.overlay.label }}
+                      className="mitigation-chip"
+                    >
+                      {item}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
           <details className="map-fullpage-research-details">
             <summary>Research details &amp; sources</summary>
             <div className="map-fullpage-research-content">{sidebarContent}</div>
@@ -3405,21 +3386,29 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           {showScenarioInterventions && scenarioMapMarkers.length ? (
             <div className="map-live-placement-note">
               <span className="map-live-placement-dot" aria-hidden="true" />
-              <span>Blinking markers show recommended intervention placement.</span>
+              <span>Markers show recommended action types, anchored to ranked evidence polygons.</span>
             </div>
           ) : null}
         </div>
       </div>
 
-      <div className="truth-banner">
-        <div className={`truth-badge ${data.truthMode.interpretationStatus}`}>
-          {truthLabel(data.truthMode.interpretationStatus)}
+      <details className="map-evidence-note">
+        <summary>
+          <span className={`truth-badge ${data.truthMode.interpretationStatus}`}>
+            {truthLabel(data.truthMode.interpretationStatus)}
+          </span>
+          <span><strong>How to read this atlas</strong><small>Methods, evidence status, and limits</small></span>
+        </summary>
+        <div className="truth-banner">
+          <div className={`truth-badge ${data.truthMode.interpretationStatus}`}>
+            {truthLabel(data.truthMode.interpretationStatus)}
+          </div>
+          <div className="truth-copy">
+            <strong>{data.truthMode.headline} The emphasis is on inspectable spectral mathematics alongside sensor imagery and local interpretation.</strong>
+            <p>{data.truthMode.caution}</p>
+          </div>
         </div>
-        <div className="truth-copy">
-          <strong>{data.truthMode.headline} The emphasis is on inspectable spectral mathematics alongside sensor imagery and local interpretation.</strong>
-          <p>{data.truthMode.caution}</p>
-        </div>
-      </div>
+      </details>
 
       <div className={`map-layout ${shellCollapsed ? "map-layout-shell-collapsed" : ""}${fullPageMap ? " map-layout-fullpage" : ""}`}>
         <div className={`map-main-column ${shellCollapsed ? "map-main-column-shell-collapsed" : ""}${fullPageMap ? " map-main-column-fullpage" : ""}`}>
@@ -3448,54 +3437,70 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             </div>
           </section>
           <div className="map-inline-controls">
-            <div className="map-toolbar map-toolbar-inline">
-              <div className="map-control-group">
-                <button
-                  type="button"
-                  className="map-toggle active"
-                  onClick={() => {
-                    const map = mapRef.current;
-                    if (!map || !data.bounds) return;
-                    map.fitBounds(
-                      [
-                        [data.bounds.minLng, data.bounds.minLat],
-                        [data.bounds.maxLng, data.bounds.maxLat],
-                      ],
-                      { padding: 36, duration: 500 },
-                    );
-                  }}
-                >
-                  Reset extent
-                </button>
-                <button type="button" className="map-toggle" onClick={() => setSelectedKey(null)}>
-                  Clear selection
-                </button>
-                <button
-                  type="button"
-                  className={`map-toggle${fullPageMap ? " active" : ""}`}
-                  onClick={() => {
-                    const next = !fullPageMap;
-                    if (mapDebugEnabled) {
-                      const container = mapContainerRef.current;
-                      console.log("[city-heat-map] fullscreen toggle clicked", {
-                        currentFullPageMap: fullPageMap,
-                        nextFullPageMap: next,
-                        mapReady,
-                        containerWidth: container?.offsetWidth ?? null,
-                        containerHeight: container?.offsetHeight ?? null,
-                        mapPresent: Boolean(mapRef.current),
-                      });
-                    }
-                    setFullPageMap((current) => !current);
-                  }}
-                  aria-label={fullPageMap ? "Exit full page map" : "Open full page map"}
-                >
-                  {fullPageMap ? "Back to page" : "Full page map"}
-                </button>
+            <section className="map-question-bar" aria-label="Choose an atlas question">
+              <div className="map-question-bar-copy">
+                <span className="eyebrow">Choose one question</span>
+                <strong>What do you need to understand first?</strong>
               </div>
-            </div>
+              <div className="map-question-choices" role="group" aria-label="Atlas views">
+                <button type="button" className={mapLens === "priority" ? "active" : ""} onClick={() => chooseMapLens("priority")} aria-pressed={mapLens === "priority"}>Where is help needed?</button>
+                <button type="button" className={mapLens === "evidence" ? "active" : ""} onClick={() => chooseMapLens("evidence")} aria-pressed={mapLens === "evidence"}>What does the evidence show?</button>
+                <button type="button" className={mapLens === "action" ? "active" : ""} onClick={() => chooseMapLens("action")} aria-pressed={mapLens === "action"}>What could improve it?</button>
+              </div>
+              <button
+                type="button"
+                className="map-toggle map-question-expand"
+                onClick={() => {
+                  if (mapDebugEnabled) {
+                    const container = mapContainerRef.current;
+                    console.log("[city-heat-map] fullscreen toggle clicked", {
+                      currentFullPageMap: fullPageMap,
+                      nextFullPageMap: true,
+                      mapReady,
+                      containerWidth: container?.offsetWidth ?? null,
+                      containerHeight: container?.offsetHeight ?? null,
+                      mapPresent: Boolean(mapRef.current),
+                    });
+                  }
+                  // This control is only rendered outside focus mode. Entering
+                  // explicitly (rather than toggling) prevents a duplicate
+                  // browser click from immediately undoing the transition.
+                  setFullPageLayerTrayOpen(false);
+                  setFullPageMap(true);
+                }}
+                aria-label={fullPageMap ? "Exit full page map" : "Open full page map"}
+              >
+                {fullPageMap ? "Back to page" : "Focus map"}
+              </button>
+            </section>
 
-            <div className="district-grid district-grid-inline">
+            <details className="map-atlas-pulse">
+              <summary><span>Atlas pulse</span><small>Counts, filters, and map utilities</small></summary>
+              <div className="map-toolbar map-toolbar-inline">
+                <div className="map-control-group">
+                  <button
+                    type="button"
+                    className="map-toggle active"
+                    onClick={() => {
+                      const map = mapRef.current;
+                      if (!map || !data.bounds) return;
+                      map.fitBounds(
+                        [
+                          [data.bounds.minLng, data.bounds.minLat],
+                          [data.bounds.maxLng, data.bounds.maxLat],
+                        ],
+                        { padding: 36, duration: 500 },
+                      );
+                    }}
+                  >
+                    Reset extent
+                  </button>
+                  <button type="button" className="map-toggle" onClick={() => setSelectedKey(null)}>
+                    Clear selection
+                  </button>
+                </div>
+              </div>
+              <div className="district-grid district-grid-inline">
               <div className="map-badge">
                 <strong>{thermalCellCount}</strong>
                 <p>thermal study cells</p>
@@ -3520,15 +3525,32 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <strong>{severityFilter === "all" ? "All" : severityFilter}</strong>
                 <p>active filter</p>
               </div>
-            </div>
+              </div>
+            </details>
           </div>
 
           <div className={`map-stage map-stage-geographic ${liveScenePulse ? "live-update-flash" : ""}${fullPageMap ? " map-stage-fullpage" : ""}`}>
             <div ref={mapContainerRef} className={`maplibre-stage${fullPageMap ? " maplibre-stage-fullpage" : ""}`} />
+            {mapLens === "action" ? (
+              <aside className="map-action-brief" aria-label="How to use action readiness">
+                <span className="eyebrow">Derived planning screen</span>
+                <strong>{selectedEntry ? `Selected: ${selectedEntry.overlay.label}` : "Investigate warm areas first."}</strong>
+                <p>{selectedEntry
+                  ? `${selectedEntry.layerLabel} · ${selectedEntryIsRanked ? `priority ${selectedEntry.overlay.score.toFixed(1)}` : "flagged evidence area"}. Review the evidence below, then verify ownership, use, and community priorities before proposing an action.`
+                  : "They combine the city package’s intervention signal with its heat-and-cooling evidence. Click a cell to inspect it; verify ownership, use, and community priorities before proposing an action."}</p>
+                {selectedEntry ? (
+                  <button type="button" className="map-action-evidence-button" onClick={revealSelectedEvidence}>
+                    {fullPageMap ? "View selected evidence" : "View selected evidence ↓"}
+                  </button>
+                ) : (
+                  <small>Not a site recommendation or impact forecast.</small>
+                )}
+              </aside>
+            ) : null}
           </div>
 
           <div className="map-analysis-dock">
-            <div className="map-legend">
+            <section className="map-legend map-selection-panel">
               <h3>Selected polygon</h3>
               {selectedEntry ? (
                 <div className="map-focus-card">
@@ -3590,11 +3612,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               ) : (
                 <p className="muted">Turn on at least one layer to inspect polygons.</p>
               )}
-            </div>
+            </section>
 
-            <div className="map-legend">
-              <h3>Priority bottlenecks to inspect</h3>
-              <p className="map-layer-summary">Model-derived locations where connectivity analysis suggests a cooling corridor may matter most. This is a prioritization aid—not an observed temperature, prediction, or funding recommendation.</p>
+            <section className="map-legend map-next-step-panel">
+              <span className="eyebrow">Start here</span>
+              <h3>One place to inspect first</h3>
+              <p className="map-layer-summary">A model-derived starting point for local investigation—not an observed temperature, prediction, or funding recommendation.</p>
               {highestRankedEntry ? (
                 <article className="map-highest-rank-callout">
                   <div>
@@ -3605,6 +3628,11 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                   <button type="button" className="map-toggle" onClick={() => viewEntryOnMap(highestRankedEntry)}>View on map</button>
                 </article>
               ) : null}
+            </section>
+
+            <details className="map-legend map-insight-disclosure">
+              <summary><span>Explore the priority queue</span><small>{researchQueue.length} ranked locations</small></summary>
+              <p className="map-layer-summary">Compare the derived bottlenecks only when you need a broader investigation queue.</p>
               {researchQueue.length ? researchQueue.map((entry, index) => (
                 <button
                   key={entry.key}
@@ -3625,10 +3653,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               {!coolingScoresAreRanked && coolingVisibleCount > 0 ? (
                 <p className="map-layer-summary">{coolingVisibleCount} low-cooling-access zones are flagged, but the bundled values are identical. They are intentionally excluded from this ranked queue.</p>
               ) : null}
-            </div>
+            </details>
 
-            <div className="map-legend">
-              <h3>Cooling-access constraints to inspect</h3>
+            <details className="map-legend map-insight-disclosure">
+              <summary><span>Explore cooling-access constraints</span><small>{coolingAccessBands.length} constraint bands</small></summary>
               <p className="map-layer-summary">Higher constraint means lower modeled access to inferred cooling sinks. Equal scores are ties in this graph-based surface, not an invented finer ordering.</p>
               {coolingAccessBands.length ? coolingAccessBands.map((band, index) => (
                 <button
@@ -3647,10 +3675,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               )) : (
                 <p className="muted">No rankable cooling-access cells match the current layer and severity filters.</p>
               )}
-            </div>
+            </details>
 
-            <div className="map-legend">
-              <h3>Intervention highlights</h3>
+            <details className="map-legend map-insight-disclosure">
+              <summary><span>See intervention highlights</span><small>{data.highlights.length} planning signals</small></summary>
               {data.highlights.map((item) => (
                 <div key={item.title} className="plan-card-mini">
                   <strong>{item.title}</strong>
@@ -3658,14 +3686,21 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                   <p>{item.valueLabel === "zones" ? `${item.value} zones` : `Score: ${item.value.toFixed(1)}`}</p>
                 </div>
               ))}
-            </div>
+            </details>
           </div>
         </div>
 
         {!shellCollapsed && !fullPageMap ? (
-          <aside className="map-sidebar">
+          <details className="map-sidebar map-sidebar-desktop-drawer">
+            <summary className="map-sidebar-tray-summary">
+              <div className="map-sidebar-tray-copy">
+                <strong>Map controls, sources, and methods</strong>
+                <span>Fine-tune layers or review the evidence behind this view.</span>
+              </div>
+              <span className="map-sidebar-tray-pill">Open</span>
+            </summary>
             {sidebarContent}
-          </aside>
+          </details>
         ) : null}
       </div>
 

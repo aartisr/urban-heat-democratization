@@ -431,6 +431,15 @@ test("capture documentation screenshots", async ({ page }) => {
   await expect(page.getByText("Planning readiness and data requirements")).toBeVisible();
   await captureSettledPage("city-detail.png");
 
+  await page.goto("/cities/boston?view=explore");
+  const showAtlas = page.getByRole("button", { name: "Show the city atlas" });
+  if (await showAtlas.isVisible()) {
+    await showAtlas.click();
+  }
+  await expect(page.getByRole("group", { name: "Atlas views" })).toBeVisible();
+  await expect(page.locator(".maplibre-stage")).toBeVisible();
+  await captureSettledPage("city-atlas.png");
+
   await page.goto("/scenarios");
   await expect(page.getByRole("heading", { name: "See what this budget can fund." })).toBeVisible();
   await captureSettledPage("scenarios.png");
