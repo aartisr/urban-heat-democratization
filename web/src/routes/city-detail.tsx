@@ -203,11 +203,14 @@ export function CityDetailPage() {
             ))}
           />
 
-          <CityDetailSectionGrid
-            title="Planning readiness"
-            description={cityReadinessQuery.data?.narrative ?? "This panel checks whether the city is ready for bundled study, upload-first onboarding, or only partial scenario planning."}
-            cards={detailConfig.sections.readinessCards}
-          />
+          <details className="panel-card premium-section-card city-secondary-section">
+            <summary className="premium-summary">Planning readiness and data requirements</summary>
+            <CityDetailSectionGrid
+              title="Planning readiness"
+              description={cityReadinessQuery.data?.narrative ?? "This panel checks whether the city is ready for bundled study, upload-first onboarding, or only partial scenario planning."}
+              cards={detailConfig.sections.readinessCards}
+            />
+          </details>
 
           {!cityExperienceQuery.data?.bundled ? (
             <article className="panel-card premium-section-card premium-city-data-card">
@@ -226,7 +229,10 @@ export function CityDetailPage() {
           ) : null}
 
           {cityExperienceQuery.data?.studyCards.length ? (
-            <CityDetailSectionGrid title={`${cityExperienceQuery.data.cityName} guided study workflow`} description={cityExperienceQuery.data.summary} cards={detailConfig.sections.workflowCards} actions={<>{cityExperienceQuery.data.studyGuideArtifactId ? <a href={artifactDownloadUrl(cityExperienceQuery.data.studyGuideArtifactId)} className="button-link">Open study guide</a> : null}<Link to="/scenarios" search={detailConfig.scenarioSearch} className="button-link secondary">Open scenarios</Link><Link to="/runs" className="button-link secondary">Open runs</Link></>} />
+            <details className="panel-card premium-section-card city-secondary-section">
+              <summary className="premium-summary">Study workflow, downloads, and run history</summary>
+              <CityDetailSectionGrid title={`${cityExperienceQuery.data.cityName} guided study workflow`} description={cityExperienceQuery.data.summary} cards={detailConfig.sections.workflowCards} actions={<>{cityExperienceQuery.data.studyGuideArtifactId ? <a href={artifactDownloadUrl(cityExperienceQuery.data.studyGuideArtifactId)} className="button-link">Open study guide</a> : null}<Link to="/scenarios" search={detailConfig.scenarioSearch} className="button-link secondary">Open scenarios</Link><Link to="/runs" className="button-link secondary">Open runs</Link></>} />
+            </details>
           ) : null}
         </>
       ) : null}

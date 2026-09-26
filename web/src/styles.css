@@ -9494,7 +9494,7 @@ body.map-fullpage-lock .sidebar-restore {
 
 .page-stack {
   width: min(100%, var(--layout-max));
-  gap: 16px;
+  gap: 12px;
 }
 
 .section-heading,
@@ -9541,6 +9541,14 @@ body.map-fullpage-lock .sidebar-restore {
   border-radius: 20px;
 }
 
+/* Shared desktop density: keep the evidence, reduce decorative vertical drift. */
+@media (min-width: 721px) {
+  .panel-card { padding: clamp(18px, 1.6vw, 22px); }
+  .nested-card { padding: clamp(14px, 1.25vw, 18px); }
+  .panel-card h2 { margin-bottom: 10px; }
+  .bullet-list { line-height: 1.6; }
+}
+
 .quick-links {
   gap: 8px;
 }
@@ -9548,6 +9556,17 @@ body.map-fullpage-lock .sidebar-restore {
 .quick-links .button-link {
   min-height: 40px;
 }
+
+.home-secondary-section { padding: 0; }
+.home-secondary-section > summary {
+  display: block;
+  padding: 16px 20px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  font-weight: 800;
+}
+.home-secondary-section-content { display: grid; gap: 20px; padding: 0 20px 20px; border-top: 1px solid var(--line); }
+.home-secondary-section-content > section { padding-top: 20px; }
 
 .story-journey-strip,
 .science-banner {

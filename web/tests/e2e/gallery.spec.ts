@@ -412,7 +412,7 @@ test.beforeEach(async ({ page }) => {
 test("capture documentation screenshots", async ({ page }) => {
   await ensureScreenshotsDir();
   const captureSettledPage = async (fileName: string) => {
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(1200);
     await page.screenshot({ path: path.join(screenshotsDir, fileName), fullPage: true });
   };
 
@@ -428,7 +428,7 @@ test("capture documentation screenshots", async ({ page }) => {
 
   await page.getByRole("link", { name: "Open Boston" }).click();
   await expect(page).toHaveURL(/\/cities\/boston$/);
-  await expect(page.getByRole("heading", { name: "Planning readiness" })).toBeVisible();
+  await expect(page.getByText("Planning readiness and data requirements")).toBeVisible();
   await captureSettledPage("city-detail.png");
 
   await page.goto("/scenarios");

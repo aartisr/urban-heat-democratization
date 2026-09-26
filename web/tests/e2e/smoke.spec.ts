@@ -383,7 +383,7 @@ test("city Read and Audit views reflow without page-level overflow on a narrow p
 
   const experience = page.getByRole("navigation", { name: "Boston evidence experience" });
   await expect(experience.getByRole("link", { name: /^Read/ })).toHaveAttribute("aria-current", "page");
-  await expect(page.getByRole("heading", { name: "One question at a time." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with the evidence." })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 
   await experience.getByRole("link", { name: /^Audit/ }).click();
@@ -453,9 +453,9 @@ test("planner persona can complete the city-detail journey", async ({ page }) =>
 
   await page.getByRole("link", { name: "Open Boston" }).click();
   await expect(page).toHaveURL(/\/cities\/boston$/);
-  await expect(page.getByRole("heading", { name: "One question at a time." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with the evidence." })).toBeVisible();
   await expect(page.getByRole("button", { name: "See where heat needs attention" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Planning readiness" })).toBeVisible();
+  await expect(page.getByText("Planning readiness and data requirements")).toBeVisible();
   await page.getByText("More ways to work with this city").click();
   await expect(page.getByRole("button", { name: "Queue a baseline run" })).toBeVisible();
   await expect(page.getByText("You are here")).toBeVisible();
@@ -468,10 +468,11 @@ test("city evidence experience preserves guided reading, audit, and shareable vi
 
   const experience = page.getByRole("navigation", { name: "Boston evidence experience" });
   await expect(experience.getByRole("link", { name: /^Read/ })).toHaveAttribute("aria-current", "page");
-  await expect(page.getByRole("heading", { name: "One question at a time." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Start with the evidence." })).toBeVisible();
 
   await page.getByRole("button", { name: "2. Signal" }).click();
   await expect(page.getByRole("heading", { name: "What does the current study indicate?" })).toBeVisible();
+  await page.getByText("Meaning and important limit").click();
   await expect(page.getByText("A derived priority is not a diagnosis of harm, a temperature measurement, or an automatic policy recommendation.")).toBeVisible();
 
   await experience.getByRole("link", { name: /^Explore/ }).click();

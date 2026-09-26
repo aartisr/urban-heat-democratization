@@ -97,8 +97,7 @@ export function CityGuidedEvidenceBrief({ cityName, bundled, readinessLabel, spe
       <div className="city-guided-brief-heading">
         <div>
           <div className="eyebrow">Guided city brief</div>
-          <h2 id="city-guided-brief-title">One question at a time.</h2>
-          <p className="muted">This short reading path separates what is available, what it can mean, and what a responsible next step looks like.</p>
+          <h2 id="city-guided-brief-title">Start with the evidence.</h2>
         </div>
         <span className="city-guided-brief-progress">Step {activeIndex + 1} of {steps.length}</span>
       </div>
@@ -123,16 +122,19 @@ export function CityGuidedEvidenceBrief({ cityName, bundled, readinessLabel, spe
           <h3>{activeStep.title}</h3>
           <p>{activeStep.summary}</p>
         </div>
-        <dl>
-          <div>
-            <dt>What this means</dt>
-            <dd>{activeStep.meaning}</dd>
-          </div>
-          <div>
-            <dt>Important limit</dt>
-            <dd>{activeStep.limitation}</dd>
-          </div>
-        </dl>
+        <details className="city-guided-brief-context">
+          <summary>Meaning and important limit</summary>
+          <dl>
+            <div>
+              <dt>What this means</dt>
+              <dd>{activeStep.meaning}</dd>
+            </div>
+            <div>
+              <dt>Important limit</dt>
+              <dd>{activeStep.limitation}</dd>
+            </div>
+          </dl>
+        </details>
       </section>
 
       <div className="quick-links city-guided-brief-actions">
