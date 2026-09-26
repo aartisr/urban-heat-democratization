@@ -5309,6 +5309,38 @@ body.map-fullpage-lock .sidebar-restore {
   font-size: 14px;
 }
 
+.map-highest-rank-callout {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(180, 83, 9, 0.26);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.96), rgba(255, 247, 237, 0.9));
+}
+
+.map-highest-rank-callout > div {
+  display: grid;
+  gap: 4px;
+}
+
+.map-highest-rank-callout strong {
+  color: #78350f;
+  font-size: 14px;
+}
+
+.map-highest-rank-callout p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.map-highest-rank-callout .map-toggle {
+  flex: 0 0 auto;
+}
+
 .legend-item {
   display: grid;
   grid-template-columns: 16px minmax(0, 1fr);
