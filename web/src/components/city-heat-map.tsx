@@ -1387,7 +1387,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const mapRef = useRef<MapLibreMap | null>(null);
   const maplibreRef = useRef<any>(null);
   const popupRef = useRef<MapLibrePopup | null>(null);
-  const selectedPopupRef = useRef<MapLibrePopup | null>(null);
   const scenarioHoverPopupRef = useRef<MapLibrePopup | null>(null);
   const scenarioMarkerRefs = useRef<Array<{ remove: () => void }>>([]);
   const scenarioMarkerElementsRef = useRef<HTMLElement[]>([]);
@@ -1530,6 +1529,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         .slice(0, 8)
     : [];
   const researchQueue = rankedEntries.slice(0, 8);
+  const highestRankedEntry = researchQueue[0] ?? null;
   const coolingAccessBands = useMemo(() => {
     const bands = new Map<string, { score: number; entries: OverlayEntry[] }>();
     for (const entry of coolingPriorityEntries) {
@@ -1556,14 +1556,15 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       : "Live adapter unavailable";
   const thermalCellCount = activeThermalSource?.surfaceGeojson.features.length ?? 0;
   const thermalCorridorCount = activeThermalSource?.corridorGeojson.features.length ?? 0;
-  const selectedFeature = selectedEntry ? overlayFeature(selectedEntry.overlay) : null;
+  // Keep the first ranked entry available for the analysis dock, but do not
+  // visually select it on the map until a visitor explicitly chooses a cell.
+  const selectedFeature = selectedKey && selectedEntry ? overlayFeature(selectedEntry.overlay) : null;
   const selectedEntryIsRanked = isRankedEntry(selectedEntry);
   const selectedConditionClass = selectedEntry && !selectedEntryIsRanked
     ? String(selectedEntry.overlay.properties?.cooling_access_class ?? selectedEntry.overlay.scoreClass).replaceAll("_", " ")
     : selectedEntry?.overlay.scoreClass ?? "Unknown";
   const selectedBounds = featureBounds(selectedFeature);
   const selectedBreakdown = selectedEntry && selectedEntryIsRanked ? interventionValueBreakdown(selectedEntry) : [];
-  const selectedCentroid = selectedEntry ? overlayCentroid(selectedEntry.overlay) : null;
   const selectedMitigations = selectedEntry ? mitigationSuggestions(selectedEntry) : [];
   const selectedScenarioBudget = selectedEntry ? suggestedScenarioBudget(selectedEntry) : 250000;
   const scenarioInterventions = useMemo(
@@ -2737,7 +2738,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
       mapRef.current = map;
       popupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false });
-      selectedPopupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 18 });
       scenarioHoverPopupRef.current = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 16 });
     })();
 
@@ -2746,8 +2746,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       setMapReady(false);
       popupRef.current?.remove();
       popupRef.current = null;
-      selectedPopupRef.current?.remove();
-      selectedPopupRef.current = null;
       scenarioHoverPopupRef.current?.remove();
       scenarioHoverPopupRef.current = null;
       mapRef.current?.remove();
@@ -3036,25 +3034,6 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
 
   useEffect(() => {
     const map = mapRef.current;
-    const popup = selectedPopupRef.current;
-    if (!map || !mapReady || !popup) {
-      return;
-    }
-    if (!selectedEntry || !selectedCentroid) {
-      popup.remove();
-      return;
-    }
-
-    popup
-      .setLngLat([selectedCentroid.lng, selectedCentroid.lat])
-      .setHTML(
-        `<strong>${selectedEntry.layerLabel}</strong><br/>${selectedConditionClass} ${selectedEntryIsRanked ? `priority<br/>Score ${selectedEntry.overlay.score.toFixed(1)}` : "flagged condition<br/>Not ranked within this layer"}`,
-      )
-      .addTo(map);
-  }, [mapReady, selectedCentroid, selectedConditionClass, selectedEntry, selectedEntryIsRanked]);
-
-  useEffect(() => {
-    const map = mapRef.current;
     if (!map || !mapReady) {
       return;
     }
@@ -3262,6 +3241,20 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     const timeout = window.setTimeout(() => setLiveScenePulse(false), 2200);
     return () => window.clearTimeout(timeout);
   }, [data.liveThermalAdapter.latestSceneCapturedAt]);
+
+  const viewEntryOnMap = (entry: OverlayEntry) => {
+    const map = mapRef.current;
+    const bounds = featureBounds(overlayFeature(entry.overlay));
+    if (!map || !bounds) return;
+
+    map.fitBounds(
+      [
+        [bounds.minLng, bounds.minLat],
+        [bounds.maxLng, bounds.maxLat],
+      ],
+      { padding: 64, duration: 700, maxZoom: 14.5 },
+    );
+  };
 
   const mapLensLabel = mapLens === "priority"
     ? "Priority view"
@@ -3602,6 +3595,16 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
             <div className="map-legend">
               <h3>Priority bottlenecks to inspect</h3>
               <p className="map-layer-summary">Model-derived locations where connectivity analysis suggests a cooling corridor may matter most. This is a prioritization aid—not an observed temperature, prediction, or funding recommendation.</p>
+              {highestRankedEntry ? (
+                <article className="map-highest-rank-callout">
+                  <div>
+                    <span className="eyebrow">Highest-ranked bottleneck</span>
+                    <strong>{highestRankedEntry.overlay.score.toFixed(1)} · {highestRankedEntry.overlay.scoreClass} priority</strong>
+                    <p>Top result in the current map filter. Viewing it does not select or highlight the cell.</p>
+                  </div>
+                  <button type="button" className="map-toggle" onClick={() => viewEntryOnMap(highestRankedEntry)}>View on map</button>
+                </article>
+              ) : null}
               {researchQueue.length ? researchQueue.map((entry, index) => (
                 <button
                   key={entry.key}
