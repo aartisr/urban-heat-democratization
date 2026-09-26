@@ -2,10 +2,10 @@
 
 ## Scope and intent
 
-This document explains, in plain language and in mathematical detail, the full modeling stack used across:
-
-- `spectral-urbanism`
-- `spectral_urbanism_boston`
+This document explains the graph-based analytical methods implemented in
+**Urban Heat Democratization**. It distinguishes deliberately between the
+calculations the repository performs today, the project outputs that use them,
+and research extensions that are not enabled as production claims.
 
 It covers:
 
@@ -14,18 +14,48 @@ It covers:
 3. Cheeger cut and conductance
 4. Probability, percolation, and reliability
 5. Combinatorics and computational hardness
-6. GMRF inference
-7. Optimization objective and greedy selection
+6. Conceptual GMRF inference extension
+7. Bounded optimization heuristic
 8. Practical scientific interpretation and limitations
 9. A fully worked toy example
 10. A layperson glossary mapped to repository modules
 11. An equations-only appendix
 
+For the end-to-end product mapping, read [How Urban Thermal Math Is Used in
+Urban Heat Democratization](URBAN_THERMAL_MATH_IN_PROJECT.md). For scientific
+and public-use boundaries, read the [Impact Evidence
+Protocol](IMPACT_EVIDENCE_PROTOCOL.md).
+
+## Why this is a credible decision-support method
+
+The persuasive case for this work is not that graph mathematics makes a map
+infallible. It is that every important step is inspectable and falsifiable:
+
+1. **Declared inputs:** valid raster cells, adjacency, normalization, edge
+   weights, sink rule, and thresholds are explicit rather than hidden in a
+   score.
+2. **Defined quantities:** conductance, the normalized Laplacian, \(\lambda_2\),
+   least-cost access, and Monte Carlo reliability each have a precise
+   mathematical definition.
+3. **Reproducible computation:** the core modules are deterministic for fixed
+   inputs and seeds; the teaching interfaces call the same canonical metric
+   evaluator used by the pipeline.
+4. **Testable invariants:** automated tests verify expected path-graph
+   eigenvalues, positive conductance and cost, bounded conductance, bounded
+   reliability, and invalid-probability rejection.
+5. **Bounded interpretation:** a low-conductance feature is a structural
+   property of the declared graph. It is not a measurement of heat flow,
+   indoor temperature, health risk, public access, or an intervention outcome.
+
+That combination makes the method suitable for transparent investigation and
+comparative planning. It does not turn a proxy into a causal finding.
+
 ---
 
 ## 1) The core idea in plain language
 
-Both repositories translate urban heat and vegetation maps into a network.
+The project translates a thermal raster and, when available, a vegetation
+raster into a network.
 
 - A map cell becomes a node.
 - Neighboring cells are connected by edges.
@@ -33,7 +63,8 @@ Both repositories translate urban heat and vegetation maps into a network.
 - Weak links form bottlenecks.
 - Spectral graph math finds those bottlenecks.
 - Probability models random edge failures to test robustness.
-- Optimization picks intervention locations that improve connectivity and fairness.
+- A bounded comparison scenario can show how declared changes affect the same
+  graph quantities.
 
 Think of the city as a thermal road network. If a few narrow bridges are weak, the entire city cooling flow is fragile. The Cheeger cut finds those weak bridges.
 
@@ -43,18 +74,19 @@ Think of the city as a thermal road network. If a few narrow bridges are weak, t
 
 ### 2.1 Grid and nodes
 
-In `spectral-urbanism/core/graph.py`, each finite raster cell (LST and optional NDVI) is a node.
-
-In `spectral_urbanism_boston/spectral_urbanism/graph/build.py`, each city grid cell (GeoDataFrame row) is a node.
+In [`core/graph.py`](../core/graph.py), each finite raster cell (LST and
+optional NDVI) is a node.
 
 ### 2.2 Edges and neighborhood
 
-- Raster repo: 4-neighbor or 8-neighbor connectivity (rook/queen style).
-- City-specific implementation: polygon touch adjacency, plus optional nearest-neighbor wind proxy edges.
+- The implemented raster graph supports 4-neighbor or 8-neighbor connectivity
+  (rook/queen style).
+- A polygon-adjacency or wind-aware graph is a possible future city adapter;
+  it is not the current generic core graph contract.
 
 ### 2.3 Edge weights (conductance)
 
-#### Raster repo (`spectral-urbanism`)
+#### Implemented raster graph
 
 A local temperature gradient is computed. Steeper gradient means a stronger thermal barrier.
 
@@ -78,21 +110,9 @@ $$
 
 with $\ell_{ij}=1$ for cardinal adjacency and $\sqrt{2}$ for diagonal.
 
-#### City-specific implementation (`spectral_urbanism_boston`)
-
-A configurable linear feature score is used:
-
-$$
-w_{ij} \approx a_1\,\text{albedo} + a_2\,\text{ndvi} + a_3\,\text{wind} - a_4\,\text{impervious} - a_5\,\text{distance}
-$$
-
-Then clipped to a small positive floor.
-
-Interpretation:
-
-- NDVI and albedo typically increase thermal connectivity quality.
-- Imperviousness and distance reduce it.
-- Wind term exists but is currently simplified in parts of implementation.
+Every implemented weight is floored at a small positive value. This prevents
+division-by-zero in least-cost calculations; it does not assert that every
+real-world location has a physical cooling connection.
 
 ---
 
@@ -120,7 +140,7 @@ $$
 L_{\text{norm}} = I - D^{-1/2} W D^{-1/2}
 $$
 
-Both repos use normalized Laplacian for spectral metrics.
+The implemented core uses the normalized Laplacian for spectral metrics.
 
 Why normalized? It avoids over-favoring high-degree nodes and makes comparison more stable across heterogeneous degree distributions.
 
@@ -171,10 +191,7 @@ The practical method:
 4. Compute conductance for each prefix.
 5. Choose best (minimum conductance) prefix.
 
-This is implemented in:
-
-- `spectral-urbanism/core/spectra.py`
-- `spectral_urbanism_boston/spectral_urbanism/metrics/cheeger.py`
+This is implemented in [`core/spectra.py`](../core/spectra.py).
 
 ### 4.3 Cheeger boundary nodes
 
@@ -196,25 +213,21 @@ This defines a random subgraph $G_p$.
 
 For each $p$ in a grid (for example 0.1 to 1.0):
 
-- sample many random subgraphs
+- sample a random subgraph
 - compute largest connected component fraction
-- average across samples
 
-This traces robustness phase behavior: how quickly connectivity collapses under random failures.
+The current interactive curve uses one seeded draw at each $p$, making it a
+repeatable teaching stress test rather than an estimated physical failure
+curve. Repeated scans can be aggregated in a future uncertainty analysis.
 
-Implemented in:
-
-- `spectral-urbanism/core/percolation.py`
-- `spectral_urbanism_boston/spectral_urbanism/metrics/reliability.py` (scan function)
+Implemented in [`core/percolation.py`](../core/percolation.py).
 
 ### 5.3 Reliability metrics
 
-Two related reliability views exist in the repos:
-
-- Sink-reachability reliability (raster repo): expected fraction of nodes connected to at least one cooling sink under random failures.
-- All-terminal reliability (city-specific implementation): probability the entire graph remains connected under random failures.
-
-Both are Monte Carlo estimators in current implementation.
+The implemented reliability measure is **sink reachability**: the expected
+fraction of graph nodes connected to at least one inferred cooling sink under
+the declared independent edge-retention model. It is a Monte Carlo estimator.
+The project does not present all-terminal reliability as a city result.
 
 ---
 
@@ -261,7 +274,8 @@ Then Dijkstra shortest path from super-sink gives each node's resistance-to-cool
 
 Distances are transformed to access score in [0,100], where high means easier sink access.
 
-In the city-specific implementation, the resistance proxy field is often represented as:
+The project reports the inverse of this normalized access field as a
+cooling-access constraint where needed:
 
 $$
 \text{resistance\_proxy} = 100 - \text{cooling\_access\_score}
@@ -304,7 +318,7 @@ So the model can cite real sources without pretending the city has a complete co
 
 ---
 
-## 9) GMRF in the city-specific stack
+## 9) GMRF as a research extension, not a current production result
 
 ### 9.1 Prior
 
@@ -333,13 +347,22 @@ $$
 \mu = Q_{\text{post}}^{-1} b
 $$
 
-This gives a graph-regularized temperature field used in objective evaluation.
+This is a valid graph-regularized modeling pattern, but Urban Heat
+Democratization does not currently expose a GMRF posterior as a city result.
+It is included to make the extension path explicit rather than to imply it has
+already been validated or deployed.
 
 ---
 
-## 10) Objective function and optimization
+## 10) Bounded optimization heuristic
 
-City-specific objective:
+The pipeline currently uses a transparent bounded heuristic: it raises the
+weight of selected cut-crossing or sink-adjacent edges, then recomputes the
+same graph metrics. This is a **sensitivity scenario**, not a procurement
+optimizer or a physical intervention simulation.
+
+An equity-aware objective such as the following is a research design pattern,
+not a production score:
 
 $$
 \text{score} = \alpha\,\lambda_2 + \beta\,\text{reliability} - \gamma\,\text{equity\_exposure}
@@ -351,7 +374,7 @@ $$
 \text{equity\_exposure} = \sum_i \text{vulnerability}_i \cdot \text{temp}_i
 $$
 
-Greedy algorithm at each step:
+For a future city-specific optimizer, a greedy algorithm could at each step:
 
 1. Try each candidate intervention.
 2. Apply local edge-weight multiplier around target node.
@@ -359,11 +382,10 @@ Greedy algorithm at each step:
 4. Pick best positive gain candidate.
 5. Repeat until budget exhausted.
 
-This is implemented in:
-
-- `spectral_urbanism_boston/spectral_urbanism/opt/interventions.py`
-- `spectral_urbanism_boston/spectral_urbanism/opt/objective.py`
-- `spectral_urbanism_boston/spectral_urbanism/opt/greedy.py`
+The implemented bounded edge-selection heuristic lives in
+[`core/pipeline.py`](../core/pipeline.py). Any city-specific objective would
+require a documented intervention mapping, costs, equity inputs, sensitivity
+analysis, and external review before it could be used for recommendations.
 
 ---
 
@@ -531,9 +553,8 @@ Limits:
 
 ### 13.1 Core graph terms
 
-- Node: one map/grid cell.
-  - `spectral-urbanism/core/graph.py`
-  - `spectral_urbanism_boston/spectral_urbanism/graph/build.py`
+- Node: one valid map/grid cell.
+  - `core/graph.py`
 
 - Edge: neighboring cell relationship.
   - same modules as above
@@ -541,23 +562,19 @@ Limits:
 - Weight or conductance: ease of thermal linkage.
   - same modules as above
 
-- Cost or resistance: inverse-like travel difficulty to sinks.
-  - `spectral-urbanism/core/pipeline.py`
-  - `spectral_urbanism_boston/spectral_urbanism/metrics/cooling_access.py`
+- Cost or resistance: inverse-like modeled travel difficulty to inferred sinks.
+  - `core/pipeline.py`
 
 ### 13.2 Spectral terms
 
 - Laplacian: matrix encoding graph structure.
-  - `spectral-urbanism/core/graph.py`
-  - `spectral_urbanism_boston/spectral_urbanism/graph/laplacian.py`
+  - `core/graph.py`
 
 - lambda2: second-smallest normalized Laplacian eigenvalue.
-  - `spectral-urbanism/core/spectra.py`
-  - `spectral_urbanism_boston/spectral_urbanism/metrics/spectral.py`
+  - `core/spectra.py`
 
 - Fiedler vector: eigenvector linked to lambda2 used to rank nodes for sweep cuts.
-  - `spectral-urbanism/core/spectra.py`
-  - `spectral_urbanism_boston/spectral_urbanism/metrics/cheeger.py`
+  - `core/spectra.py`
 
 - Cheeger conductance: normalized cut quality of a set.
   - same cheeger/spectra modules
@@ -565,12 +582,10 @@ Limits:
 ### 13.3 Probability terms
 
 - Bond percolation: random edge keep/remove process with keep probability p.
-  - `spectral-urbanism/core/percolation.py`
-  - `spectral_urbanism_boston/spectral_urbanism/metrics/reliability.py`
+  - `core/percolation.py`
 
-- Reliability: probability network remains connected or sink-reachable under random failures.
-  - `spectral-urbanism/core/reliability.py`
-  - `spectral_urbanism_boston/spectral_urbanism/metrics/reliability.py`
+- Reliability: expected share of nodes sink-reachable under random edge retention.
+  - `core/reliability.py`
 
 - Monte Carlo estimator: repeated random simulation to approximate expected value or probability.
   - same reliability/percolation modules
@@ -578,13 +593,13 @@ Limits:
 ### 13.4 Inference and optimization terms
 
 - GMRF: Gaussian Markov Random Field graph-based spatial prior/posterior model.
-  - `spectral_urbanism_boston/spectral_urbanism/model/gmrf.py`
+  - Research extension; not a current project output.
 
 - Objective: weighted score combining connectivity, reliability, and equity.
-  - `spectral_urbanism_boston/spectral_urbanism/opt/objective.py`
+  - Research design pattern; not a current project output.
 
-- Greedy selection: iterative best-next intervention choice.
-  - `spectral_urbanism_boston/spectral_urbanism/opt/greedy.py`
+- Greedy selection: bounded selected-edge strengthening in the current pipeline.
+  - `core/pipeline.py`
 
 ---
 
@@ -657,15 +672,18 @@ where $h_i\in[0,1]$ is normalized heat and $a_i\in[0,1]$ is normalized access.
 ### 14.6 Reliability and percolation
 
 $$
-R_{all}(p)=\Pr(G_p \text{ is connected})
+R_{\text{sink}}(p)=\mathbb{E}\left[\frac{\#\{i: i \text{ connects to a sink in }G_p\}}{|V|}\right]
 $$
 
 $$
-\hat R_{all} = \frac{1}{T}\sum_{t=1}^T \mathbf{1}\{G_p^{(t)}\text{ connected}\}
+\hat R_{\text{sink}} = \frac{1}{T}\sum_{t=1}^T \frac{\#\{i: i \text{ connects to a sink in }G_p^{(t)}\}}{|V|}
 $$
 
 $$
-\text{GCF}(p)=\mathbb{E}\left[\frac{|C_{max}(G_p)|}{|V|}\right]
+\text{GCF}(p)=\frac{|C_{max}(G_p)|}{|V|}
+
+The current percolation display is one seeded realization at each \(p\), not
+an estimate of the expectation over repeated realizations.
 $$
 
 ### 14.7 GMRF
@@ -708,11 +726,13 @@ where $v_i$ is vulnerability and $t_i$ is temperature (or posterior mean proxy).
 
 ## 16) Final takeaway
 
-The repositories implement a coherent graph-spectral-probabilistic urban heat framework:
+Urban Heat Democratization implements a coherent graph-spectral-probabilistic
+urban-heat framework:
 
 - Cheeger and lambda2 capture structural thermal connectivity.
 - Percolation and reliability capture failure robustness.
 - Cooling sink resistance captures practical access deficits.
-- GMRF and equity-aware objective support decision scoring.
+- GMRF and equity-aware objectives are documented research extensions, not
+  current city outputs.
 
 Scientifically, this is a strong decision-support proxy framework and not a full physical fluid-dynamics simulator. It is most powerful for comparative planning, prioritization, and transparent tradeoff analysis under explicit assumptions.

@@ -138,7 +138,9 @@ After onboarding, register local readiness if available:
 
 ## Most important docs
 
+- [Documentation Guide](README.md)
 - [Project README](../README.md)
-- [Implementation Status](IMPLEMENTATION_STATUS.md)
+- [Repository Capability Status](IMPLEMENTATION_STATUS.md)
+- [City Evidence Experience: Delivery Status](CITY_EVIDENCE_EXPERIENCE_STATUS.md)
 - [City Onboarding Recipes](CITY_ONBOARDING_RECIPES.md)
 - [Screen Tour](SCREEN_TOUR.md)

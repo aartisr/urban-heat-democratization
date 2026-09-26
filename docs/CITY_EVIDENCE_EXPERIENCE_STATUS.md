@@ -2,7 +2,6 @@
 
 > Canonical implementation status for
 > [City Evidence Experience: Implementation Plan](CITY_EVIDENCE_EXPERIENCE_IMPLEMENTATION_PLAN.md).  
-> Last updated: 2026-09-26  
 > Delivery rule: complete one phase, run its exit checks, notify the product
 > owner with a test checklist, then begin the next phase.
 

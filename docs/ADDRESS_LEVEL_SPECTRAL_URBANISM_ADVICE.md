@@ -1,6 +1,6 @@
 # Address-Level Spectral Urbanism Advice: Value, Limits, and an Operational Blueprint
 
-> Authored by [Aarti S Ravikumar](https://ai-aarti.com) · Last implementation review: 2026-08-25 · Canonical platform: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com/)
+> Authored by [Aarti S Ravikumar](https://ai-aarti.com) · Canonical platform: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com/)
 
 > **Status authority.** This is the canonical roadmap and implementation status
 > for Address-Level Spectral Urbanism. The Phase 3–5 documents linked below are

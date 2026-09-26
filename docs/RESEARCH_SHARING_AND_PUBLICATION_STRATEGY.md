@@ -1,7 +1,8 @@
 # Research Sharing and Publication Strategy
 
 **Project:** Urban Heat Democratization  
-**Status:** Living strategy — reviewed 2026-08-23  
+**Status:** Living strategy. Current repository capability is summarized in
+[Repository Capability Status](IMPLEMENTATION_STATUS.md).
 **Purpose:** Turn careful urban-heat research into material that people can understand, reuse, cite, teach, question, and act on without overstating what the evidence proves.
 
 ## The decision in one page
@@ -31,6 +32,7 @@ The foundation is unusually strong:
 | Public application and Boston bundled study experience | Lets residents, educators, planners, and researchers inspect the work directly. | Pair every major result with a stable, non-interactive explanation. |
 | Detailed wiki and study/classroom guides | Holds methods, limits, vocabulary, and teaching context. | Link directly to the exact relevant section from every release. |
 | Source repository and MIT license | Makes the software inspectable and reusable. | Add version-specific citation and archival metadata. |
+| Root `CITATION.cff` and publication record link | Gives GitHub visitors a citation path and connects the platform to its creator’s public publication record. | Keep the metadata accurate; add a versioned DOI only through a durable archive. |
 | `llms.txt`, `humans.txt`, sitemap, structured metadata, and canonical URLs | Improves honest machine and search discovery. | Treat them as signposts, not evidence or ranking guarantees. |
 | Atom feed at `web/public/feed.xml` | Provides a subscription-ready update stream. | Publish an entry for each substantive public release, correction, or methodology change. |
 | Evidence, provenance, and responsible-use documentation | Creates the basis for public trust. | Make the caveats visible wherever a result is shared. |
@@ -42,7 +44,6 @@ These are the highest-value additions, in order.
 | Priority | Add | Why it is necessary | Ready when |
 | --- | --- | --- | --- |
 | P0 | **Release policy and claim register** | Prevents a polished web page from being mistaken for a validated causal or health finding. | Every public claim has an owner, evidence source, date, scope, and limitation. |
-| P0 | **CITATION.cff** | Tells GitHub and researchers exactly how to cite the software. | A valid root-level file names the project, version, authors/contributors, license, repository, and preferred citation. |
 | P0 | **Versioned DOI archive** | Creates a durable citation target for a specific release. | A public Git tag/release is archived in a repository such as Zenodo, with a concept DOI and a version DOI. |
 | P0 | **Release notes / CHANGELOG** | Makes scientific and operational changes visible, including corrections. | Each release says what changed in methods, data, UI interpretation, and known limitations. |
 | P0 | **Provenance manifest** | Lets a reader trace a result to source data, processing, parameters, software version, and date. | The package contains a machine-readable manifest plus a readable summary. |
@@ -88,7 +89,7 @@ Use a report, not a visual dashboard, as the source a journalist, peer reviewer,
 
 The FAIR principles call for findable, accessible, interoperable, and reusable research objects; they explicitly include algorithms, tools, and workflows, not only data. Data-citation guidance similarly emphasizes credit, persistent identifiers, access, specificity, provenance, and fixity. In practice:
 
-1. Create a root `CITATION.cff` for Urban Heat Democratization. GitHub recognizes this filename and exposes citation guidance to repository visitors.
+1. Maintain the root `CITATION.cff` for Urban Heat Democratization. GitHub recognizes this filename and exposes citation guidance to repository visitors.
 2. Adopt release tags such as `v1.0.0` and never move or overwrite a published tag.
 3. Connect the repository to Zenodo (or an institution-approved repository). Archive each tagged GitHub release. Preserve both:
    - a **concept DOI** for “the project, any version,” and
@@ -162,7 +163,7 @@ Atom entries need stable identifiers and updated timestamps under the Atom stand
 
 ### Days 15–45: make the first release citable and repeatable
 
-1. Add `CITATION.cff`; validate it using the CFF schema tools/GitHub preview.
+1. Validate the existing `CITATION.cff` using the CFF schema tools/GitHub preview whenever citation metadata changes.
 2. Prepare a metadata file for the chosen DOI repository and settle authorship/contributor roles.
 3. Tag the first stable public research release and archive it to obtain the DOI.
 4. Create a Boston technical report and plain-language public brief from the same claim register.
@@ -266,4 +267,3 @@ Avoid optimizing for social reach alone. A widely circulated but context-free he
 - [Boston study guide](BOSTON_STUDY_GUIDE.md)
 - [Boston classroom guide](BOSTON_CLASSROOM_GUIDE.md)
 - [Artifact strategy](ARTIFACT_STRATEGY.md)
-
