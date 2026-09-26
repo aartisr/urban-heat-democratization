@@ -9,7 +9,9 @@ import { ScenarioPackedBubbleCard } from "../components/scenario-packed-bubble-c
 import { ScenarioSankeyCard } from "../components/scenario-sankey-card";
 import { SunburstCard } from "../components/sunburst-card";
 import { WorkflowHeader } from "../components/workflow-header";
-import { createWhatIfScenarios, getCityBenchmarkSuite, getCityExperience, getCityPlannerValidation, getCitySpectral, getRobustnessLab, listCities, listCostSources, listInterventions, listRuns, listScenarios, queueRun, resetAndGenerateScenarios } from "../lib/api";
+import { ScenarioMapComparison } from "../features/scenario-map-comparison/components/ScenarioMapComparison";
+import { AllocationLedger } from "../features/scenario-map-comparison/components/AllocationLedger";
+import { createWhatIfScenarios, getCityBenchmarkSuite, getCityExperience, getCityMap, getCityPlannerValidation, getCitySpectral, getRobustnessLab, listCities, listCostSources, listInterventions, listRuns, listScenarios, queueRun, resetAndGenerateScenarios } from "../lib/api";
 import { defaultStudyCityId, defaultStudyCityLabel } from "../lib/study-city";
 import { personaModeProfiles, personaScenarioPresets } from "../lib/persona-modes";
 import { useActivePersonaMode } from "../lib/use-active-persona-mode";
@@ -622,6 +624,7 @@ export function ScenariosPage() {
   const paretoTooltipRef = useRef<HTMLDivElement | null>(null);
   const citiesQuery = useQuery({ queryKey: ["cities"], queryFn: listCities });
   const experienceQuery = useQuery({ queryKey: ["city-experience", cityId], queryFn: () => getCityExperience(cityId) });
+  const cityMapQuery = useQuery({ queryKey: ["city-map", cityId], queryFn: () => getCityMap(cityId) });
   const spectralQuery = useQuery({ queryKey: ["city-spectral", cityId], queryFn: () => getCitySpectral(cityId) });
   const benchmarkSuiteQuery = useQuery({ queryKey: ["city-benchmark-suite", cityId], queryFn: () => getCityBenchmarkSuite(cityId) });
   const plannerValidationQuery = useQuery({ queryKey: ["planner-validation", cityId], queryFn: () => getCityPlannerValidation(cityId) });
@@ -1082,6 +1085,40 @@ export function ScenariosPage() {
         <summary>How the scenario is calculated</summary>
         <ScenarioScienceGuide scenario={activeSunburstScenario} robustness={robustnessLab} />
       </details>
+
+      {cityMapQuery.isPending ? (
+        <section className="scenario-comparison scenario-comparison-notice panel-card" aria-live="polite">
+          <span className="eyebrow">Planning comparison</span>
+          <h2>Loading city map evidence…</h2>
+          <p>Preparing the city polygons used for the before/after planning comparison.</p>
+        </section>
+      ) : cityMapQuery.isError ? (
+        <section className="scenario-comparison scenario-comparison-notice panel-card" role="alert">
+          <span className="eyebrow">Planning comparison</span>
+          <h2>City map evidence could not be loaded</h2>
+          <p>Refresh the page or verify that the local API is running. The comparison needs the city map endpoint before it can show polygons.</p>
+        </section>
+      ) : cityMapQuery.data ? (
+        <ScenarioMapComparison
+          cityMap={cityMapQuery.data}
+          scenario={budgetCurveScenario}
+          budgetUsd={budgetUsd}
+          planningMode={planningMode}
+          onBudgetChange={setBudgetUsd}
+          onGenerateExactScenario={() => {
+            setSubmissionMessage(null);
+            setSubmissionError(null);
+            createScenarioMutation.mutate({
+              nextCityId: cityId,
+              nextBudgetUsd: budgetUsd,
+              nextOptions: { planningMode },
+            });
+          }}
+          generatingExactScenario={createScenarioMutation.isPending}
+        />
+      ) : null}
+
+      <AllocationLedger scenario={budgetCurveScenario} />
 
       <div className="scenario-visual-gallery" id="scenario-composition">
         <div className="scenario-visual-gallery-head">

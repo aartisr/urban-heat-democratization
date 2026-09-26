@@ -41,6 +41,9 @@ special-case product contract.
 - [Lab Method](INTERACTIVE_MITIGATION_LAB_METHOD.md)
 - [Calibration Gate](INTERACTIVE_MITIGATION_LAB_CALIBRATION_GATE.md)
 - [Facilitation Guide](INTERACTIVE_MITIGATION_LAB_FACILITATION_GUIDE.md)
+- [Scenario Map Comparison: Research and Product Design](SCENARIO_MAP_COMPARISON_DESIGN.md) — evidence boundary, comparative-map UX, and scientific rationale.
+- [Scenario Map Comparison: Staged Implementation Plan](SCENARIO_MAP_COMPARISON_IMPLEMENTATION_PLAN.md) — plug-and-play component design, delivery stages, and release gates.
+- [Scenario Map Comparison: Delivery Status](SCENARIO_MAP_COMPARISON_STATUS.md) — canonical record of implemented stages and remaining gates.
 
 ## Design, quality, and operations
 

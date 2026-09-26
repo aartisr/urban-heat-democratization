@@ -1,7 +1,7 @@
 {
   "cases": [
     {
-      "actionCount": 6,
+      "actionCount": 2,
       "allocationCoveragePct": 1.0,
       "benchmarkLabel": "Early-stage benchmark coverage",
       "budgetUsd": 50000,
@@ -10,8 +10,8 @@
       "planningMode": "best_under_budget"
     },
     {
-      "actionCount": 4,
-      "allocationCoveragePct": 0.3806,
+      "actionCount": 2,
+      "allocationCoveragePct": 1.0,
       "benchmarkLabel": "Early-stage benchmark coverage",
       "budgetUsd": 250000,
       "exhaustiveAvailable": true,
@@ -19,7 +19,7 @@
       "planningMode": "evidence_first"
     },
     {
-      "actionCount": 3,
+      "actionCount": 11,
       "allocationCoveragePct": 1.0,
       "benchmarkLabel": "Early-stage benchmark coverage",
       "budgetUsd": 1000000,
