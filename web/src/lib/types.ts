@@ -491,6 +491,26 @@ export type CityMapTruthMode = {
   notes: string[];
 };
 
+export type AdvancedMapLayer = {
+  id: string;
+  family: string;
+  display_label: string;
+  truth_status: TruthStatus | "context" | "planning_proxy";
+  validation_status: "blocked" | "computationally_verified" | "reference_compared" | "externally_validated" | "governance_approved";
+  method_name: string;
+  method_version: string;
+  source_inputs: string[];
+  parameters: Record<string, unknown>;
+  interpretation: string;
+  limitations: string[];
+  artifact_path: string | null;
+  artifact_sha256: string | null;
+  quality: Record<string, unknown>;
+  visualization: { kind?: "categorical" | "continuous"; valueKey?: string; palette?: Record<string, string>; fallbackColor?: string };
+  geojson: GeoJsonFeatureCollection;
+  legend: Array<{ key: string; label: string; color: string }>;
+};
+
 export type CityMapData = {
   cityId: string;
   cityName: string;
@@ -507,6 +527,7 @@ export type CityMapData = {
   heatGeojson: GeoJsonFeatureCollection | null;
   accessGeojson: GeoJsonFeatureCollection | null;
   thermalSources: CityThermalSource[];
+  advancedLayers: AdvancedMapLayer[];
   liveThermalAdapter: CityLiveThermalAdapter;
   truthMode: CityMapTruthMode;
   layerProvenance: CityMapLayerProvenance[];

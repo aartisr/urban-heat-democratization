@@ -1231,6 +1231,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const [mapReady, setMapReady] = useState(false);
   const [showThermalSurface, setShowThermalSurface] = useState(false);
   const [showThermalCorridors, setShowThermalCorridors] = useState(false);
+  const [showSpatialPatterns, setShowSpatialPatterns] = useState(false);
   const [showHeat, setShowHeat] = useState(true);
   const [showCooling, setShowCooling] = useState(true);
   const [showStudyArea, setShowStudyArea] = useState(true);
@@ -2435,6 +2436,38 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         });
       }
 
+      // Advanced layers use the same manifest-driven contract as offline city
+      // packages. They start hidden: computationally verified previews must be
+      // deliberately enabled and are never presented as observed evidence.
+      for (const layer of data.advancedLayers) {
+        const sourceId = `advanced-source-${layer.id}`;
+        const palette = layer.visualization.palette ?? {};
+        const valueKey = layer.visualization.valueKey ?? "category";
+        const categoricalExpression: any[] = ["match", ["to-string", ["get", valueKey]]];
+        for (const [value, color] of Object.entries(palette)) {
+          categoricalExpression.push(value, color);
+        }
+        categoricalExpression.push(layer.visualization.fallbackColor ?? "#94a3b8");
+        map.addSource(sourceId, { type: "geojson", data: layer.geojson as GeoJSON.FeatureCollection });
+        map.addLayer({
+          id: `advanced-fill-${layer.id}`,
+          type: "fill",
+          source: sourceId,
+          layout: { visibility: "none" },
+          paint: {
+            "fill-color": categoricalExpression as any,
+            "fill-opacity": 0.42,
+          },
+        });
+        map.addLayer({
+          id: `advanced-line-${layer.id}`,
+          type: "line",
+          source: sourceId,
+          layout: { visibility: "none" },
+          paint: { "line-color": "#334155", "line-width": 0.45, "line-opacity": 0.55 },
+        });
+      }
+
       if (data.heatGeojson) {
         map.addSource("heat", { type: "geojson", data: data.heatGeojson as GeoJSON.FeatureCollection });
         map.addLayer({
@@ -2636,7 +2669,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [data.accessGeojson, data.boundaryGeojson, data.bounds, data.heatGeojson, data.studyAreaGeojson, data.thermalSources, fullPageMap]);
+  }, [data.accessGeojson, data.advancedLayers, data.boundaryGeojson, data.bounds, data.heatGeojson, data.studyAreaGeojson, data.thermalSources, fullPageMap]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -2657,6 +2690,10 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       updateLayerVisibility(`thermal-corridor-fill-${thermalSource.id}`, showThermalCorridors && isActive);
       updateLayerVisibility(`thermal-corridor-line-${thermalSource.id}`, showThermalCorridors && isActive);
     }
+    for (const layer of data.advancedLayers) {
+      updateLayerVisibility(`advanced-fill-${layer.id}`, showSpatialPatterns);
+      updateLayerVisibility(`advanced-line-${layer.id}`, showSpatialPatterns);
+    }
     updateLayerVisibility("study-area-line", showStudyArea);
     updateLayerVisibility("boundary-line", showBoundary);
     updateLayerVisibility("heat-fill", showHeat);
@@ -2668,6 +2705,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     updateLayerVisibility("scenario-interventions-circle", showScenarioInterventions && scenarioInterventions.length > 0);
   }, [
     data.thermalSources,
+    data.advancedLayers,
     mapReady,
     scenarioInterventions.length,
     selectedThermalSourceId,
@@ -2678,6 +2716,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     showStudyArea,
     showThermalCorridors,
     showThermalSurface,
+    showSpatialPatterns,
     showScenarioInterventions,
   ]);
 
@@ -3355,6 +3394,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showCooling} onChange={() => { setMapLens("custom"); setShowCooling((value) => !value); }} /><span><i className="layer-swatch layer-swatch-resistance" />Cooling gaps <small>derived</small></span></label>
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showThermalSurface} onChange={() => { setMapLens("custom"); setShowThermalSurface((value) => !value); }} /><span><i className="layer-swatch layer-swatch-thermal" />Surface heat <small>observed</small></span></label>
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showThermalCorridors} onChange={() => { setMapLens("custom"); setShowThermalCorridors((value) => !value); }} /><span><i className="layer-swatch layer-swatch-corridor" />Heat corridors <small>observed</small></span></label>
+              {data.advancedLayers.length ? <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showSpatialPatterns} onChange={() => { setMapLens("custom"); setShowSpatialPatterns((value) => !value); }} /><span><i className="layer-swatch layer-swatch-cheeger" />Spatial pattern preview <small>derived · gated</small></span></label> : null}
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showActionReadiness} onChange={() => { setMapLens("custom"); setShowActionReadiness((value) => !value); }} /><span><i className="layer-swatch layer-swatch-intervention" />Action readiness <small>derived</small></span></label>
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showScenarioInterventions} onChange={() => { setMapLens("custom"); setShowScenarioInterventions((value) => !value); }} /><span><i className="layer-swatch layer-swatch-intervention" />Recommendations <small>evidence-anchored</small></span></label>
               <label className="map-fullpage-layer-switch"><input type="checkbox" checked={showStudyArea} onChange={() => { setMapLens("custom"); setShowStudyArea((value) => !value); }} /><span><i className="layer-swatch layer-swatch-study-area" />Study edge <small>scope</small></span></label>

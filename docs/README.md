@@ -9,6 +9,7 @@ or release is made.
 
 - [Project README](../README.md) — installation, architecture, and repository entry point.
 - [Quick Reference](QUICK_REFERENCE.md) — the shortest practical run, build, and health-check guide.
+- [Demo Feature Guide](DEMO_FEATURE_GUIDE.md) — demo-ready inventory, value story, live walkthrough, and claim guardrails.
 - [Repository Capability Status](IMPLEMENTATION_STATUS.md) — current cross-project capabilities and limits.
 - [Screen Tour](SCREEN_TOUR.md) — a guided orientation to the public application.
 
@@ -28,6 +29,8 @@ special-case product contract.
 
 - [Urban Thermal Math Deep Dive](Urban_Thermal_Math_Deep_Dive.md)
 - [How Urban Thermal Math Is Used in the Project](URBAN_THERMAL_MATH_IN_PROJECT.md)
+- [Mathematical Innovation Accountability Report](MATH_INNOVATION_ACCOUNTABILITY.md) — implementation trace, claim boundaries, and improvement agenda.
+- [Advanced Thermal Math & Map Layers Plan](ADVANCED_THERMAL_MATH_AND_MAP_LAYERS_IMPLEMENTATION_PLAN.md) — staged, validation-gated plan for new thermal, spatial, temporal, and context layers.
 - [Future Computational Urban-Thermal Research Program](FUTURE_COMPUTATIONAL_URBAN_THERMAL_RESEARCH.md)
 - [Impact Evidence Protocol](IMPACT_EVIDENCE_PROTOCOL.md)
 - [Address-Level Spectral Urbanism Advice](ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md)

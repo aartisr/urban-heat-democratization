@@ -16,12 +16,38 @@ That can generate meaningful next steps: what to inspect on site, which low-regr
 
 | Phase | Current status | What is implemented | What remains before advancing |
 | --- | --- | --- | --- |
-| 0. Research contract | Complete | Published scope, evidence, privacy, and governance boundaries. | Keep sources and safeguards under review. |
+| 0. Research contract | Repository-complete; external review not evidenced | Published scope, evidence, privacy, and governance boundaries. | Keep sources and safeguards under review; obtain the independent/community review required for a public pilot. |
 | 1. No-address help | Partial | Browser-only safety, role-matched site, and collective-action prompts are available. | Current official forecast / local-resource integration and accessibility content review. |
-| 2. Approximate-place prototype | Technically complete; externally pending | `/address-plan` keeps place text in-browser, blocks street addresses, exposes city-wide provenance, and never returns an unsupported spectral result. | Five-person comprehension study; record findings and revise the interface if needed. |
+| 2. Approximate-place prototype | Engineering-complete; external validation pending | `/address-plan` keeps place text in-browser, rejects common street-address-like entries and precise coordinates, exposes city-wide provenance, and never returns an unsupported spectral result. | Five-person comprehension study; record findings and revise the interface if needed. |
 | 3. One-city co-designed pilot | Preparation only | Boston readiness protocol and in-app readiness context. | Named steward and decision owner; bounded public question; dated/licensed data contract; paid community review; pre-registered ground truth, sensitivity, equity, and publication/suppression protocol. |
 | 4. Address-confirmed private report | Not enabled | Browser-only report-preparation flow and provider contract. | Approved provider; affirmative consent and deletion path; zero-retention/redaction implementation; security, privacy, accessibility, and partner reviews; address-perturbation and sensitivity validation. |
 | 5. Evaluated contribution network | Preparation only | Browser-only observation draft and registry contract. | Partner-approved intake, moderation, retention, multilingual access, governance, equity/harm monitoring, and published learning reports. |
+
+### Implementation and research audit — 2026-10-17
+
+This audit separates observable repository behavior from work that requires
+people, public agencies, licensed data, or independent review. “Implemented”
+below means covered by the current code and automated checks; it does not
+substitute for the outstanding external gate.
+
+| Requirement | Evidence in the repository | Status and accountable limitation |
+| --- | --- | --- |
+| No precise location reaches the evidence API | `address-plan` queries only `/api/v1/address-advice/cities/{city_id}`; the route accepts only `city_id`. `tests/test_address_advice_context.py` asserts that signature. | Implemented for the current flow. There is no geocoder, location route, or address-level spectral endpoint. |
+| Approximate-place privacy guard | `web/src/lib/address-advice.ts` rejects ZIP-exempt numeric street-address-like input and coordinate pairs; its Vitest suite covers those cases. | Implemented as a client-side guard, not a guarantee that arbitrary free text cannot identify a place. The value is never sent by this flow. |
+| No unsupported spectral result | The API returns `spectralStatus: not_available`; the UI states “Spectral result: not shown.” | Implemented and tested. It must remain the default until every release gate is met. |
+| City-wide evidence is not property evidence | API layer copy calls the context city-wide / neighborhood-scale; the UI labels the scale and limits. | Implemented. The bundled Boston data are still a study context, not an address assessment. |
+| Immediate safety support | The UI links to current CDC heat guidance; role-matched action prompts are generated locally. | Partial. It has no live official forecast, HeatRisk, cooling-center, 211, or city emergency-resource integration. |
+| Accessible, understandable use | Native labels, fieldsets, live result region, and visible limits are present. | Partial. No recorded independent accessibility review or five-person comprehension study exists. |
+| Pilot, private report, and contribution network | Readiness components and contracts are present; no partner intake, geocoding, storage, or public registry route exists. | Correctly not enabled. These phases require external authority and validation, so they cannot honestly be marked implemented. |
+
+Research recheck: the current USGS product page confirms that Collection 2
+surface-temperature products can have missing ASTER GED coverage, blockiness
+over small targets, and cloud/cloud-shadow retrieval error; it also confirms
+that the product is surface temperature. Current CDC guidance continues to say
+fans should be used only below 90°F indoors. FTC guidance continues to treat
+precise geolocation as sensitive, and COPPA covers geolocation sufficient to
+identify a street and city. These facts support the present no-address,
+no-personal-risk boundary. [USGS constraints](https://www.usgs.gov/landsat-missions/landsat-collection-2-surface-temperature), [CDC heat guidance](https://www.cdc.gov/extreme-heat/prevention/), [FTC geolocation privacy](https://www.ftc.gov/news-events/news/press-releases/2014/06/ftc-testifies-geolocation-privacy), [FTC COPPA FAQ](https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions)
 
 ### Non-negotiable release gate for address-level spectral results
 
@@ -43,7 +69,10 @@ This document sets the required evidence standard, user experience, data archite
 
 ## What the person should actually receive
 
-The user-facing feature should be called **“Your Address Cooling Action Plan,”** not a risk score. After entering an address (or approximate location), a person should receive a short, useful plan like this:
+The current user-facing feature is **“Your Cooling Action Plan,”** not a risk
+score, and it accepts only an approximate place. If the Phase 4 gates are met,
+an address-confirmed service should still present a short, useful plan rather
+than a risk score, like this:
 
 > **Your cooling opportunity around 123 Example Street**
 >
@@ -76,7 +105,8 @@ That means an address feature **must not** simply place a pin over the current B
 
 > “This report describes conditions and modeled connections in the surrounding area under stated data dates and assumptions. It offers questions and possible next steps. It does not measure your indoor temperature, determine your health risk, certify your property, or guarantee the impact of any action.”
 
-This language should appear before an address is submitted, beside every result, and in every export.
+For the future address-confirmed service, this language should appear before a
+precise lookup, beside every result, and in every export.
 
 ## 2. The user value proposition
 
@@ -107,7 +137,7 @@ Exact location is sensitive. The FTC describes precise geolocation as sensitive 
 
 ### Step 1 — always show current safety first
 
-Before a map or score, show the user’s official heat forecast context, advisory links, and a short safety panel. CDC advises staying cool, hydrated, and aware of symptoms; it recommends air-conditioned locations and notes that fans can increase body temperature when indoor temperature exceeds 90°F. [CDC heat and health guidance](https://www.cdc.gov/disasters/extremeheat/)
+Before a map or score, show the user’s official heat forecast context, advisory links, and a short safety panel. CDC advises staying cool, hydrated, and aware of symptoms; it recommends air-conditioned locations and notes that fans can increase body temperature when indoor temperature exceeds 90°F. [CDC heat and health guidance](https://www.cdc.gov/extreme-heat/prevention/)
 
 The panel must state: **“For urgent symptoms or a heat emergency, use emergency services and local public-health guidance; this platform is not medical care.”** It should never collect medical conditions to personalize an algorithmic risk score. A link to CDC’s Heat & Health Tracker / local HeatRisk context is preferable to reimplementing a health forecast.
 

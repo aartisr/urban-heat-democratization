@@ -446,6 +446,26 @@ class CityMapLayerProvenanceResponse(BaseModel):
     limitations: list[str]
 
 
+class AdvancedMapLayerResponse(BaseModel):
+    id: str
+    family: str
+    display_label: str
+    truth_status: str
+    validation_status: str
+    method_name: str
+    method_version: str
+    source_inputs: list[str]
+    parameters: dict[str, object]
+    interpretation: str
+    limitations: list[str]
+    artifact_path: str | None = None
+    artifact_sha256: str | None = None
+    quality: dict[str, object]
+    visualization: dict[str, object]
+    geojson: dict[str, object]
+    legend: list[dict[str, str]]
+
+
 class CityMapTruthModeResponse(BaseModel):
     headline: str
     interpretationStatus: str
@@ -470,6 +490,7 @@ class CityMapResponse(BaseModel):
     heatGeojson: dict[str, object] | None = None
     accessGeojson: dict[str, object] | None = None
     thermalSources: list[CityThermalSourceResponse]
+    advancedLayers: list[AdvancedMapLayerResponse]
     liveThermalAdapter: CityLiveThermalAdapterResponse
     truthMode: CityMapTruthModeResponse
     layerProvenance: list[CityMapLayerProvenanceResponse]

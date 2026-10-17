@@ -56,7 +56,7 @@ export function AddressActionPlan() {
         <div className="address-plan-form-copy">
           <p className="eyebrow">01 · Set your context</p>
           <h2 id="address-plan-start-title">One short prompt. A useful next step.</h2>
-          <p>Use a neighborhood, ZIP code, intersection, or an exact address. This starter keeps what you type in this browser only; it does not geocode, save, or transmit the location. <a href={addressAdviceSources.uswds.url}>Read the USWDS address guidance <span aria-hidden="true">↗</span></a>.</p>
+          <p>Use a neighborhood, ZIP code, intersection, or rough study area. This starter keeps what you type in this browser only; it does not geocode, save, or transmit the location. <a href={addressAdviceSources.uswds.url}>Read the USWDS address guidance <span aria-hidden="true">↗</span></a>.</p>
         </div>
         <form className="address-plan-form" onSubmit={(event) => {
           event.preventDefault();
@@ -75,7 +75,7 @@ export function AddressActionPlan() {
             <label className="address-plan-field">
               <span>Neighborhood, ZIP code, or intersection</span>
               <input value={input.placeLabel} autoComplete="off" aria-describedby="approximate-place-help" aria-invalid={Boolean(placeError)} onChange={(event) => { update("placeLabel", event.target.value); setPlaceError(approximatePlaceError(event.target.value)); }} placeholder="For example: East Boston, 02128, or Main &amp; First" />
-              <small id="approximate-place-help">Street addresses are not accepted. This label stays in this browser and is never sent to the evidence service.</small>
+              <small id="approximate-place-help">Street-address-like entries and precise coordinates are rejected. This label stays in this browser and is never sent to the evidence service.</small>
               {placeError ? <small className="address-plan-field-error" role="alert">{placeError}</small> : null}
             </label>
           ) : (
