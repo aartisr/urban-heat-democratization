@@ -89,10 +89,15 @@ export const addressAdviceStudyCities = [
   },
 ];
 
-const streetAddressPattern = /^\s*\d{1,6}\s+.+\b(?:street|st|avenue|ave|road|rd|drive|dr|lane|ln|boulevard|blvd|court|ct|place|pl|way)\.?\s*$/i;
+const zipCodePattern = /^\s*\d{5}(?:-\d{4})?\s*$/;
+const streetAddressLikePattern = /^\s*\d{1,6}\s+[a-z#]/i;
+const coordinatePattern = /^\s*[+-]?\d{1,3}(?:\.\d+)?\s*,\s*[+-]?\d{1,3}(?:\.\d+)?\s*$/;
 
 export function approximatePlaceError(value: string): string | null {
-  if (streetAddressPattern.test(value)) {
+  if (coordinatePattern.test(value)) {
+    return "Use a neighborhood, ZIP code, intersection, or rough study area—not precise coordinates.";
+  }
+  if (!zipCodePattern.test(value) && streetAddressLikePattern.test(value)) {
     return "Use a neighborhood, ZIP code, intersection, or rough study area—not a street address.";
   }
   return null;

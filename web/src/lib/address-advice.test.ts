@@ -18,7 +18,11 @@ describe("address advice plan", () => {
 
   it("rejects street addresses and retains only approximate-place modes", () => {
     expect(approximatePlaceError("123 Example Street")).toContain("not a street address");
+    expect(approximatePlaceError("123 Example")).toContain("not a street address");
+    expect(approximatePlaceError("42.3601, -71.0589")).toContain("not precise coordinates");
     expect(approximatePlaceError("02128")).toBeNull();
+    expect(approximatePlaceError("02128-1234")).toBeNull();
+    expect(approximatePlaceError("Main & First")).toBeNull();
     expect(phaseTwoComprehensionChecks).toHaveLength(3);
   });
 });

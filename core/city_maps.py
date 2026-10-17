@@ -7,6 +7,9 @@ import struct
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
+from .advanced_thermal_math import AnalysisLayer, array_fingerprint, moran_lisa, validate_layer
 from .city_experience import artifact_path, resolve_city_experience
 from .cities import get_city_profile, normalize_city_key
 
@@ -251,6 +254,89 @@ def _load_thermal_surfaces(repo_root: Path) -> list[dict[str, Any]]:
             }
         )
     return sources
+
+
+def _spatial_pattern_layers(thermal_sources: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Build bounded, source-linked LISA previews from bundled thermal arrays.
+
+    This is intentionally a derived preview: it has computational validation,
+    but is not released as a city-level causal or policy layer. The generic
+    layer contract lets a city package replace it with an offline artifact once
+    its external validation gate has been met.
+    """
+    layers: list[dict[str, Any]] = []
+    palette = {
+        "high-high": "#b91c1c",
+        "low-low": "#1d4ed8",
+        "high-low": "#f97316",
+        "low-high": "#7c3aed",
+        "not-significant": "#94a3b8",
+        "insufficient": "#cbd5e1",
+    }
+    for source in thermal_sources:
+        features = source.get("surfaceGeojson", {}).get("features", [])
+        if not isinstance(features, list) or not features:
+            continue
+        rows = max(int(feature.get("properties", {}).get("row", 0)) for feature in features if isinstance(feature, dict)) + 1
+        cols = max(int(feature.get("properties", {}).get("col", 0)) for feature in features if isinstance(feature, dict)) + 1
+        values = np.full((rows, cols), np.nan, dtype=float)
+        for feature in features:
+            properties = feature.get("properties") if isinstance(feature, dict) else None
+            if not isinstance(properties, dict):
+                continue
+            row, col, temp = properties.get("row"), properties.get("col"), properties.get("temp_c")
+            if isinstance(row, int) and isinstance(col, int) and isinstance(temp, (int, float)):
+                values[row, col] = float(temp)
+        try:
+            lisa = moran_lisa(values, permutations=99, seed=42)
+        except ValueError:
+            continue
+        derived_features: list[dict[str, Any]] = []
+        for feature in features:
+            if not isinstance(feature, dict):
+                continue
+            properties = feature.get("properties")
+            if not isinstance(properties, dict):
+                continue
+            row, col = properties.get("row"), properties.get("col")
+            if not isinstance(row, int) or not isinstance(col, int):
+                continue
+            category = str(lisa["category"][row, col])
+            derived_features.append({
+                **feature,
+                "properties": {
+                    **properties,
+                    "lisa_category": category,
+                    "lisa_local_i": float(lisa["local_i"][row, col]),
+                    "lisa_p_adjusted": float(lisa["p_adjusted"][row, col]) if np.isfinite(lisa["p_adjusted"][row, col]) else None,
+                },
+            })
+        layer = AnalysisLayer(
+            id=f"lisa-{source['id']}-preview-v1",
+            family="spatial_pattern",
+            display_label=f"{source['label']} local spatial pattern",
+            truth_status="derived",
+            validation_status="computationally_verified",
+            method_name="local_moran_lisa_fdr",
+            method_version="1.0.0",
+            source_inputs=(str(source["filePath"]),),
+            parameters={"neighborhood": "rook", "permutations": 99, "seed": 42, "alpha": 0.05, "multipleTesting": "benjamini-hochberg"},
+            interpretation="A local spatial-pattern diagnostic for the bundled surface-temperature study grid; categories are not causal hotspots or priority ranks.",
+            limitations=("Preview uses a single bundled scene.", "Computationally verified only; city publication requires reference comparison.", "Land-surface temperature is not air temperature or personal exposure."),
+            quality={"inputFingerprint": array_fingerprint(values), "globalMoranI": float(lisa["global_i"]), "coverageCells": int(np.isfinite(values).sum())},
+            visualization={"kind": "categorical", "valueKey": "lisa_category", "palette": palette, "fallbackColor": "#94a3b8"},
+        )
+        # Preview artifacts are deliberately non-public until a city package
+        # supplies reference comparison. Contract validation still ensures the
+        # method can never be emitted without provenance and limitations.
+        if validate_layer(layer):
+            continue
+        layers.append({
+            **layer.to_dict(),
+            "geojson": {"type": "FeatureCollection", "features": derived_features},
+            "legend": [{"key": key, "label": key.replace("-", " "), "color": color} for key, color in palette.items()],
+        })
+    return layers
 
 
 def _live_thermal_adapter_payload(enabled: bool) -> dict[str, Any]:
@@ -576,6 +662,7 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
         for overlay in access_overlays:
             overlay["label"] = "Low-access condition"
     thermal_sources = _load_thermal_surfaces(repo_root)
+    advanced_layers = _spatial_pattern_layers(thermal_sources)
     heat_bounds = _feature_bounds(_feature_collection(bottleneck_payload)) if bottleneck_payload else None
     cooling_bounds = _feature_bounds(_feature_collection(cooling_payload)) if cooling_payload else None
     thermal_bounds = _merge_bounds(*[
@@ -636,6 +723,7 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
         "heatGeojson": bottleneck_payload,
         "accessGeojson": cooling_payload,
         "thermalSources": thermal_sources,
+        "advancedLayers": advanced_layers,
         "liveThermalAdapter": _live_thermal_adapter_payload(enabled=True),
         "truthMode": {
             "headline": "This map now combines real Boston geometry, real bundled overlay exports, and source-switchable thermal study surfaces from Landsat and ECOSTRESS artifacts available in the workspace.",
@@ -707,6 +795,19 @@ def _bundled_map(city_key: str, city_name: str) -> dict[str, Any]:
                 }
                 for source in thermal_sources
             ],
+            *[
+                {
+                    "id": layer["id"],
+                    "label": layer["display_label"],
+                    "truthStatus": layer["truth_status"],
+                    "sourceType": "advanced_analysis_manifest",
+                    "filePath": layer["artifact_path"],
+                    "method": f"{layer['method_name']} v{layer['method_version']} ({layer['validation_status']}).",
+                    "primaryFields": ["lisa_category", "lisa_local_i", "lisa_p_adjusted"],
+                    "limitations": layer["limitations"],
+                }
+                for layer in advanced_layers
+            ],
         ],
         "narrative": narrative,
     }
@@ -731,6 +832,7 @@ def _generic_map(city_key: str, city_name: str) -> dict[str, Any]:
         "heatGeojson": None,
         "accessGeojson": None,
         "thermalSources": [],
+        "advancedLayers": [],
         "liveThermalAdapter": _live_thermal_adapter_payload(enabled=False),
         "truthMode": {
             "headline": "This city does not yet have a real bundled local map package in the repository.",
