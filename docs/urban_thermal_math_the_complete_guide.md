@@ -1,4 +1,4 @@
-# Urban Thermal Math & Spatial Graph Analytics: The Complete "Dummies Guide"
+# Urban Thermal Math & Spatial Graph Analytics: The Complete Simplified Guide
 
 This guide breaks down advanced mathematical concepts, formulas, and analytical
 tools used in urban thermal remote sensing, spectral graph theory, and spatial
@@ -63,6 +63,8 @@ concept to its app implementation status.
    - 5.3 Permutations & Combinations for Spatial Subgraphs
    - 5.4 NP-Hard Partitioning & Greedy Heuristics
 6. [Plain-English Symbols & Units](#appendix-b--plain-english-symbols--units-for-every-formula)
+7. [Formula Sources & Input Provenance](#appendix-c--formula-sources--input-provenance-for-every-concept)
+8. [Authoritative & Original Method Sources](#appendix-d--authoritative--original-method-sources)
 
 ---
 
@@ -88,11 +90,35 @@ Together, the units say: “how much radiant power from a unit area arrives at
 the sensor from a unit viewing direction, within a one-micrometre-wide band of
 wavelengths.”
 
-#### 📐 The Math Formula
+#### Why do we need to scale the pixel value?
+
+A **Digital Number (DN)** is a compact stored sensor code, not a measurement
+with physical energy units. For example, `12,000` means only “this detector
+recorded signal level 12,000”; by itself, it does not say how much thermal
+energy reached the sensor.
+
+The [radiance formula below](#dn-to-radiance-formula) turns that stored code
+into a physical measurement. $M_L$ says how much radiance one DN step is worth,
+and $A_L$ corrects where that sensor's coded scale begins. The values are
+calibration instructions supplied for the **exact scene and band** in its
+metadata, because different sensors, bands, and products can use different
+coding scales.
+
+Without this conversion, you can compare codes within a raw image, but you
+cannot reliably calculate brightness temperature or compare physical radiance
+between different sensors, dates, or processing products.
+
+#### 📐 The Math Formula <a id="dn-to-radiance-formula"></a>
 $$L_\lambda = M_L \cdot \text{DN} + A_L$$
 
-* $M_L$: Radiance multiplicative scaling factor (from metadata).
-* $A_L$: Radiance additive scaling factor (from metadata).
+* $M_L$: **Radiance multiplier**—the number used to scale each stored DN into radiance. It is supplied in the satellite scene's accompanying **metadata file** (the machine-readable information sheet delivered with the image), not guessed from the image.
+* $A_L$: **Radiance offset**—the number added after scaling. It comes from that same metadata file.
+
+Think of metadata as the image's **instruction label**: alongside the pixels,
+the provider supplies the sensor name, acquisition time, band definitions,
+quality flags, units, and calibration constants such as $M_L$ and $A_L$.
+Without the matching metadata, a DN is only a stored code and cannot be
+reliably converted to physical radiance.
 
 #### 🧪 Example 1: Sunny Asphalt Parking Lot
 * **Given:** $M_L = 0.0003342$, $A_L = 0.10000$, $\text{DN} = 32,500$.
@@ -1302,3 +1328,156 @@ symbol means, whether it has a physical unit, and how to read the output.
 > assumptions, implementation status, worked math, and release boundaries in
 > the same learning path. That transparency is the product innovation; the
 > individual equations are established methods.
+
+---
+
+# Appendix C — Formula Sources & Input Provenance for Every Concept
+
+## Read this table before using a number
+
+Every formula has two kinds of source:
+
+1. **Method source** answers: *Who defines this equation or algorithm?*
+2. **Value source** answers: *Where did this specific number come from in this
+   run?*
+
+Do not substitute one for the other. For example, USGS can define a Landsat
+scaling equation, but a particular `M_L` value must still come from the
+**matching scene's metadata file**. Likewise, a graph formula can be standard,
+but its `α`, `β`, adjacency, and sink rule must be recorded for the particular
+analysis.
+
+## Source labels used below
+
+| Label | Exact meaning | What must be retained |
+| --- | --- | --- |
+| **Provider file** | A file delivered with a sensor/data product: raster band, MTL/XML/JSON metadata, or QA band. | Provider, product/collection, scene ID, acquisition time, band, scale/offset, QA rule, resolution, CRS, and license. |
+| **Derived value** | Computed from declared upstream values by a named formula. | Formula/version, all input artifact IDs or hashes, code version, and output units. |
+| **Declared parameter** | An analyst, manifest, or product adapter explicitly chooses a setting. | Parameter name/value, units, rationale, owner, and sensitivity range. |
+| **Local reference data** | A validated local observation, network, asset inventory, or community-reviewed fact. | Steward, collection date, license/consent, coverage, uncertainty, and review status. |
+| **Teaching value** | A deliberately invented number used only to explain arithmetic in this guide. | The label “teaching value”; it must never be reused as city evidence. |
+
+## Authoritative remote-sensing sources
+
+- USGS defines the Level-1 radiance equation and identifies `RADIANCE_MULT_BAND_x`
+  and `RADIANCE_ADD_BAND_x` in the delivered metadata file as the sources of
+  `M_L` and `A_L`. [USGS Level-1 data-product guidance](https://www.usgs.gov/landsat-missions/using-usgs-landsat-level-1-data-product)
+- USGS defines Collection 2 Level-2 scale/offset handling, including surface
+  temperature: `Kelvin = DN × 0.00341802 + 149.0`; these values are **Level-2
+  product-specific**, not replacements for Level-1 radiance metadata.
+  [USGS scale-factor guidance](https://www.usgs.gov/faqs/how-do-i-use-a-scale-factor-landsat-level-2-science-products)
+- USGS describes `QA_PIXEL`, `QA_RADSAT`, and `ST_QA`, which are provider
+  inputs for a documented masking/uncertainty rule. [USGS Collection 2 QA guidance](https://www.usgs.gov/landsat-missions/landsat-collection-2-quality-assessment-bands)
+
+## Exact source of every formula input
+
+| Concept | Method source | Exact source of the values in the formula | Current app status / no-interpretation rule |
+| --- | --- | --- | --- |
+| 1.1 DN → TOA radiance | Provider-defined Landsat Level-1 rescaling equation. | `DN`: matching Level-1 band raster. `M_L`, `A_L`: that same scene's MTL/XML/JSON metadata fields. | ◇ Framework only. Never use example coefficients for another scene, sensor, or Level-2 product. |
+| 1.2 Brightness temperature | Provider-defined inverse-Planck relation for the declared thermal band. | `L_λ`: derived from 1.1. `K1`, `K2`: matching band metadata. | ◇ Framework only. Kelvin/Celsius conversion is explicit; no current prepared Boston array is raw-radiance input. |
+| 1.3 NDVI | Standard normalized band-ratio method. | `NIR`, `RED`: compatible surface-reflectance bands from one dated product, after its scale/offset and QA rule; or a prepared NDVI artifact with provenance. | Input-active only when optional prepared NDVI is supplied. Do not combine bands from different sensors/dates without harmonization. |
+| 1.4 FVC proxy | Declared NDVI-endpoint proxy model. | `NDVI`: 1.3 output. `NDVI_min`, `NDVI_max`: **declared parameters**, ideally justified by the scene/product or local calibration. | ◇ Framework only. Endpoints are not universal constants and output is not exact canopy cover. |
+| 1.5 Emissivity | Declared FVC-to-emissivity empirical model. | `P_v`: 1.4 output. Intercept/slope: **declared model coefficients** from the selected, documented emissivity method. | ◇ Framework only. Coefficients must not be presented as measured material emissivity. |
+| 1.6 Single-channel LST | Declared single-channel emissivity-correction model. | `T_b`: 1.2 output; `ε`: 1.5 output or a declared emissivity source; wavelength: sensor specification; `ρ`: documented physical constant convention. | ◇ Framework only. Every input must name its sensor/product and unit convention. |
+| 1.7 Split-window LST | Sensor/product-specific published or provider algorithm. | `T_b10/T_b11`: compatible calibrated thermal channels; emissivities and water vapour: product-specific inputs; all `a/b/c` coefficients: the selected validated algorithm. | ◇ Framework only. No generic coefficients, no mixed sensors, and no current bundled use. |
+| 2.1 Adjacency matrix | App graph contract in [`core/graph.py`](../core/graph.py). | Valid-cell mask: prepared LST finite values plus declared QA handling. Edge weights: derived from LST/optional NDVI, adjacency choice, `α`, `β`, and diagonal rule. | 🟦 Active. Cells/edges are raster topology, not streets or parcel boundaries. |
+| 2.2 Degree matrix | Standard weighted-graph definition; implementation in [`core/graph.py`](../core/graph.py). | `D_ii`: derived sum of the declared edge weights in 2.1. | 🟦 Active. Degree inherits proxy-weight meaning only. |
+| 2.3 Unnormalized Laplacian | Standard graph identity `L=D−A`. | `D` and `A`: derived in 2.1–2.2. | Supporting math. It does not add a new observation or a physical diffusion rate. |
+| 2.4 Normalized Laplacian | Standard normalized graph identity; implementation in [`core/graph.py`](../core/graph.py). | `D` and `A`: derived in 2.1–2.2; zero-degree convention: implementation rule. | 🟦 Active. Use only with a declared non-negative weighted graph. |
+| 3.1 Fiedler value/vector | Spectral decomposition of 2.4; implementation in [`core/spectra.py`](../core/spectra.py). | `L_sym`: 2.4 output; eigenpair: deterministic numerical calculation with recorded node order. | 🟦 Active. `λ₂` measures connectivity only in the declared graph. |
+| 3.2 Conductance / Cheeger candidate | Standard conductance definition; Fiedler sweep in [`core/spectra.py`](../core/spectra.py). | Subset order: 3.1 Fiedler vector. Cut and volume: 2.1 edge weights / 2.2 degrees. | 🟦 Active. The sweep checks an ordered family of subsets, not every possible partition. |
+| 3.3 Cheeger inequality / exact check | Established spectral-graph bound; bounded diagnostic in [`core/assurance.py`](../core/assurance.py). | `λ₂`: 3.1; conductance: 3.2; exact comparison: enumerated small declared graph only. | ◇ Framework diagnostic. No global city optimum is claimed. |
+| 3.4 Spectral clustering | Standard eigenvector embedding + chosen clustering rule; primitive in [`core/advanced_thermal_math.py`](../core/advanced_thermal_math.py). | Declared graph, requested `k`, deterministic seed/algorithm settings. | ◇ Framework only. `k` is a declared analyst choice, not discovered ground truth. |
+| 3.5 Modularity | Standard weighted-modularity definition; primitive in [`core/advanced_thermal_math.py`](../core/advanced_thermal_math.py). | Declared graph plus cluster labels from 3.4 or another named partition. | ◇ Framework only. A score compares partitions under a null model; it does not validate district meaning. |
+| 4.1 Global Moran's I | Standard spatial-autocorrelation statistic; primitive in [`core/advanced_thermal_math.py`](../core/advanced_thermal_math.py). | Field values: declared dated raster/layer. Weights: declared rook-neighbour grid and valid mask. | 🟦 Preview-gated. It is association in one field, not causation. |
+| 4.2 Local Moran / LISA | Local spatial-association statistic with permutation/FDR procedure; primitive in [`core/advanced_thermal_math.py`](../core/advanced_thermal_math.py). | Field + weights: 4.1. Permutations, seed, alpha: **declared parameters**; categories: derived after Benjamini–Hochberg adjustment. | 🟦 Preview-gated. The current adapter uses 99 permutations and seed 42; it is hidden by default. |
+| 4.3 Empirical density | Histogram-density estimator. | A documented time/window sample, its units, validity mask, and **declared bin count**. | ◇ Framework only. A density never becomes a forecast without representative time-series evidence. |
+| 4.4 Joint/conditional proportions | Standard count/proportion identities. | Two explicitly defined boolean condition layers and an eligible/valid mask; social-context sources additionally require governance approval. | ◇ Governance-gated. Denominator must be displayed; no personal or public vulnerability finding is released. |
+| 4.5 Markov transitions | Standard transition-count/probability model; primitive in [`core/advanced_thermal_math.py`](../core/advanced_thermal_math.py). | Two harmonized, dated classification rasters; class schema; valid classes/mask. | ◇ Framework only. Transition probabilities are observations of selected dates/classes, not a guaranteed forecast. |
+| 4.6 GEV | Standard extreme-value model; optional primitive in [`core/advanced_thermal_math.py`](../core/advanced_thermal_math.py). | Dated, quality-controlled block maxima; block definition; fitting method and diagnostics. | ○ Research-only. Fewer than 20 maxima are rejected; no return-level city output is released. |
+| 4.7 H × E × V index | Illustrative risk-framework identity, not an active platform method. | `H`, `E`, `V` would each require a named source, normalization, geography, date, governance review, and local validation. | ○ Gated. There is no released risk score, and no social data may be silently added. |
+| 5.1 Combinatorial cut | Standard cut definition. | Declared graph and edge weights from 2.1; chosen subset `S` or a named search rule. | 🟦 Active approximation via Fiedler sweep. A cut weight is not a physical flow quantity. |
+| 5.2 Min-cut / max-flow | Standard network-flow theorem; primitive in [`core/advanced_thermal_math.py`](../core/advanced_thermal_math.py). | Explicit directed/undirected network, source, target, and an edge attribute with a defensible capacity unit. | ◇ Framework only. Thermal proxy weights are not automatically capacities. |
+| 5.3 Combinations / permutations | Standard combinatorics. | `n` candidates and `k` selections: declared candidate set and scope. | ◇ Framework diagnostic. Counts quantify search size; they do not choose an intervention. |
+| 5.4 Greedy / bounded optimization | Declared ranking/allocation rule; scenario logic in `core/pipeline.py` and web scenario domain. | Candidate actions, budget, unit-cost source, evidence label, priority rule, constraints, and tie-break rule. | 🟦 Planning-gated. A result is reproducible under its stated rule, not a citywide optimum or procurement decision. |
+
+## The required provenance record for a real run
+
+Before a formula result can be called a city finding, the analysis must retain:
+
+```text
+input artifact IDs/hashes + provider/product/version + date/time + CRS/resolution
++ QA/mask rule + formula/method version + every parameter and unit
++ source of each coefficient + code version/seed + output limitation + reviewer status
+```
+
+The repository's `ThermalInputContract`, `GraphParameters`, and `AnalysisLayer`
+types are designed to carry this information. If a field is unknown, the
+correct value is **“unknown / not released”**—not a plausible-looking default.
+
+---
+
+# Appendix D — Authoritative & Original Method Sources
+
+This is the **method bibliography** for every numbered concept in the guide.
+It deliberately separates three kinds of authority:
+
+| Source type | Meaning | How to use it |
+| --- | --- | --- |
+| **Official product specification** | The sensor/product owner defines the fields, constants, scaling, and QA interpretation. | Use it to read a real data product. The matching scene metadata remains the source of that scene's values. |
+| **Original research** | The paper that introduced the named method or its defining statistic. | Use it to understand what the method actually claims and its assumptions. |
+| **Canonical reference** | A trusted primary text for an elementary definition or a method with no one sensible “inventor” citation. | Use it for the definition; do not claim this app invented it. |
+
+**Important:** A citation tells you where the *method* came from. It does not
+supply the value of an input for Boston or any other place. For the source of
+each run's actual numbers, use Appendix C's provenance table and retain the
+matching artifacts. A source marked **teaching simplification** supports the
+idea being taught but is not permission to treat its example coefficients as a
+universal operational algorithm.
+
+## Source register, mapped to every guide concept
+
+| Guide concept | Method source and authority | What it authoritatively supports — and what it does not |
+| --- | --- | --- |
+| **1.1 DN → TOA radiance** | **Official product specification:** [USGS, *Using the Landsat Level-1 Data Product*](https://www.usgs.gov/landsat-missions/using-usgs-landsat-level-1-data-product). | The Level-1 radiance rescaling relation and the metadata fields `RADIANCE_MULT_BAND_x` / `RADIANCE_ADD_BAND_x`. It does **not** supply values for a different scene or a Level-2 product. |
+| **1.2 Brightness temperature** | **Official product specification:** the same [USGS Level-1 guidance](https://www.usgs.gov/landsat-missions/using-usgs-landsat-level-1-data-product), which identifies the band-specific thermal constants in metadata. | The inverse-Planck conversion used for a declared Landsat thermal band. It does **not** turn brightness temperature into validated land-surface temperature by itself. |
+| **1.3 NDVI** | **Original research:** [Rouse et al. (1974), *Monitoring vegetation systems in the Great Plains with ERTS*](https://doi.org/2060/19740022614), NASA Technical Reports Server. | The normalized vegetation-index method. It does **not** make any NDVI raster comparable across dates/sensors without stated reflectance, QA, and harmonization choices. |
+| **1.4 FVC proxy** | **Original empirical relationship:** [Carlson & Ripley (1997), *On the relation between NDVI, fractional vegetation cover, and leaf area index*](https://doi.org/10.1016/S0034-4257(97)00104-1). | Why an NDVI-to-vegetation-cover relation can be modeled. It does **not** make the guide's `NDVI_min` / `NDVI_max` universal values or make FVC exact canopy cover. |
+| **1.5 Emissivity** | **Authoritative method family:** [Sobrino, Jiménez-Muñoz & Paolini (2004), *Land surface temperature retrieval from LANDSAT TM 5*](https://doi.org/10.1016/j.rse.2004.02.003); see also the [NDVI-threshold method comparison by Sobrino et al. (2002)](https://doi.org/10.1029/2002JD002197). | The use of NDVI-informed emissivity estimation as a method family. The guide's linear coefficient example is a **teaching simplification**, not a material-emissivity measurement or universal coefficient set. |
+| **1.6 Single-channel LST** | **Original single-channel formulation:** [Jiménez-Muñoz & Sobrino (2003), *A generalized single-channel method for retrieving land surface temperature*](https://doi.org/10.1029/2003JD003480). | A generalized single-channel LST framework and its required atmospheric/emissivity considerations. The guide's compact correction is explanatory only; use a validated sensor/product algorithm for a real result. |
+| **1.7 Split-window LST** | **Original split-window implementation:** [Coll & Caselles (1997), *A split-window algorithm for land surface temperature from advanced very high resolution radiometer data*](https://doi.org/10.1029/97JD00929). | Why split-window coefficients are sensor/atmosphere dependent. It does **not** authorize applying AVHRR coefficients to Landsat or another sensor. |
+| **2.1 Adjacency matrix** | **Canonical reference:** [Fan Chung, *Spectral Graph Theory*](https://fanchung.ucsd.edu/research/outline.html), Chapter 1. | The graph/matrix representation. The app's raster-neighbour and thermal-similarity edge contract is an app design choice, documented in `core/graph.py`. |
+| **2.2 Degree matrix** | **Canonical reference:** [Chung, *Spectral Graph Theory*](https://fanchung.ucsd.edu/research/outline.html), Chapter 1. | The weighted-degree definition. It does **not** give degree a road-access, population, or physical-flux meaning. |
+| **2.3 Unnormalized Laplacian** | **Canonical reference:** [Chung, *Spectral Graph Theory*](https://fanchung.ucsd.edu/research/outline.html), Chapter 1. | The identity `L = D − A`. It does **not** measure thermal diffusion unless the edge weights themselves are a validated diffusion model. |
+| **2.4 Normalized Laplacian** | **Canonical reference:** [Chung, *Spectral Graph Theory*](https://fanchung.ucsd.edu/research/outline.html), Chapter 1. | The normalized-Laplacian definition and its graph assumptions. It does **not** decide the app's `α`, `β`, neighbour rule, or zero-degree convention. |
+| **3.1 Fiedler value/vector** | **Original research:** [Fiedler (1973), *Algebraic connectivity of graphs*](https://doi.org/10.21136/CMJ.1973.101168). | The connection between the second eigenvalue/eigenvector and graph connectivity. It does **not** identify a real-world cooling corridor without a defensible graph construction. |
+| **3.2 Conductance / Cheeger candidate** | **Canonical graph result:** [Chung (1997), *Laplacians of graphs and Cheeger's inequalities*](https://fanchung.ucsd.edu/wp/cheeger.pdf). | Weighted graph conductance and spectral bounds. It does **not** mean a Fiedler sweep exhaustively evaluates all city partitions. |
+| **3.3 Cheeger inequality / exact check** | **Canonical graph result:** [Chung (1997), *Laplacians of graphs and Cheeger's inequalities*](https://fanchung.ucsd.edu/wp/cheeger.pdf). | The mathematical relationship between normalized-Laplacian spectrum and graph conductance. It does **not** certify a city-scale optimum when the app deliberately checks only bounded examples. |
+| **3.4 Spectral clustering** | **Original algorithm paper:** [Ng, Jordan & Weiss (2002), *On spectral clustering: Analysis and an algorithm*](https://proceedings.neurips.cc/paper_files/paper/2001/file/801272ee79cfde7fa5960571fee36b9b-Paper.pdf). | Eigenvector embedding plus clustering as an algorithmic pattern. It does **not** choose the number of clusters or make clusters administrative districts. |
+| **3.5 Modularity** | **Original definition/use:** [Newman & Girvan (2004), *Finding and evaluating community structure in networks*](https://doi.org/10.1103/PhysRevE.69.026113). | The community-structure/modularity comparison under a null model. It does **not** prove a partition is socially, physically, or administratively meaningful. |
+| **4.1 Global Moran's I** | **Original statistic:** [Moran (1950), *Notes on continuous stochastic phenomena*](https://doi.org/10.1093/biomet/37.1-2.17). | Global spatial autocorrelation. It does **not** establish cause, mechanism, or statistical significance without an explicit inference procedure. |
+| **4.2 Local Moran / LISA** | **Original statistic:** [Anselin (1995), *Local Indicators of Spatial Association—LISA*](https://doi.org/10.1111/j.1538-4632.1995.tb00338.x). | Local association and the LISA framework. It does **not** make an unadjusted local p-value a public hotspot claim; the app's permutation/FDR settings remain declared choices. |
+| **4.3 Empirical density** | **Original histogram reference:** [Scott (1979), *On optimal and data-based histograms*](https://doi.org/10.1093/biomet/66.3.605). | Histogram-density estimation and the importance of bin choice. It does **not** make a one-scene histogram a heat-wave forecast. |
+| **4.4 Joint / conditional proportions** | **Canonical probability source:** [Kolmogorov (1950), *Foundations of the Theory of Probability*](https://doi.org/10.2307/3612954), 2nd English edition. | The probability framework behind joint and conditional quantities. It does **not** define the app's condition layers, denominator, social variables, or release policy. |
+| **4.5 Markov transitions** | **Original research:** A. A. Markov (1906), [*Extension of the law of large numbers to quantities dependent on each other* (reprint record)](https://portal.mardi4nfdi.de/wiki/Extension_of_the_law_of_large_numbers_to_quantities%2C_depending_on_each_other_%281906%29._Reprint). | The historical foundation for chain-dependent transition models. It does **not** justify a forecast from two arbitrary, non-harmonized classification maps. |
+| **4.6 GEV** | **Original extreme-value source:** [Fisher & Tippett (1928), *Limiting forms of the frequency distribution of the largest or smallest member of a sample*](https://doi.org/10.1017/S0305004100015681). | The limiting-extremes foundation behind GEV modeling. It does **not** validate a return level without adequate, quality-controlled block maxima and diagnostics. |
+| **4.7 H × E × V risk index** | **Authoritative assessment framework:** [IPCC AR6 WGII, Chapter 1](https://www.ipcc.ch/report/ar6/wg2/downloads/report/IPCC_AR6_WGII_FinalDraft_Chapter01.pdf). | Risk framing involving hazard, exposure, and vulnerability. It does **not** prescribe a universal multiplication formula, normalization, or social-risk score for this app. |
+| **5.1 Combinatorial cut** | **Canonical algorithm reference:** [Stoer & Wagner (1997), *A simple min-cut algorithm*](https://doi.org/10.1145/263867.263872). | Weighted graph cuts as a formal graph quantity. It does **not** give a cut edge a physical heat-flow interpretation. |
+| **5.2 Min-cut / max-flow** | **Original paper:** [Ford & Fulkerson (1956), *Maximal flow through a network*](https://doi.org/10.4153/CJM-1956-045-5). | Flow-network optimization. It does **not** turn generic thermal-similarity weights into capacities; capacity units and direction must be independently defined. |
+| **5.3 Combinations / permutations** | **Canonical reference:** [Graham, Knuth & Patashnik, *Concrete Mathematics*](https://www-cs-faculty.stanford.edu/~knuth/gkp.html), combinatorial counting chapters. | Elementary counting identities and growth of the candidate space. It does **not** select an intervention or establish that every mathematical candidate is feasible. |
+| **5.4 NP-hard partitioning / greedy heuristic** | **Original complexity reference:** [Karp (1972), *Reducibility Among Combinatorial Problems*](https://doi.org/10.1007/978-1-4684-2001-2_9). **Original heuristic:** [Kernighan & Lin (1970), *An Efficient Heuristic Procedure for Partitioning Graphs*](https://doi.org/10.1002/j.1538-7305.1970.tb01770.x). | Why exact combinatorial optimization can be hard and why explicitly declared heuristics are used. Neither source makes a greedy scenario result globally optimal. |
+
+## Citation rule for future additions
+
+When a new formula is added, add **all four** of the following in the same pull
+request:
+
+1. a link to its original paper, official product specification, or clearly
+   labelled canonical reference;
+2. the source and units of every coefficient and input used by the app;
+3. the exact implementation location and test status; and
+4. a sentence saying what the method **cannot** establish.
+
+If no authoritative source can be named, label the formula **proposed / app
+specific**, document its derivation and owner, and do not present it as a
+recognized scientific method.
