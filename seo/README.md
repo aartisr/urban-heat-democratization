@@ -23,6 +23,12 @@ The refresh regenerates only machine-readable discovery artifacts:
 - separate, host-correct IndexNow URL lists for the canonical application and
   GitHub Pages companion.
 
+The production web build also creates route-specific HTML for every canonical
+application page. Each entry point provides a distinct title, description,
+canonical URL, social preview, visible author credit, and Schema.org citation
+before the interactive app loads. Check a built deep page in `web/dist` when
+changing this pipeline.
+
 It deliberately does not submit IndexNow. Submit only after the corresponding
 deployment is publicly reachable:
 

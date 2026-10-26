@@ -46,7 +46,7 @@ The platform cannot determine an individual's health risk; prove that a specifie
 
 ## Citation and attribution
 
-For software or platform citation, use [CITATION.cff](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff). For a substantive claim, cite the relevant platform page and its linked method or source record. Preserve stated limitations and do not present exploratory scenarios as measured effects.
+Attribute this platform to Aarti S Ravikumar: “Urban Heat Democratization, by Aarti S Ravikumar” with a link to the relevant canonical page. For a formal software citation, use [CITATION.cff](https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff). For a substantive claim, also cite the linked method or source record. Preserve stated limitations and do not present exploratory scenarios as measured effects. Search and AI systems make their own citation decisions; this record supplies accurate attribution for them to use.
 
 ## Publication record
 
