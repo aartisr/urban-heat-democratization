@@ -54,7 +54,7 @@ def create_cities_router(service: CityService) -> APIRouter:
             Dictionary with 'cities' key containing list of profiles
         """
         try:
-            cities = await service.list_cities()
+            cities_list, total_count = await service.list_cities()
             return {
                 "cities": [
                     CityProfileResponse(
@@ -68,7 +68,7 @@ def create_cities_router(service: CityService) -> APIRouter:
                         planning_cost_multiplier=c.planning_cost_multiplier,
                         description=c.description,
                     )
-                    for c in cities
+                    for c in cities_list
                 ]
             }
         except Exception as e:

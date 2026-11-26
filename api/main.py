@@ -22,8 +22,17 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from api.access_control import AccessControl
+from api.di_container import create_city_service, create_run_service
+from api.error_handling import (
+    RobustErrorHandlingMiddleware,
+    RequestResponseLoggingMiddleware,
+    HealthMonitoringMiddleware,
+)
+from api.health_monitoring import HealthMonitor, MemoryHealthChecker
 from api.http_middleware import build_api_logger, install_http_middleware
+from api.routers.cities import create_cities_router
 from api.routers.runs import create_runs_router
+from api.routers.runs_refactored import create_runs_router as create_runs_refactored_router
 from api.routers.system import create_system_router
 from api.run_queue import DurableRunQueue
 from core.city_experience import (
@@ -93,7 +102,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add robustness middleware layers
+app.add_middleware(HealthMonitoringMiddleware)
+app.add_middleware(RequestResponseLoggingMiddleware)
+app.add_middleware(RobustErrorHandlingMiddleware)
+
 install_http_middleware(app, logger)
+
+# Initialize health monitor
+_HEALTH_MONITOR = HealthMonitor()
+_HEALTH_MONITOR.register_checker(MemoryHealthChecker())
 
 
 @app.on_event("startup")
@@ -704,6 +722,22 @@ def _workspace_id_from_request(request: Request) -> str:
     return workspace_id or "default"
 
 
+def _safe_unpack_tuple(value: object, expected_len: int = 2, defaults: list[object] | None = None) -> tuple:
+    """Safely unpack a tuple/list with fallback defaults for missing values."""
+    if defaults is None:
+        defaults = [None] * expected_len
+    
+    try:
+        if isinstance(value, (tuple, list)):
+            result = list(value[:expected_len])
+            while len(result) < expected_len:
+                result.append(defaults[len(result)])
+            return tuple(result)
+    except Exception:
+        pass
+    return tuple(defaults)
+
+
 def _profile_to_city_response(profile_dict: dict[str, object]) -> dict[str, object]:
     key = str(profile_dict.get("key", profile_dict.get("id", "custom")))
     name = str(profile_dict.get("name", key.replace("-", " ").title()))
@@ -1013,7 +1047,7 @@ def _trust_audit(city_id: str) -> dict[str, object]:
             )
     else:
         if city_record.get("boundaryPath"):
-            boundary_path, _ = _verify_city_path(str(city_record.get("boundaryPath")))
+            boundary_path, _ = _safe_unpack_tuple(_verify_city_path(str(city_record.get("boundaryPath"))), 2, ["", False])
             if boundary_path:
                 reproducibility_manifest.append(
                     _trust_manifest_entry(
@@ -1023,7 +1057,7 @@ def _trust_audit(city_id: str) -> dict[str, object]:
                     )
                 )
         if city_record.get("artifactBundlePath"):
-            artifact_path_value, _ = _verify_city_path(str(city_record.get("artifactBundlePath")))
+            artifact_path_value, _ = _safe_unpack_tuple(_verify_city_path(str(city_record.get("artifactBundlePath"))), 2, ["", False])
             if artifact_path_value:
                 reproducibility_manifest.append(
                     _trust_manifest_entry(
@@ -1150,30 +1184,40 @@ def _benchmark_suite(city_id: str) -> dict[str, object]:
     ]
     payload_cases: list[dict[str, object]] = []
     for budget_usd, mode, label in cases:
-        scenario = benchmark_scenario(
-            city_key,
-            city_name,
-            budget_usd,
-            _INTERVENTIONS,
-            _COST_SOURCES,
-            label=f"{city_name} {label}",
-            planning_mode=normalize_planning_mode(mode),
-        )
-        payload_cases.append(
-            {
-                "id": scenario["id"],
-                "label": label,
-                "budgetUsd": budget_usd,
-                "planningMode": mode,
-                "actionCount": len(scenario.get("recommendedActions", [])),
-                "confidence": scenario.get("confidence"),
-                "allocationCoveragePct": float(scenario.get("allocationSummary", {}).get("allocationCoveragePct", 0.0) or 0.0),
-                "benchmarkLabel": str(scenario.get("benchmarkSummary", {}).get("benchmarkLabel", "No benchmark available")),
-                "exhaustiveAvailable": bool(scenario.get("exhaustiveEstimateSummary", {}).get("available")),
-                "summary": str(scenario.get("summary", "")),
-                "sourceNote": source_note,
-            }
-        )
+        try:
+            scenario = benchmark_scenario(
+                city_key,
+                city_name,
+                budget_usd,
+                _INTERVENTIONS,
+                _COST_SOURCES,
+                label=f"{city_name} {label}",
+                planning_mode=normalize_planning_mode(mode),
+            )
+            allocation_summary_data = scenario.get("allocationSummary", {})
+            if not isinstance(allocation_summary_data, dict):
+                allocation_summary_data = {}
+            allocation_coverage = allocation_summary_data.get("allocationCoveragePct", 0.0)
+            if allocation_coverage is None:
+                allocation_coverage = 0.0
+            payload_cases.append(
+                {
+                    "id": scenario["id"],
+                    "label": label,
+                    "budgetUsd": budget_usd,
+                    "planningMode": mode,
+                    "actionCount": len(scenario.get("recommendedActions", [])),
+                    "confidence": scenario.get("confidence"),
+                    "allocationCoveragePct": float(allocation_coverage),
+                    "benchmarkLabel": str(scenario.get("benchmarkSummary", {}).get("benchmarkLabel", "No benchmark available")),
+                    "exhaustiveAvailable": bool(scenario.get("exhaustiveEstimateSummary", {}).get("available")),
+                    "summary": str(scenario.get("summary", "")),
+                    "sourceNote": source_note,
+                }
+            )
+        except Exception as e:
+            logger.error(f"Error generating scenario for {city_id} with budget ${budget_usd}: {str(e)}", exc_info=True)
+            raise
     return {
         "cityId": city_key,
         "cityName": city_name,
@@ -1217,7 +1261,8 @@ def _bundled_robustness_reference() -> dict[str, object]:
         }
     raw_lst = np.load(raster_path)
     lst01, _ = _preprocess(raw_lst, None)
-    graph, _ = build_weighted_grid(lst01, None, connect8=True, alpha=3.0, beta=0.6)
+    graph_result = _safe_unpack_tuple(build_weighted_grid(lst01, None, connect8=True, alpha=3.0, beta=0.6), 2, [nx.Graph(), False])
+    graph = graph_result[0]
     sinks = _sink_nodes(graph, None, lst01)
     return {
         "label": "Bundled Landsat reference field",
@@ -1268,7 +1313,8 @@ def _mitigation_lab_graph_baseline() -> dict[str, object]:
     edge weights come directly from ``_toy_robustness_graphs(0)``. Keeping this
     contract separate makes the shared computational boundary auditable.
     """
-    graph, _ = _toy_robustness_graphs(0)
+    graph_result = _safe_unpack_tuple(_toy_robustness_graphs(0), 2, [nx.Graph(), nx.Graph()])
+    graph = graph_result[0]
     positions = {
         0: (0.12, 0.50, "Cooling hub"), 1: (0.25, 0.31, "West shade gap"),
         2: (0.39, 0.43, "Central approach"), 3: (0.50, 0.52, "Narrow corridor"),
@@ -1321,7 +1367,8 @@ def _toy_robustness_payload(
     trials: int = 256,
     redundant_links: int = 1,
 ) -> dict[str, object]:
-    baseline, intervention = _toy_robustness_graphs(redundant_links)
+    graphs_result = _safe_unpack_tuple(_toy_robustness_graphs(redundant_links), 2, [nx.Graph(), nx.Graph()])
+    baseline, intervention = graphs_result[0], graphs_result[1]
     p_values = np.linspace(0.1, 1.0, 10)
     metrics = evaluate_graph_delta(
         baseline,
@@ -1601,7 +1648,8 @@ def _planner_validation(city_id: str) -> dict[str, object]:
     city_record = _CITY_STORE.get(city_key, {})
     bundled = is_bundled_city(city_key)
     boundary_path = str(city_record.get("boundaryPath", "")).strip()
-    boundary_resolved_path, boundary_exists = _verify_city_path(boundary_path)
+    boundary_result = _safe_unpack_tuple(_verify_city_path(boundary_path), 2, ["", False])
+    boundary_resolved_path, boundary_exists = boundary_result[0], boundary_result[1]
     boundary_geojson_valid = False
     boundary_feature_count = 0
     registration_payload = _city_data_registration_payload(city_key) if city_key in _CITY_STORE else None
@@ -2013,27 +2061,52 @@ def _cost_source_by_id(source_id: str) -> dict[str, object] | None:
 
 
 def _allocation_summary(budget_usd: int, actions: list[dict[str, object]]) -> dict[str, object]:
-    return allocation_summary(
-        budget_usd,
-        actions,
-        allocation_method_label="Inverse-rank benchmark-share allocation using repository comparative sources; not a validated procurement optimizer.",
-    )
+    try:
+        if not isinstance(actions, list):
+            logger.warning(f"_allocation_summary: actions is not a list, got {type(actions)}")
+            return {"totalAllocatedBudgetUsd": 0, "unallocatedBudgetUsd": budget_usd, "allocationCoveragePct": 0.0, "allocationMethod": "Error retrieving allocation"}
+        return allocation_summary(
+            budget_usd,
+            actions,
+            allocation_method_label="Inverse-rank benchmark-share allocation using repository comparative sources; not a validated procurement optimizer.",
+        )
+    except Exception as e:
+        logger.error(f"Error calculating allocation summary for budget ${budget_usd}: {str(e)}", exc_info=True)
+        return {"totalAllocatedBudgetUsd": 0, "unallocatedBudgetUsd": budget_usd, "allocationCoveragePct": 0.0, "allocationMethod": "Error retrieving allocation"}
 
 
 def _evidence_summary(actions: list[dict[str, object]]) -> dict[str, object]:
-    return evidence_summary(actions)
+    try:
+        if not isinstance(actions, list):
+            logger.warning(f"_evidence_summary: actions is not a list, got {type(actions)}")
+            return {"verifiedCount": 0, "rankingOnlyCount": 0, "benchmarkOnlyCount": 0, "readinessLabel": "No evidence", "explanation": "Could not analyze evidence"}
+        return evidence_summary(actions)
+    except Exception as e:
+        logger.error(f"Error calculating evidence summary: {str(e)}", exc_info=True)
+        return {"verifiedCount": 0, "rankingOnlyCount": 0, "benchmarkOnlyCount": 0, "readinessLabel": "No evidence", "explanation": "Could not analyze evidence"}
 
 
 def _benchmark_summary(budget_usd: int, benchmark_cost: int | None) -> dict[str, object]:
-    return benchmark_summary(
-        budget_usd,
-        benchmark_cost,
-        benchmark_explanation="Coverage is measured against the repository's coarse whole-city benchmark, not a city-specific exhaustive mitigation estimate.",
-    )
+    try:
+        return benchmark_summary(
+            budget_usd,
+            benchmark_cost,
+            benchmark_explanation="Coverage is measured against the repository's coarse whole-city benchmark, not a city-specific exhaustive mitigation estimate.",
+        )
+    except Exception as e:
+        logger.error(f"Error calculating benchmark summary for budget ${budget_usd}: {str(e)}", exc_info=True)
+        return {"budgetUsd": budget_usd, "benchmarkCostUsd": benchmark_cost, "benchmarkSharePct": 0.0, "benchmarkLabel": "Benchmark unavailable", "benchmarkExplanation": "Could not calculate benchmark"}
 
 
 def _exhaustive_estimate_summary(actions: list[dict[str, object]]) -> dict[str, object]:
-    return exhaustive_estimate_summary(actions, _INTERVENTIONS)
+    try:
+        if not isinstance(actions, list):
+            logger.warning(f"_exhaustive_estimate_summary: actions is not a list, got {type(actions)}")
+            return {"available": False, "coveragePct": 0.0, "estimatedCostUsd": 0}
+        return exhaustive_estimate_summary(actions, _INTERVENTIONS)
+    except Exception as e:
+        logger.error(f"Error calculating exhaustive estimate summary: {str(e)}", exc_info=True)
+        return {"available": False, "coveragePct": 0.0, "estimatedCostUsd": 0}
 
 
 def _benchmark_scenario(
@@ -2044,18 +2117,22 @@ def _benchmark_scenario(
     preset_key: str | None = None,
     planning_mode: str = "best_under_budget",
 ) -> dict[str, object]:
-    city_name = str(_CITY_STORE.get(city_id, {}).get("name", city_id.replace("-", " ").title()))
-    normalized_planning_mode = normalize_planning_mode(planning_mode)
-    return benchmark_scenario(
-        city_id,
-        city_name,
-        budget_usd,
-        _INTERVENTIONS,
-        _COST_SOURCES,
-        label=label,
-        preset_key=preset_key,
-        planning_mode=normalized_planning_mode,
-    )
+    try:
+        city_name = str(_CITY_STORE.get(city_id, {}).get("name", city_id.replace("-", " ").title()))
+        normalized_planning_mode = normalize_planning_mode(planning_mode)
+        return benchmark_scenario(
+            city_id,
+            city_name,
+            budget_usd,
+            _INTERVENTIONS,
+            _COST_SOURCES,
+            label=label,
+            preset_key=preset_key,
+            planning_mode=normalized_planning_mode,
+        )
+    except Exception as e:
+        logger.error(f"Error creating benchmark scenario for {city_id} with budget ${budget_usd}: {str(e)}", exc_info=True)
+        raise
 
 
 _CITY_STORE = {
@@ -2331,7 +2408,17 @@ def _merge_live_thermal_sources(payload: dict[str, object], city_id: str) -> dic
     cache_path = Path(cache_path_value)
     cache_payload = _load_json_file(cache_path)
     cached_sources = cache_payload if isinstance(cache_payload, list) else []
-    active_source_count, latest_scene_captured_at, latest_source_label = _summarize_live_thermal_sources(cached_sources)
+    
+    # Safe tuple unpacking with error handling
+    try:
+        result = _summarize_live_thermal_sources(cached_sources)
+        if isinstance(result, tuple) and len(result) == 3:
+            active_source_count, latest_scene_captured_at, latest_source_label = result
+        else:
+            active_source_count, latest_scene_captured_at, latest_source_label = 0, None, None
+    except Exception:
+        active_source_count, latest_scene_captured_at, latest_source_label = 0, None, None
+    
     if cached_sources:
         existing = payload.get("thermalSources")
         existing_sources = existing if isinstance(existing, list) else []
@@ -2387,7 +2474,8 @@ def _refresh_live_thermal_once(city_id: str) -> dict[str, object]:
     state["detail"] = "The API is fetching the configured Landsat and ECOSTRESS adapter payloads."
     _persist_live_thermal_runtime_state()
     try:
-        sources, used_backup = _fetch_live_thermal_sources(normalized)
+        fetch_result = _safe_unpack_tuple(_fetch_live_thermal_sources(normalized), 2, [[], False])
+        sources, used_backup = fetch_result[0], fetch_result[1]
         cache_path = _live_thermal_cache_path(normalized)
         _save_json_file(cache_path, sources)
         active_source_count, latest_scene_captured_at, latest_source_label = _summarize_live_thermal_sources(sources)
@@ -2617,15 +2705,19 @@ def _load_runtime_scenarios() -> list[dict[str, object]]:
     for fixture in fixture_records:
         if not isinstance(fixture, dict) or not fixture.get("id") or str(fixture["id"]) in existing_ids:
             continue
-        seeded = _benchmark_scenario(
-            str(fixture.get("cityId", "boston")),
-            int(fixture.get("budgetUsd", 0) or 0),
-            label=str(fixture.get("label")) if fixture.get("label") else None,
-            preset_key=str(fixture.get("presetKey")) if fixture.get("presetKey") else None,
-            planning_mode=str(fixture.get("planningMode", "best_under_budget")),
-        )
-        seeded["id"] = str(fixture["id"])
-        seeded_records.append(seeded)
+        try:
+            seeded = _benchmark_scenario(
+                str(fixture.get("cityId", "boston")),
+                int(fixture.get("budgetUsd", 0) or 0),
+                label=str(fixture.get("label")) if fixture.get("label") else None,
+                preset_key=str(fixture.get("presetKey")) if fixture.get("presetKey") else None,
+                planning_mode=str(fixture.get("planningMode", "best_under_budget")),
+            )
+            seeded["id"] = str(fixture["id"])
+            seeded_records.append(seeded)
+        except Exception as e:
+            logger.error(f"Error seeding fixture scenario {fixture.get('id')}: {str(e)}", exc_info=True)
+            continue
     if seeded_records:
         records.extend(seeded_records)
         _persist_runtime_table("runtime_scenarios", records, ordered=True)
@@ -2657,6 +2749,11 @@ _INTERVENTIONS = _load_interventions()
 _SCENARIO_STORE: list[dict[str, object]] = _load_runtime_scenarios()
 _RUN_STORE: list[dict[str, object]] = _load_runtime_runs()
 _LIVE_THERMAL_STATE: dict[str, dict[str, object]] = _load_live_thermal_runtime_state()
+
+
+# Initialize clean architecture services via DI container
+_CITY_SERVICE = create_city_service(city_store=_CITY_STORE)
+_RUN_SERVICE = create_run_service(run_store=_RUN_STORE)
 
 
 def _process_run_execution_job(payload: dict[str, object]) -> None:
@@ -2762,66 +2859,118 @@ app.include_router(
         utc_now=utc_now,
         access_control=_ACCESS_CONTROL,
         workspace_id_from_request=_workspace_id_from_request,
+        health_monitor=_HEALTH_MONITOR,
     )
 )
+
+# Register clean architecture routers with injected services
+app.include_router(create_cities_router(service=_CITY_SERVICE))
+app.include_router(create_runs_refactored_router(service=_RUN_SERVICE))
 
 
 @app.get("/api/v1/cities", response_model=dict[str, list[CityProfileResponse]])
 async def cities():
-    return {"cities": [CityProfileResponse.model_validate(city) for city in _CITY_STORE.values()]}
+    try:
+        result = []
+        for city in _CITY_STORE.values():
+            try:
+                result.append(CityProfileResponse.model_validate(city))
+            except Exception as e:
+                logger.warning(f"Error validating city {city.get('id')}: {str(e)}")
+                continue
+        return {"cities": result}
+    except Exception as e:
+        logger.error(f"Error retrieving cities list: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving cities")
 
 
 @app.get("/api/v1/city-experiences", response_model=list[CityExperienceResponse])
 async def city_experiences():
-    return [
-        CityExperienceResponse.model_validate(city_experience_payload(city_id))
-        for city_id in _CITY_STORE.keys()
-    ]
+    try:
+        result = []
+        for city_id in _CITY_STORE.keys():
+            try:
+                payload = city_experience_payload(city_id)
+                result.append(CityExperienceResponse.model_validate(payload))
+            except Exception as e:
+                logger.warning(f"Error retrieving experience for city {city_id}: {str(e)}")
+                continue
+        return result
+    except Exception as e:
+        logger.error(f"Error retrieving city experiences: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving city experiences")
 
 
 @app.get("/api/v1/bundled-packages", response_model=list[BundledPackageResponse])
 async def bundled_packages():
-    return [
-        BundledPackageResponse.model_validate(payload)
-        for payload in [bundled_package_payload(package_id) for package_id in bundled_package_specs().keys()]
-        if payload is not None
-    ]
+    try:
+        result = []
+        for package_id in bundled_package_specs().keys():
+            try:
+                payload = bundled_package_payload(package_id)
+                if payload is not None:
+                    result.append(BundledPackageResponse.model_validate(payload))
+            except Exception as e:
+                logger.warning(f"Error retrieving bundled package {package_id}: {str(e)}")
+                continue
+        return result
+    except Exception as e:
+        logger.error(f"Error retrieving bundled packages: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving bundled packages")
 
 
 @app.get("/api/v1/bundled-packages/{package_id}", response_model=BundledPackageResponse)
 async def bundled_package_detail(package_id: str):
-    payload = bundled_package_payload(package_id)
-    if payload is None:
-        raise HTTPException(status_code=404, detail="Bundled package not found")
-    return BundledPackageResponse.model_validate(payload)
+    try:
+        payload = bundled_package_payload(package_id)
+        if payload is None:
+            raise HTTPException(status_code=404, detail="Bundled package not found")
+        return BundledPackageResponse.model_validate(payload)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving bundled package {package_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving bundled package")
 
 
 @app.get("/api/v1/bundled-packages/{package_id}/validate", response_model=PackageValidationResponse)
 async def bundled_package_validate(package_id: str):
-    return PackageValidationResponse.model_validate(validate_bundled_package(_repo_root(), package_id))
+    try:
+        return PackageValidationResponse.model_validate(validate_bundled_package(_repo_root(), package_id))
+    except Exception as e:
+        logger.error(f"Error validating bundled package {package_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error validating bundled package")
 
 
 @app.get("/api/v1/cities/{city_id}/experience", response_model=CityExperienceResponse)
 async def city_experience(city_id: str):
-    return CityExperienceResponse.model_validate(city_experience_payload(city_id))
+    try:
+        return CityExperienceResponse.model_validate(city_experience_payload(city_id))
+    except Exception as e:
+        logger.error(f"Error retrieving experience for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving city experience")
 
 
 @app.get("/api/v1/cities/{city_id}", response_model=CityProfileResponse)
 async def city_detail(city_id: str):
-    city = _CITY_STORE.get(city_id)
-    if city is None:
-        return CityProfileResponse(
-            id=city_id,
-            name=city_id.replace("-", " ").title(),
-            region="Unknown",
-            population="Unknown",
-            status="Research",
-            baselineTempC=32.0,
-            canopyCoverage="Unknown",
-            planningCostMultiplier=1.0,
-            description="City not found in registry.",
-        )
-    return CityProfileResponse.model_validate(city)
+    try:
+        city = _CITY_STORE.get(city_id)
+        if city is None:
+            return CityProfileResponse(
+                id=city_id,
+                name=city_id.replace("-", " ").title(),
+                region="Unknown",
+                population="Unknown",
+                status="Research",
+                baselineTempC=32.0,
+                canopyCoverage="Unknown",
+                planningCostMultiplier=1.0,
+                description="City not found in registry.",
+            )
+        return CityProfileResponse.model_validate(city)
+    except Exception as e:
+        logger.error(f"Error retrieving city detail for {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving city detail")
 
 
 @app.get("/api/v1/address-advice/cities/{city_id}", response_model=AddressAdviceContextResponse)
@@ -2832,93 +2981,109 @@ async def address_advice_context(city_id: str):
     A future consented geocoder can be introduced behind a separate adapter only
     after the address-level evidence gate and privacy review are complete.
     """
-    city = _CITY_STORE.get(city_id)
-    if city is None:
+    try:
+        city = _CITY_STORE.get(city_id)
+        if city is None:
+            return AddressAdviceContextResponse(
+                cityId=city_id,
+                cityName=city_id.replace("-", " ").title(),
+                status="unavailable",
+                coverage="No supported address-plan study coverage is registered for this city.",
+                analysisScale="Not available",
+                spectralStatus="not_available",
+                spectralDetail="A location-level spectral result cannot be shown without supported city coverage and the documented evidence checks.",
+                layers=[],
+                limits=[
+                    "No place, address, or coordinate was received by this endpoint.",
+                    "The platform does not infer personal heat risk or property conditions.",
+                ],
+                generatedAt=utc_now(),
+            )
+
+        map_payload = city_map_payload(city_id)
+        thermal_sources = map_payload.get("thermalSources", [])
+        layers: list[AddressAdviceLayerResponse] = [
+            AddressAdviceLayerResponse(
+                label="Municipal study boundary",
+                status="available" if bool(map_payload.get("boundaryGeojson")) else "limited",
+                detail="City-wide study context only; it does not confirm a submitted address or parcel.",
+                sourceName="Workspace boundary GeoJSON",
+                provider="Urban Heat Democratization study bundle",
+            ),
+            AddressAdviceLayerResponse(
+                label="Cheeger bottleneck overlay",
+                status="available" if bool(map_payload.get("heatGeojson")) else "limited",
+                detail="A derived neighborhood-scale graph layer used for investigation, not a property score.",
+                sourceName="Spectral pipeline GeoJSON export",
+                provider="Urban Heat Democratization study bundle",
+            ),
+            AddressAdviceLayerResponse(
+                label="Cooling-access constraint surface",
+                status="available" if bool(map_payload.get("accessGeojson")) else "limited",
+                detail="A derived modeled-access layer; it does not measure a person's access to cooling.",
+                sourceName="Spectral pipeline GeoJSON export",
+                provider="Urban Heat Democratization study bundle",
+            ),
+        ]
+        layers.extend(
+            AddressAdviceLayerResponse(
+                label=str(source.get("label", "Thermal study surface")),
+                status="available",
+                detail=f"{source.get('sourceName', 'Source-backed')} study artifact; not live telemetry or an address-level observation.",
+                sourceName=str(source.get("sourceName", "Thermal study artifact")),
+                provider=str(source.get("provider", "Unknown")),
+                resolutionM=int(source["resolutionM"]) if isinstance(source.get("resolutionM"), int) and source["resolutionM"] > 0 else None,
+                artifactUrl=str(source["filePath"]) if isinstance(source.get("filePath"), str) else None,
+            )
+            for source in thermal_sources
+            if isinstance(source, dict)
+        )
         return AddressAdviceContextResponse(
             cityId=city_id,
-            cityName=city_id.replace("-", " ").title(),
-            status="unavailable",
-            coverage="No supported address-plan study coverage is registered for this city.",
-            analysisScale="Not available",
+            cityName=str(city["name"]),
+            status="available" if is_bundled_city(city_id) else "limited",
+            coverage="Bundled city-wide study coverage. The entered place remains in the browser and is not matched to these layers.",
+            analysisScale="City-wide and neighborhood-scale study layers; not parcel scale.",
             spectralStatus="not_available",
-            spectralDetail="A location-level spectral result cannot be shown without supported city coverage and the documented evidence checks.",
-            layers=[],
+            spectralDetail="The current app has no consented geocoder, rounded-location analysis service, or address-level sensitivity evaluation. For that reason, it does not produce a spectral result for a place label.",
+            layers=layers,
             limits=[
-                "No place, address, or coordinate was received by this endpoint.",
-                "The platform does not infer personal heat risk or property conditions.",
+                "No address, coordinate, or place label is sent to this endpoint.",
+                "Thermal study surfaces are not live conditions and do not measure indoor temperature.",
+                "A future address-level result requires supported coverage, quality checks, graph connectivity, and sensitivity review.",
             ],
             generatedAt=utc_now(),
         )
-
-    map_payload = city_map_payload(city_id)
-    thermal_sources = map_payload.get("thermalSources", [])
-    layers: list[AddressAdviceLayerResponse] = [
-        AddressAdviceLayerResponse(
-            label="Municipal study boundary",
-            status="available" if bool(map_payload.get("boundaryGeojson")) else "limited",
-            detail="City-wide study context only; it does not confirm a submitted address or parcel.",
-            sourceName="Workspace boundary GeoJSON",
-            provider="Urban Heat Democratization study bundle",
-        ),
-        AddressAdviceLayerResponse(
-            label="Cheeger bottleneck overlay",
-            status="available" if bool(map_payload.get("heatGeojson")) else "limited",
-            detail="A derived neighborhood-scale graph layer used for investigation, not a property score.",
-            sourceName="Spectral pipeline GeoJSON export",
-            provider="Urban Heat Democratization study bundle",
-        ),
-        AddressAdviceLayerResponse(
-            label="Cooling-access constraint surface",
-            status="available" if bool(map_payload.get("accessGeojson")) else "limited",
-            detail="A derived modeled-access layer; it does not measure a person’s access to cooling.",
-            sourceName="Spectral pipeline GeoJSON export",
-            provider="Urban Heat Democratization study bundle",
-        ),
-    ]
-    layers.extend(
-        AddressAdviceLayerResponse(
-            label=str(source.get("label", "Thermal study surface")),
-            status="available",
-            detail=f"{source.get('sourceName', 'Source-backed')} study artifact; not live telemetry or an address-level observation.",
-            sourceName=str(source.get("sourceName", "Thermal study artifact")),
-            provider=str(source.get("provider", "Unknown")),
-            resolutionM=int(source["resolutionM"]) if isinstance(source.get("resolutionM"), int) and source["resolutionM"] > 0 else None,
-            artifactUrl=str(source["filePath"]) if isinstance(source.get("filePath"), str) else None,
-        )
-        for source in thermal_sources
-        if isinstance(source, dict)
-    )
-    return AddressAdviceContextResponse(
-        cityId=city_id,
-        cityName=str(city["name"]),
-        status="available" if is_bundled_city(city_id) else "limited",
-        coverage="Bundled city-wide study coverage. The entered place remains in the browser and is not matched to these layers.",
-        analysisScale="City-wide and neighborhood-scale study layers; not parcel scale.",
-        spectralStatus="not_available",
-        spectralDetail="The current app has no consented geocoder, rounded-location analysis service, or address-level sensitivity evaluation. For that reason, it does not produce a spectral result for a place label.",
-        layers=layers,
-        limits=[
-            "No address, coordinate, or place label is sent to this endpoint.",
-            "Thermal study surfaces are not live conditions and do not measure indoor temperature.",
-            "A future address-level result requires supported coverage, quality checks, graph connectivity, and sensitivity review.",
-        ],
-        generatedAt=utc_now(),
-    )
+    except Exception as e:
+        logger.error(f"Error retrieving address advice context for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving address advice context")
 
 
 @app.get("/api/v1/mitigation-lab/baselines/boston-study", response_model=MitigationLabBaselineResponse)
 async def mitigation_lab_boston_baseline():
-    return MitigationLabBaselineResponse.model_validate(_boston_mitigation_lab_baseline())
+    try:
+        return MitigationLabBaselineResponse.model_validate(_boston_mitigation_lab_baseline())
+    except Exception as e:
+        logger.error(f"Error fetching Boston mitigation lab baseline: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving mitigation lab baseline")
 
 
 @app.get("/api/v1/mitigation-lab/graph-baseline", response_model=MitigationLabGraphBaselineResponse)
 async def mitigation_lab_graph_baseline():
-    return MitigationLabGraphBaselineResponse.model_validate(_mitigation_lab_graph_baseline())
+    try:
+        return MitigationLabGraphBaselineResponse.model_validate(_mitigation_lab_graph_baseline())
+    except Exception as e:
+        logger.error(f"Error fetching mitigation lab graph baseline: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving graph baseline")
 
 
 @app.post("/api/v1/mitigation-lab/graph-delta", response_model=MitigationLabGraphDeltaResponse)
 async def mitigation_lab_graph_delta(request: MitigationLabGraphDeltaRequest):
-    return MitigationLabGraphDeltaResponse.model_validate(_mitigation_lab_graph_delta(request.redundantLinks))
+    try:
+        return MitigationLabGraphDeltaResponse.model_validate(_mitigation_lab_graph_delta(request.redundantLinks))
+    except Exception as e:
+        logger.error(f"Error computing mitigation lab graph delta: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error computing graph delta")
 
 
 @app.get("/api/v1/mitigation-lab/calibration-gate", response_model=MitigationCalibrationGateResponse)
@@ -2938,15 +3103,37 @@ async def mitigation_lab_calibration_gate():
 
 @app.get("/api/v1/cities/{city_id}/map", response_model=CityMapResponse)
 async def city_map(city_id: str):
-    payload = city_map_payload(city_id)
-    return _merge_live_thermal_sources(payload, city_id)
+    try:
+        payload = city_map_payload(city_id)
+        return _merge_live_thermal_sources(payload, city_id)
+    except Exception as e:
+        logger.error(f"Error fetching map for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving city map")
 
 
 @app.get("/api/v1/cities/{city_id}/live-thermal", response_model=CityLiveThermalAdapterResponse)
 async def city_live_thermal(city_id: str):
-    payload = city_map_payload(city_id)
-    merged = _merge_live_thermal_sources(payload, city_id)
-    return CityLiveThermalAdapterResponse.model_validate(merged["liveThermalAdapter"])
+    try:
+        payload = city_map_payload(city_id)
+        merged = _merge_live_thermal_sources(payload, city_id)
+        live_thermal = merged.get("liveThermalAdapter")
+        if not isinstance(live_thermal, dict):
+            raise ValueError("Missing or invalid liveThermalAdapter in payload")
+        return CityLiveThermalAdapterResponse.model_validate(live_thermal)
+    except Exception as e:
+        logger.error(f"Error fetching live-thermal for city {city_id}: {str(e)}", exc_info=True)
+        # Return degraded response instead of 500
+        return CityLiveThermalAdapterResponse.model_validate({
+            "status": "unavailable",
+            "headline": "Live thermal data temporarily unavailable",
+            "detail": "Service is recovering. Please try again shortly.",
+            "providerTargets": [],
+            "activeSourceCount": 0,
+            "autoRefreshEnabled": False,
+            "autoRefreshAvailable": False,
+            "usingBackupData": False,
+            "backupAvailable": False,
+        })
 
 
 @app.post("/api/v1/cities/{city_id}/live-thermal/enable", response_model=CityLiveThermalAdapterResponse)
@@ -3004,130 +3191,166 @@ async def disable_city_live_thermal(city_id: str, request: Request):
 
 @app.post("/api/v1/cities/{city_id}/live-thermal/refresh", response_model=CityLiveThermalAdapterResponse)
 async def refresh_city_live_thermal(city_id: str, request: Request):
-    _ACCESS_CONTROL.ensure_access(
-        request,
-        minimum_role="editor",
-        workspace_id=_workspace_id_from_request(request),
-    )
-    state = _refresh_live_thermal_once(city_id)
-    return CityLiveThermalAdapterResponse.model_validate(state)
+    try:
+        _ACCESS_CONTROL.ensure_access(
+            request,
+            minimum_role="editor",
+            workspace_id=_workspace_id_from_request(request),
+        )
+        state = _refresh_live_thermal_once(city_id)
+        return CityLiveThermalAdapterResponse.model_validate(state)
+    except Exception as e:
+        logger.error(f"Error refreshing live thermal for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error refreshing live thermal data")
 
 
 @app.get("/api/v1/cities/{city_id}/spectral", response_model=CitySpectralResponse)
 async def city_spectral(city_id: str):
-    normalized = normalize_city_key(city_id)
-    experience = resolve_city_experience(normalized)
-    spectral_bundle = experience.spectral_bundle
-    if spectral_bundle is None:
-        return CitySpectralResponse(
-            cityId=city_id,
-            summary="No local spectral export is present for this city in the repository.",
-            cheegerFeatureCount=0,
-            coolingZoneCount=0,
-            cheegerHighlights=[],
-            coolingHighlights=[],
-            artifactPaths=[],
-        )
+    try:
+        normalized = normalize_city_key(city_id)
+        experience = resolve_city_experience(normalized)
+        spectral_bundle = experience.spectral_bundle
+        if spectral_bundle is None:
+            return CitySpectralResponse(
+                cityId=city_id,
+                summary="No local spectral export is present for this city in the repository.",
+                cheegerFeatureCount=0,
+                coolingZoneCount=0,
+                cheegerHighlights=[],
+                coolingHighlights=[],
+                artifactPaths=[],
+            )
 
-    repo_root = _repo_root()
-    boundary_path = artifact_path(repo_root, spectral_bundle.boundary_artifact_id)
-    cheeger_path = artifact_path(repo_root, spectral_bundle.bottleneck_artifact_id)
-    access_path = artifact_path(repo_root, spectral_bundle.cooling_artifact_id)
-    if boundary_path is None or cheeger_path is None or access_path is None:
-        return CitySpectralResponse(
-            cityId=city_id,
-            summary="The city is configured for bundled spectral analysis, but the local artifact files are not available.",
-            cheegerFeatureCount=0,
-            coolingZoneCount=0,
-            cheegerHighlights=[],
-            coolingHighlights=[],
-            artifactPaths=[],
+        repo_root = _repo_root()
+        boundary_path = artifact_path(repo_root, spectral_bundle.boundary_artifact_id)
+        cheeger_path = artifact_path(repo_root, spectral_bundle.bottleneck_artifact_id)
+        access_path = artifact_path(repo_root, spectral_bundle.cooling_artifact_id)
+        if boundary_path is None or cheeger_path is None or access_path is None:
+            return CitySpectralResponse(
+                cityId=city_id,
+                summary="The city is configured for bundled spectral analysis, but the local artifact files are not available.",
+                cheegerFeatureCount=0,
+                coolingZoneCount=0,
+                cheegerHighlights=[],
+                coolingHighlights=[],
+                artifactPaths=[],
+            )
+        cheeger_features = _load_geojson_features(cheeger_path)
+        access_features = _load_geojson_features(access_path)
+        profile = get_city_profile(normalized)
+        cheeger_highlights = _spectral_highlights(
+            cheeger_features,
+            spectral_bundle.bottleneck_score_key,
+            spectral_bundle.bottleneck_label,
+            "Actual high-priority bottleneck polygon",
         )
-    cheeger_features = _load_geojson_features(cheeger_path)
-    access_features = _load_geojson_features(access_path)
-    profile = get_city_profile(normalized)
-    cheeger_highlights = _spectral_highlights(
-        cheeger_features,
-        spectral_bundle.bottleneck_score_key,
-        spectral_bundle.bottleneck_label,
-        "Actual high-priority bottleneck polygon",
-    )
-    access_highlights = _spectral_highlights(
-        access_features,
-        spectral_bundle.cooling_score_key,
-        spectral_bundle.cooling_label,
-        "Actual low-access polygon",
-    )
-    summary = (
-        f"{profile.name} has {len(cheeger_features)} {spectral_bundle.bottleneck_label.lower()} polygons and "
-        f"{len(access_features)} low cooling access polygons exported by the pipeline."
-    )
-    return CitySpectralResponse(
-        cityId=profile.key,
-        summary=summary,
-        cheegerFeatureCount=len(cheeger_features),
-        coolingZoneCount=len(access_features),
-        cheegerHighlights=cheeger_highlights,
-        coolingHighlights=access_highlights,
-        artifactPaths=[str(cheeger_path), str(access_path), str(boundary_path)],
-    )
+        access_highlights = _spectral_highlights(
+            access_features,
+            spectral_bundle.cooling_score_key,
+            spectral_bundle.cooling_label,
+            "Actual low-access polygon",
+        )
+        summary = (
+            f"{profile.name} has {len(cheeger_features)} {spectral_bundle.bottleneck_label.lower()} polygons and "
+            f"{len(access_features)} low cooling access polygons exported by the pipeline."
+        )
+        return CitySpectralResponse(
+            cityId=profile.key,
+            summary=summary,
+            cheegerFeatureCount=len(cheeger_features),
+            coolingZoneCount=len(access_features),
+            cheegerHighlights=cheeger_highlights,
+            coolingHighlights=access_highlights,
+            artifactPaths=[str(cheeger_path), str(access_path), str(boundary_path)],
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing spectral data for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving spectral data")
 
 
 @app.get("/api/v1/cities/{city_id}/readiness", response_model=PlanningReadinessResponse)
 async def city_readiness(city_id: str):
-    return PlanningReadinessResponse.model_validate(_planning_readiness(city_id))
+    try:
+        return PlanningReadinessResponse.model_validate(_planning_readiness(city_id))
+    except Exception as e:
+        logger.error(f"Error retrieving readiness for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving planning readiness")
 
 
 @app.get("/api/v1/cities/{city_id}/planner-validation", response_model=PlannerValidationResponse)
 async def city_planner_validation(city_id: str):
-    return PlannerValidationResponse.model_validate(_planner_validation(city_id))
+    try:
+        return PlannerValidationResponse.model_validate(_planner_validation(city_id))
+    except Exception as e:
+        logger.error(f"Error retrieving planner validation for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving planner validation")
 
 
 @app.get("/api/v1/cities/{city_id}/benchmarks", response_model=BenchmarkSuiteResponse)
 async def city_benchmark_suite(city_id: str):
-    return BenchmarkSuiteResponse.model_validate(_benchmark_suite(city_id))
+    try:
+        return BenchmarkSuiteResponse.model_validate(_benchmark_suite(city_id))
+    except Exception as e:
+        logger.error(f"Error generating benchmark suite for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error generating benchmark suite")
 
 
 @app.get("/api/v1/cities/{city_id}/trust-audit", response_model=TrustAuditResponse)
 async def city_trust_audit(city_id: str):
-    return TrustAuditResponse.model_validate(_trust_audit(city_id))
+    try:
+        return TrustAuditResponse.model_validate(_trust_audit(city_id))
+    except Exception as e:
+        logger.error(f"Error generating trust audit for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error generating trust audit")
 
 
 @app.get("/api/v1/cities/{city_id}/data-registration", response_model=CityDataRegistrationResponse)
 async def city_data_registration_detail(city_id: str):
-    return CityDataRegistrationResponse.model_validate(_city_data_registration_payload(city_id))
+    try:
+        return CityDataRegistrationResponse.model_validate(_city_data_registration_payload(city_id))
+    except Exception as e:
+        logger.error(f"Error retrieving data registration for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving data registration")
 
 
 @app.post("/api/v1/cities/{city_id}/data-registration", response_model=CityDataRegistrationResponse)
 async def city_data_registration(city_id: str, request: CityDataRegistrationRequest, http_request: Request):
-    _ACCESS_CONTROL.ensure_access(
-        http_request,
-        minimum_role="editor",
-        workspace_id=_workspace_id_from_request(http_request),
-    )
-    with _RUNTIME_STATE_LOCK:
-        city = _CITY_STORE.get(city_id)
-        if city is None:
-            raise HTTPException(status_code=404, detail="City not found")
-        city["thermalInputsRegistered"] = bool(request.thermal_inputs_registered) if request.thermal_inputs_registered is not None else bool(city.get("thermalInputsRegistered"))
-        city["artifactBundleRegistered"] = bool(request.artifact_bundle_registered) if request.artifact_bundle_registered is not None else bool(city.get("artifactBundleRegistered"))
-        city["bottleneckOverlayRegistered"] = bool(request.bottleneck_overlay_registered) if request.bottleneck_overlay_registered is not None else bool(city.get("bottleneckOverlayRegistered"))
-        city["coolingOverlayRegistered"] = bool(request.cooling_overlay_registered) if request.cooling_overlay_registered is not None else bool(city.get("coolingOverlayRegistered"))
-        if request.thermal_inputs_path is not None:
-            verified_path, _ = _verify_city_path(request.thermal_inputs_path)
-            city["thermalInputsPath"] = verified_path
-        if request.artifact_bundle_path is not None:
-            verified_path, _ = _verify_city_path(request.artifact_bundle_path)
-            city["artifactBundlePath"] = verified_path
-        if request.bottleneck_overlay_path is not None:
-            verified_path, _ = _verify_city_path(request.bottleneck_overlay_path)
-            city["bottleneckOverlayPath"] = verified_path
-        if request.cooling_overlay_path is not None:
-            verified_path, _ = _verify_city_path(request.cooling_overlay_path)
-            city["coolingOverlayPath"] = verified_path
-        _CITY_STORE[city_id] = city
-        _persist_runtime_cities()
-    return CityDataRegistrationResponse.model_validate(_city_data_registration_payload(city_id))
+    try:
+        _ACCESS_CONTROL.ensure_access(
+            http_request,
+            minimum_role="editor",
+            workspace_id=_workspace_id_from_request(http_request),
+        )
+        with _RUNTIME_STATE_LOCK:
+            city = _CITY_STORE.get(city_id)
+            if city is None:
+                raise HTTPException(status_code=404, detail="City not found")
+            city["thermalInputsRegistered"] = bool(request.thermal_inputs_registered) if request.thermal_inputs_registered is not None else bool(city.get("thermalInputsRegistered"))
+            city["artifactBundleRegistered"] = bool(request.artifact_bundle_registered) if request.artifact_bundle_registered is not None else bool(city.get("artifactBundleRegistered"))
+            city["bottleneckOverlayRegistered"] = bool(request.bottleneck_overlay_registered) if request.bottleneck_overlay_registered is not None else bool(city.get("bottleneckOverlayRegistered"))
+            city["coolingOverlayRegistered"] = bool(request.cooling_overlay_registered) if request.cooling_overlay_registered is not None else bool(city.get("coolingOverlayRegistered"))
+            if request.thermal_inputs_path is not None:
+                verified_path, _ = _verify_city_path(request.thermal_inputs_path)
+                city["thermalInputsPath"] = verified_path
+            if request.artifact_bundle_path is not None:
+                verified_path, _ = _verify_city_path(request.artifact_bundle_path)
+                city["artifactBundlePath"] = verified_path
+            if request.bottleneck_overlay_path is not None:
+                verified_path, _ = _verify_city_path(request.bottleneck_overlay_path)
+                city["bottleneckOverlayPath"] = verified_path
+            if request.cooling_overlay_path is not None:
+                verified_path, _ = _verify_city_path(request.cooling_overlay_path)
+                city["coolingOverlayPath"] = verified_path
+            _CITY_STORE[city_id] = city
+            _persist_runtime_cities()
+        return CityDataRegistrationResponse.model_validate(_city_data_registration_payload(city_id))
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating data registration for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error updating data registration")
 
 
 @app.post("/api/v1/cities/onboard", response_model=CityOnboardingResponse)
@@ -3180,32 +3403,45 @@ async def onboard_city(request: CityOnboardingRequest, http_request: Request):
 
 @app.get("/api/v1/scenarios", response_model=list[ScenarioRecordResponse])
 async def scenarios(city_id: str | None = None):
-    records = _SCENARIO_STORE if city_id is None else [item for item in _SCENARIO_STORE if item["cityId"] == city_id]
-    benchmark_cost = None
-    benchmark = _cost_source_by_id("la-cool-communities-1997")
-    if isinstance(benchmark, dict) and benchmark.get("estimatedCostUsd"):
-        benchmark_cost = int(benchmark.get("estimatedCostUsd", 0))
-    return [
-        ScenarioRecordResponse.model_validate(
-            {
-                **record,
-                "recommendedActions": record.get("recommendedActions", []),
-                "allocationSummary": record.get(
-                    "allocationSummary",
-                    _allocation_summary(int(record.get("budgetUsd", 0) or 0), record.get("recommendedActions", [])),
-                ),
-                "evidenceSummary": record.get(
-                    "evidenceSummary",
-                    _evidence_summary(record.get("recommendedActions", [])),
-                ),
-                "benchmarkSummary": record.get(
-                    "benchmarkSummary",
-                    _benchmark_summary(int(record.get("budgetUsd", 0) or 0), benchmark_cost),
-                ),
-            }
-        )
-        for record in records
-    ]
+    try:
+        records = _SCENARIO_STORE if city_id is None else [item for item in _SCENARIO_STORE if item.get("cityId") == city_id]
+        benchmark_cost = None
+        benchmark = _cost_source_by_id("la-cool-communities-1997")
+        if isinstance(benchmark, dict) and benchmark.get("estimatedCostUsd"):
+            benchmark_cost = int(benchmark.get("estimatedCostUsd", 0))
+        result = []
+        for record in records:
+            if not isinstance(record, dict):
+                logger.warning(f"Skipping invalid scenario record: {record}")
+                continue
+            try:
+                result.append(
+                    ScenarioRecordResponse.model_validate(
+                        {
+                            **record,
+                            "recommendedActions": record.get("recommendedActions", []),
+                            "allocationSummary": record.get(
+                                "allocationSummary",
+                                _allocation_summary(int(record.get("budgetUsd", 0) or 0), record.get("recommendedActions", [])),
+                            ),
+                            "evidenceSummary": record.get(
+                                "evidenceSummary",
+                                _evidence_summary(record.get("recommendedActions", [])),
+                            ),
+                            "benchmarkSummary": record.get(
+                                "benchmarkSummary",
+                                _benchmark_summary(int(record.get("budgetUsd", 0) or 0), benchmark_cost),
+                            ),
+                        }
+                    )
+                )
+            except Exception as e:
+                logger.warning(f"Error validating scenario record {record.get('id')}: {str(e)}")
+                continue
+        return result
+    except Exception as e:
+        logger.error(f"Error retrieving scenarios for city {city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error retrieving scenarios")
 
 
 @app.get("/api/v1/cost-sources", response_model=list[CostSourceResponse])
@@ -3220,51 +3456,59 @@ async def interventions():
 
 @app.post("/api/v1/scenarios/what-if", response_model=ScenarioRecordResponse)
 async def create_what_if(request: ScenarioCreateRequest, http_request: Request):
-    _ACCESS_CONTROL.ensure_access(
-        http_request,
-        minimum_role="editor",
-        workspace_id=_workspace_id_from_request(http_request),
-    )
-    record = _benchmark_scenario(
-        request.city_id,
-        request.budget_usd,
-        label=request.label,
-        preset_key=request.preset_key,
-        planning_mode=request.planning_mode,
-    )
-    with _RUNTIME_STATE_LOCK:
-        _SCENARIO_STORE.insert(0, record)
-        _persist_runtime_scenarios()
-    return ScenarioRecordResponse.model_validate(record)
+    try:
+        _ACCESS_CONTROL.ensure_access(
+            http_request,
+            minimum_role="editor",
+            workspace_id=_workspace_id_from_request(http_request),
+        )
+        record = _benchmark_scenario(
+            request.city_id,
+            request.budget_usd,
+            label=request.label,
+            preset_key=request.preset_key,
+            planning_mode=request.planning_mode,
+        )
+        with _RUNTIME_STATE_LOCK:
+            _SCENARIO_STORE.insert(0, record)
+            _persist_runtime_scenarios()
+        return ScenarioRecordResponse.model_validate(record)
+    except Exception as e:
+        logger.error(f"Error creating what-if scenario for {request.city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error creating scenario")
 
 
 @app.post("/api/v1/scenarios/reset", response_model=ScenarioResetResponse)
 async def reset_scenarios(request: ScenarioResetRequest, http_request: Request):
-    _ACCESS_CONTROL.ensure_access(
-        http_request,
-        minimum_role="editor",
-        workspace_id=_workspace_id_from_request(http_request),
-    )
-    city_key = normalize_city_key(request.city_id)
-    with _RUNTIME_STATE_LOCK:
-        cleared_count = len([item for item in _SCENARIO_STORE if item.get("cityId") == city_key])
-        if cleared_count > 0:
-            _SCENARIO_STORE[:] = [item for item in _SCENARIO_STORE if item.get("cityId") != city_key]
+    try:
+        _ACCESS_CONTROL.ensure_access(
+            http_request,
+            minimum_role="editor",
+            workspace_id=_workspace_id_from_request(http_request),
+        )
+        city_key = normalize_city_key(request.city_id)
+        with _RUNTIME_STATE_LOCK:
+            cleared_count = len([item for item in _SCENARIO_STORE if item.get("cityId") == city_key])
+            if cleared_count > 0:
+                _SCENARIO_STORE[:] = [item for item in _SCENARIO_STORE if item.get("cityId") != city_key]
+                _persist_runtime_scenarios()
+        record = _benchmark_scenario(
+            request.city_id,
+            request.budget_usd,
+            label=request.label,
+            preset_key=request.preset_key,
+            planning_mode=request.planning_mode,
+        )
+        with _RUNTIME_STATE_LOCK:
+            _SCENARIO_STORE.insert(0, record)
             _persist_runtime_scenarios()
-    record = _benchmark_scenario(
-        request.city_id,
-        request.budget_usd,
-        label=request.label,
-        preset_key=request.preset_key,
-        planning_mode=request.planning_mode,
-    )
-    with _RUNTIME_STATE_LOCK:
-        _SCENARIO_STORE.insert(0, record)
-        _persist_runtime_scenarios()
-    return ScenarioResetResponse.model_validate({
-        "clearedCount": cleared_count,
-        "scenario": record,
-    })
+        return ScenarioResetResponse.model_validate({
+            "clearedCount": cleared_count,
+            "scenario": record,
+        })
+    except Exception as e:
+        logger.error(f"Error resetting scenarios for {request.city_id}: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Error resetting scenarios")
 
 
 app.include_router(

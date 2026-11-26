@@ -117,6 +117,12 @@ function normalizeScoreClass(value: string) {
   return value.trim().toLowerCase();
 }
 
+function safeToFixed(value: unknown, digits: number = 1): string {
+  if (value === null || value === undefined) return "—";
+  const num = Number(value);
+  return Number.isNaN(num) ? "—" : num.toFixed(digits);
+}
+
 function overlayNarrative(entry: OverlayEntry, isRanked: boolean) {
   const primaryClass = entry.layer === "heat"
     ? entry.overlay.properties?.cheeger_priority_class ?? entry.overlay.properties?.priority_class
@@ -125,7 +131,7 @@ function overlayNarrative(entry: OverlayEntry, isRanked: boolean) {
   if (!isRanked) {
     return `${entry.layerLabel} polygon flagged as ${classLabel.toLowerCase()}. The bundled analysis identifies this as a low-access condition, but does not provide enough variation to rank it against the other flagged zones.`;
   }
-  return `${entry.layerLabel} polygon with ${classLabel.toLowerCase()} severity and score ${entry.overlay.score.toFixed(1)}.`;
+  return `${entry.layerLabel} polygon with ${classLabel.toLowerCase()} severity and score ${safeToFixed(entry.overlay.score, 1)}.`;
 }
 
 function visibleUnderFilter(overlay: CityMapOverlay, filter: SeverityFilter) {
@@ -862,7 +868,7 @@ function normalizedAnchorDistance(left: ScenarioPlacementAnchor, right: Scenario
 }
 
 function formatScenarioPlacementExplanation(score: ScenarioPlacementScore, anchor: ScenarioPlacementAnchor) {
-  return `evidence-placement score ${score.total.toFixed(2)} = ${score.evidence.toFixed(2)} evidence + ${score.priority.toFixed(2)} action rank + ${score.layerFit.toFixed(2)} evidence fit + ${score.separation.toFixed(2)} distribution, anchored to ${anchor.label}`;
+  return `evidence-placement score ${safeToFixed(score.total, 2)} = ${safeToFixed(score.evidence, 2)} evidence + ${safeToFixed(score.priority, 2)} action rank + ${safeToFixed(score.layerFit, 2)} evidence fit + ${safeToFixed(score.separation, 2)} distribution, anchored to ${anchor.label}`;
 }
 
 function scenarioPlacementScore(
@@ -958,7 +964,7 @@ function scenarioPreferredLayers(action: ScenarioAction): OverlayLayer[] {
 }
 
 function anchorKey(anchor: ScenarioPlacementAnchor) {
-  return `${anchor.layer}:${anchor.lng.toFixed(4)}:${anchor.lat.toFixed(4)}`;
+  return `${anchor.layer}:${safeToFixed(anchor.lng, 4)}:${safeToFixed(anchor.lat, 4)}`;
 }
 
 function scenarioPlacementAnchors(heatEntries: OverlayEntry[], coolingEntries: OverlayEntry[]) {
@@ -1331,7 +1337,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const coolingScoreStatus = data.layerProvenance.find((layer) => layer.id === "cooling-access")?.scoreStatus;
   const coolingScoresAreRanked = useMemo(() => {
     if (coolingScoreStatus) return coolingScoreStatus === "ranked";
-    const distinctScores = new Set(coolingEntries.map((entry) => entry.overlay.score.toFixed(6)));
+    const distinctScores = new Set(coolingEntries.map((entry) => safeToFixed(entry.overlay.score, 6)));
     return distinctScores.size > 1;
   }, [coolingEntries, coolingScoreStatus]);
   const isRankedEntry = (entry: OverlayEntry | null) => {
@@ -1371,7 +1377,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
   const coolingAccessBands = useMemo(() => {
     const bands = new Map<string, { score: number; entries: OverlayEntry[] }>();
     for (const entry of coolingPriorityEntries) {
-      const key = entry.overlay.score.toFixed(6);
+      const key = safeToFixed(entry.overlay.score, 6);
       const band = bands.get(key) ?? { score: entry.overlay.score, entries: [] };
       band.entries.push(entry);
       bands.set(key, band);
@@ -1659,7 +1665,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               </div>
               {activeThermalSource ? (
                 <p className="map-layer-summary">
-                  {activeThermalSource.sourceName} by {activeThermalSource.provider}. Resolution {activeThermalSource.resolutionM}m. This source helps explain the spatial heat pattern behind the derived spectral outputs. Corridor threshold {activeThermalSource.thresholdTempC.toFixed(1)}°C at the top {Math.round((1 - activeThermalSource.corridorQuantile) * 100)}% hottest cells.
+                  {activeThermalSource.sourceName} by {activeThermalSource.provider}. Resolution {activeThermalSource.resolutionM}m. This source helps explain the spatial heat pattern behind the derived spectral outputs. Corridor threshold {safeToFixed(activeThermalSource.thresholdTempC, 1)}°C at the top {Math.round((1 - activeThermalSource.corridorQuantile) * 100)}% hottest cells.
                 </p>
               ) : (
                 <p className="map-layer-summary">No bundled thermal source is available for this city yet.</p>
@@ -1776,11 +1782,11 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                           <p>Estimated cost</p>
                         </div>
                         <div className="map-badge">
-                          <strong>{selectedScenario.heatReductionC === null ? "—" : `${selectedScenario.heatReductionC.toFixed(1)}°C`}</strong>
+                          <strong>{selectedScenario.heatReductionC === null ? "—" : `${safeToFixed(selectedScenario.heatReductionC, 1)}°C`}</strong>
                           <p>Planning estimate · unverified</p>
                         </div>
                         <div className="map-badge">
-                          <strong>{selectedScenario.equityScore === null ? "—" : selectedScenario.equityScore.toFixed(1)}</strong>
+                          <strong>{selectedScenario.equityScore === null ? "—" : safeToFixed(selectedScenario.equityScore, 1)}</strong>
                           <p>Equity score</p>
                         </div>
                       </div>
@@ -2059,15 +2065,15 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               </div>
               <div className="map-property-row">
                 <span>Mean temperature</span>
-                <strong>{activeThermalSource.meanTempC.toFixed(1)}°C</strong>
+                <strong>{safeToFixed(activeThermalSource.meanTempC, 1)}°C</strong>
               </div>
               <div className="map-property-row">
                 <span>Range</span>
-                <strong>{activeThermalSource.minTempC.toFixed(1)}°C to {activeThermalSource.maxTempC.toFixed(1)}°C</strong>
+                <strong>{safeToFixed(activeThermalSource.minTempC, 1)}°C to {safeToFixed(activeThermalSource.maxTempC, 1)}°C</strong>
               </div>
               <div className="map-property-row">
                 <span>Heat-corridor threshold</span>
-                <strong>{activeThermalSource.thresholdTempC.toFixed(1)}°C</strong>
+                <strong>{safeToFixed(activeThermalSource.thresholdTempC, 1)}°C</strong>
               </div>
             </div>
           </div>
@@ -2343,7 +2349,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
       map.on("load", () => {
       if (data.boundaryGeojson) {
-        map.addSource("boundary", { type: "geojson", data: data.boundaryGeojson as GeoJSON.FeatureCollection });
+        map.addSource("boundary", { type: "geojson", data: data.boundaryGeojson as GeoJsonFeatureCollection });
         map.addLayer({
           id: "boundary-line",
           type: "line",
@@ -2356,7 +2362,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       }
 
       if (data.studyAreaGeojson) {
-        map.addSource("study-area", { type: "geojson", data: data.studyAreaGeojson as GeoJSON.FeatureCollection });
+        map.addSource("study-area", { type: "geojson", data: data.studyAreaGeojson as GeoJsonFeatureCollection });
         map.addLayer({
           id: "study-area-line",
           type: "line",
@@ -2382,7 +2388,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         const corridorSourceId = `thermal-corridor-source-${thermalSource.id}`;
         map.addSource(fillSourceId, {
           type: "geojson",
-          data: thermalSource.surfaceGeojson as GeoJSON.FeatureCollection,
+          data: thermalSource.surfaceGeojson as GeoJsonFeatureCollection,
         });
         map.addLayer({
           id: `thermal-fill-${thermalSource.id}`,
@@ -2413,7 +2419,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         });
         map.addSource(corridorSourceId, {
           type: "geojson",
-          data: thermalSource.corridorGeojson as GeoJSON.FeatureCollection,
+          data: thermalSource.corridorGeojson as GeoJsonFeatureCollection,
         });
         map.addLayer({
           id: `thermal-corridor-fill-${thermalSource.id}`,
@@ -2448,7 +2454,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           categoricalExpression.push(value, color);
         }
         categoricalExpression.push(layer.visualization.fallbackColor ?? "#94a3b8");
-        map.addSource(sourceId, { type: "geojson", data: layer.geojson as GeoJSON.FeatureCollection });
+        map.addSource(sourceId, { type: "geojson", data: layer.geojson as GeoJsonFeatureCollection });
         map.addLayer({
           id: `advanced-fill-${layer.id}`,
           type: "fill",
@@ -2469,7 +2475,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       }
 
       if (data.heatGeojson) {
-        map.addSource("heat", { type: "geojson", data: data.heatGeojson as GeoJSON.FeatureCollection });
+        map.addSource("heat", { type: "geojson", data: data.heatGeojson as GeoJsonFeatureCollection });
         map.addLayer({
           id: "heat-fill",
           type: "fill",
@@ -2499,7 +2505,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         });
       }
       if (data.accessGeojson) {
-        map.addSource("cooling", { type: "geojson", data: data.accessGeojson as GeoJSON.FeatureCollection });
+        map.addSource("cooling", { type: "geojson", data: data.accessGeojson as GeoJsonFeatureCollection });
         map.addLayer({
           id: "cooling-fill",
           type: "fill",
@@ -2533,7 +2539,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       // project sites. `street_intervention_signal` is supplied with the city
       // study cells and represents where the package warrants a feasibility
       // check before any intervention is located or funded.
-      const actionReadinessData = (data.accessGeojson ?? data.heatGeojson) as GeoJSON.FeatureCollection | null;
+      const actionReadinessData = (data.accessGeojson ?? data.heatGeojson) as GeoJsonFeatureCollection | null;
       if (actionReadinessData) {
         map.addSource("action-readiness", { type: "geojson", data: actionReadinessData });
         map.addLayer({
@@ -2568,7 +2574,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         data: {
           type: "FeatureCollection",
           features: [],
-        } as GeoJSON.FeatureCollection,
+        } as GeoJsonFeatureCollection,
       });
       map.addLayer({
         id: "selection-fill",
@@ -2602,7 +2608,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         data: {
           type: "FeatureCollection",
           features: [],
-        } as GeoJSON.FeatureCollection,
+        } as GeoJsonFeatureCollection,
       });
       map.addLayer({
         id: "scenario-interventions-circle",
@@ -2941,7 +2947,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     if (selectionSource) {
       selectionSource.setData({
         type: "FeatureCollection",
-        features: selectedFeature ? [selectedFeature as GeoJSON.Feature] : [],
+        features: selectedFeature ? [selectedFeature as GeoJsonFeature] : [],
       });
     }
 
@@ -2990,7 +2996,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       if (!feature || !popup) {
         return;
       }
-      const priority = Number(feature.properties?.priority ?? 0).toFixed(1);
+      const priority = safeToFixed(Number(feature.properties?.priority ?? 0), 1);
       popup
         .setLngLat(event.lngLat)
         .setHTML(`<strong>Heat bottleneck</strong><br/>Priority ${priority}<br/>${String(feature.properties?.priority_class ?? "Unknown")}`)
@@ -3003,7 +3009,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
       if (!feature || !popup) {
         return;
       }
-      const access = Number(feature.properties?.cooling_access ?? 0).toFixed(1);
+      const access = safeToFixed(Number(feature.properties?.cooling_access ?? 0), 1);
       popup
         .setLngLat(event.lngLat)
         .setHTML(`<strong>Low cooling access</strong><br/>Access ${access}<br/>${String(feature.properties?.access_class ?? "Unknown")}`)
@@ -3022,7 +3028,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         if (!feature || !popup) {
           return;
         }
-        const tempC = Number(feature.properties?.temp_c ?? 0).toFixed(1);
+        const tempC = safeToFixed(Number(feature.properties?.temp_c ?? 0), 1);
         popup
           .setLngLat(event.lngLat)
           .setHTML(`<strong>${sourceName}</strong><br/>Observed surface temperature ${tempC}°C<br/>Provider ${provider}`)
@@ -3074,7 +3080,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     const onActionReadinessMove = (event: MapMouseEvent & { features?: MapGeoJSONFeature[] }) => {
       const feature = event.features?.[0];
       if (!feature || !popup) return;
-      const readiness = Number(feature.properties?.street_intervention_signal ?? feature.properties?.priority ?? 0).toFixed(1);
+      const readiness = safeToFixed(Number(feature.properties?.street_intervention_signal ?? feature.properties?.priority ?? 0), 1);
       popup
         .setLngLat(event.lngLat)
         .setHTML(`<strong>Action-readiness area</strong><br/>Investigation signal ${readiness}<br/>Click to inspect the linked evidence cell`)
@@ -3406,7 +3412,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
               <h4>{selectedEntry.overlay.label}</h4>
               <p>{overlayNarrative(selectedEntry, selectedEntryIsRanked)}</p>
               <div className="map-fullpage-selected-evidence-metrics">
-                <span><b>{selectedEntryIsRanked ? selectedEntry.overlay.score.toFixed(1) : "Flagged"}</b>{selectedEntryIsRanked ? " priority" : " condition"}</span>
+                <span><b>{selectedEntryIsRanked ? safeToFixed(selectedEntry.overlay.score, 1) : "Flagged"}</b>{selectedEntryIsRanked ? " priority" : " condition"}</span>
                 <span>{selectedEntry.layerLabel}</span>
               </div>
               <p className="map-fullpage-selected-evidence-why"><strong>Why it matters:</strong> {plainMathExplanation(selectedEntry, selectedEntryIsRanked)}</p>
@@ -3574,7 +3580,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <p>visible cooling gaps</p>
               </div>
               <div className="map-badge">
-                <strong>{selectedEntry ? selectedEntryIsRanked ? selectedEntry.overlay.score.toFixed(1) : "Flagged" : "-"}</strong>
+                <strong>{selectedEntry ? selectedEntryIsRanked ? safeToFixed(selectedEntry.overlay.score, 1) : "Flagged" : "-"}</strong>
                 <p>{selectedEntryIsRanked ? "selected score" : "selected status"}</p>
               </div>
               <div className="map-badge">
@@ -3592,7 +3598,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
                 <span className="eyebrow">Derived planning screen</span>
                 <strong>{selectedEntry ? `Selected: ${selectedEntry.overlay.label}` : "Investigate warm areas first."}</strong>
                 <p>{selectedEntry
-                  ? `${selectedEntry.layerLabel} · ${selectedEntryIsRanked ? `priority ${selectedEntry.overlay.score.toFixed(1)}` : "flagged evidence area"}. Review the evidence below, then verify ownership, use, and community priorities before proposing an action.`
+                  ? `${selectedEntry.layerLabel} · ${selectedEntryIsRanked ? `priority ${safeToFixed(selectedEntry.overlay.score, 1)}` : "flagged evidence area"}. Review the evidence below, then verify ownership, use, and community priorities before proposing an action.`
                   : "They combine the city package’s intervention signal with its heat-and-cooling evidence. Click a cell to inspect it; verify ownership, use, and community priorities before proposing an action."}</p>
                 {selectedEntry ? (
                   <button type="button" className="map-action-evidence-button" onClick={revealSelectedEvidence}>

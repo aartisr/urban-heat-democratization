@@ -201,20 +201,34 @@ function MiniMap({
   onCameraChange: (next: MapCamera) => void;
 }) {
   const dragRef = useRef<{ clientX: number; clientY: number; camera: MapCamera } | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const [basemapStatus, setBasemapStatus] = useState<BasemapStatus>("loading");
   const safeCamera = normaliseCamera(camera);
   const span = 100 / safeCamera.zoom;
   const endDrag = () => { dragRef.current = null; };
+
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!svg) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      onCameraChange(zoomCamera(safeCamera, event.deltaY < 0 ? 1.2 : 1 / 1.2));
+    };
+
+    svg.addEventListener("wheel", handleWheel, { passive: false });
+    return () => svg.removeEventListener("wheel", handleWheel);
+  }, [safeCamera, onCameraChange]);
 
   return (
     <section className="scenario-comparison-map" aria-label={label}>
       <div className="scenario-comparison-map-head"><strong>{label}</strong><span>{kind === "priority" ? "Shared priority scale" : "Lower modeled priority"}</span></div>
       <StreetMapContext bounds={bounds} onStatus={setBasemapStatus} />
       <svg
+        ref={svgRef}
         viewBox={`${safeCamera.x} ${safeCamera.y} ${span} ${span}`}
         role="img"
         aria-label={`${label}. Select a polygon to compare its planning value. Drag or use the shared zoom controls to explore both maps together.`}
-        onWheel={(event) => { event.preventDefault(); onCameraChange(zoomCamera(safeCamera, event.deltaY < 0 ? 1.2 : 1 / 1.2)); }}
         onPointerDown={(event) => { dragRef.current = { clientX: event.clientX, clientY: event.clientY, camera: safeCamera }; }}
         onPointerMove={(event) => {
           const drag = dragRef.current;

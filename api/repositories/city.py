@@ -3,11 +3,13 @@
 Implements the Repository[T] interface for Cities. This in-memory version
 can be swapped for SQLite, PostgreSQL, MongoDB, etc. without changing
 service or router code.
+
+Note: Repositories now import from api.domain (not api.services) to fix
+dependency direction: domain <- adapters <- services.
 """
 
-from typing import Optional, List, cast
-from api.services.base import Repository
-from api.services.city import CityDTO
+from typing import Optional, List, Any, cast
+from api.domain import Repository, CityDTO, NotFoundError
 
 
 class CityRepository(Repository[CityDTO]):
@@ -48,13 +50,29 @@ class CityRepository(Repository[CityDTO]):
         city_dict = self._store[id]
         return self._dict_to_dto(city_dict)
 
-    async def list(self) -> List[CityDTO]:
-        """List all cities.
+    async def list(
+        self,
+        filter: dict[str, Any] | None = None,
+        offset: int = 0,
+        limit: int | None = None,
+    ) -> tuple[List[CityDTO], int]:
+        """List all cities with optional filtering and pagination.
+
+        Args:
+            filter: Optional filters (not used in in-memory version)
+            offset: Starting position (0-based)
+            limit: Maximum items to return
 
         Returns:
-            List of all CityDTOs
+            Tuple of (cities, total_count)
         """
-        return [self._dict_to_dto(city_dict) for city_dict in self._store.values()]
+        all_cities = [self._dict_to_dto(city_dict) for city_dict in self._store.values()]
+        
+        # Apply offset and limit
+        end = offset + limit if limit else None
+        paginated = all_cities[offset:end]
+        
+        return (paginated, len(all_cities))
 
     async def create(self, item: CityDTO) -> CityDTO:
         """Create new city.
@@ -79,10 +97,10 @@ class CityRepository(Repository[CityDTO]):
             Updated city
 
         Raises:
-            KeyError: If city not found
+            NotFoundError: If city not found
         """
         if id not in self._store:
-            raise KeyError(f"City '{id}' not found")
+            raise NotFoundError(f"City '{id}' not found in registry")
         
         self._store[id] = self._dto_to_dict(item)
         return item
@@ -100,6 +118,14 @@ class CityRepository(Repository[CityDTO]):
             del self._store[id]
             return True
         return False
+
+    async def health_check(self) -> bool:
+        """Check if repository is healthy.
+
+        Returns:
+            Always True for in-memory repository
+        """
+        return True
 
     @staticmethod
     def _dict_to_dto(city_dict: dict[str, object]) -> CityDTO:
