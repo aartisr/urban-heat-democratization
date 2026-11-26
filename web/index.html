@@ -90,12 +90,50 @@
     <meta name="twitter:image:alt" content="Urban Heat Democratization by Aarti S Ravikumar: an illustrated city and cooling network" />
     <meta name="twitter:creator" content="@aartisr" />
     <meta name="twitter:site" content="@aartisr" />
+    <style id="initial-page-styles">
+      .preload-shell{min-height:100vh;padding:clamp(16px,3vw,48px);background:linear-gradient(145deg,#f8fcfc,#e8f1f3);color:#102033;font-family:"Avenir Next","Segoe UI",Arial,sans-serif;box-sizing:border-box}
+      .preload-shell *{box-sizing:border-box}
+      .preload-home{display:grid;grid-template-columns:280px minmax(0,1fr);padding:0}
+      .preload-sidebar{min-height:100vh;padding:24px 20px;background:linear-gradient(160deg,#102b3b,#075f59);color:#f5fffd}
+      .preload-sidebar strong{display:block;margin-bottom:38px;font:700 22px/1.1 Georgia,serif}
+      .preload-sidebar nav{display:grid;gap:8px}.preload-sidebar nav a{padding:15px 16px;border:1px solid #ffffff24;border-radius:15px;color:#f5fffd;font-weight:800;text-decoration:none}.preload-sidebar nav a:first-child{background:linear-gradient(90deg,#f8d87f,#7cdde8);color:#102b3b}
+      .preload-content{min-width:0;padding:28px clamp(20px,3.2vw,46px)}
+      .preload-breadcrumb{margin-bottom:16px;padding:16px;border:1px solid #cfdfe3;border-radius:18px;background:#ffffffde}.preload-breadcrumb span{display:block;color:#075f59;font-size:12px;font-weight:800;letter-spacing:.12em}.preload-breadcrumb strong{display:block;font:700 30px Georgia,serif}
+      .preload-hero{position:relative;isolation:isolate;display:flex;align-items:flex-start;min-height:min(760px,calc(100vh - 140px));margin:auto;padding:clamp(28px,3vw,48px);overflow:hidden;border-radius:18px;background:linear-gradient(90deg,#031328 0%,#062c3ee8 39%,#09384b66 78%),url("/social-preview.jpg") center/cover,#073146;color:#edfdfa;box-shadow:0 22px 65px #03182d30}
+      .preload-hero-copy{max-width:650px;position:relative;z-index:1}
+      .preload-kicker{margin:0;color:#bffcf2;font-size:12px;font-weight:800;letter-spacing:.15em;text-transform:uppercase}
+      .preload-hero h1{margin:20px 0 24px;max-width:11ch;color:#fff;font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:clamp(48px,5.5vw,82px);font-weight:700;letter-spacing:-.06em;line-height:.9}
+      .preload-hero h1 span{display:block}
+      .preload-hero h1 .preload-warm{color:#ffcb67}.preload-hero h1 .preload-cool{color:#93f5e3}
+      .preload-hero-copy>p:not(.preload-kicker){max-width:54ch;color:#d6eee9;font-size:clamp(17px,1.4vw,21px);line-height:1.6}
+      .preload-cta{display:inline-block;margin-top:14px;padding:13px 20px;border-radius:999px;background:#f5fffd;color:#07545b;font-weight:800;text-decoration:none}
+      .preload-details,.preload-deep{max-width:1100px;margin:32px auto;padding:clamp(26px,4vw,54px);border:1px solid #d8e5e9;border-radius:22px;background:#fff;box-shadow:0 18px 50px #1020330d}
+      .preload-shell h2{margin:30px 0 12px;font-family:Georgia,serif;font-size:clamp(24px,3vw,34px)}
+      .preload-shell h3{font-size:19px}.preload-shell p,.preload-shell li{line-height:1.65}.preload-shell a{color:#075985}.preload-hero .preload-cta{color:#07545b}
+      .preload-details ul,.preload-deep ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px;padding-left:20px}
+      .preload-deep h1{margin:0 0 18px;font-family:Georgia,serif;font-size:clamp(38px,5vw,64px);line-height:1.08}
+      @media(max-width:700px){.preload-home{display:block}.preload-sidebar{display:none}.preload-content{padding:16px}.preload-hero{min-height:74vh}.preload-details ul,.preload-deep ul{grid-template-columns:1fr}}
+    </style>
 
   </head>
   <body>
     <div id="root">
-      <main>
-        <h1>Urban Heat Democratization: make heat visible and action possible</h1>
+      <main class="preload-shell preload-home">
+        <aside class="preload-sidebar" aria-label="Site navigation">
+          <strong>Urban Heat<br />Democratization</strong>
+          <nav><a href="/">Overview</a><a href="/modes">Choose a path</a><a href="/cities">Cities</a><a href="/scenarios">Scenarios</a></nav>
+        </aside>
+        <div class="preload-content">
+        <div class="preload-breadcrumb"><span>YOU ARE HERE</span><strong>Overview</strong></div>
+        <section class="preload-hero">
+          <div class="preload-hero-copy">
+            <p class="preload-kicker">Urban Heat Democratization · A public-interest climate observatory</p>
+            <h1><span>Make heat</span><span class="preload-warm">visible.</span><span>Make action</span><span class="preload-cool">possible.</span></h1>
+            <p>A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.</p>
+            <a class="preload-cta" href="/cities">Explore a city</a>
+          </div>
+        </section>
+        <div class="preload-details">
         <p>Urban Heat Democratization is an open, public-interest platform for understanding urban heat, cooling access, and transparent mitigation scenarios. It helps residents, educators, planners, and researchers inspect evidence, understand its limits, and discuss practical climate-resilience options.</p>
         <h2>What you can explore</h2>
         <ul>
@@ -126,6 +164,8 @@
         <h3>Who created this work?</h3>
         <p>Urban Heat Democratization was created by <a href="https://ai-aarti.com/">Aarti S Ravikumar</a>.</p>
         <p>For research and reporting, use the <a href="https://github.com/aartisr/urban-heat-democratization/blob/main/CITATION.cff">CITATION.cff record</a> and cite the relevant source or method for any substantive claim.</p>
+        </div>
+        </div>
       </main>
     </div>
     <script type="module" src="/src/main.tsx"></script>
