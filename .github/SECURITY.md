@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please do not open a public issue or pull request with exploit details, credentials, personal data, or a working proof of concept. Use the repository's [private vulnerability reporting](https://github.com/aartisr/urban-heat-democratization/security/advisories/new) when available. If that option is unavailable, [contact the maintainer](https://ai-aarti.com/) to arrange a private channel before sharing details.
+Please do not open a public issue or pull request with exploit details, credentials, personal data, or a working proof of concept. Use the repository's [private vulnerability reporting](https://github.com/aartisr/urban-heat-democratization/security/advisories/new). If you cannot access that form, [contact the maintainer](https://ai-aarti.com/) to arrange a private channel before sharing details.
 
 Include the affected route or component, the impact, steps to reproduce, and a safe way to validate a fix. A report about a public map or data layer should distinguish a software flaw from a scientific or data-quality correction; the latter can use a public issue when no sensitive information is involved.
 
