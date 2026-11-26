@@ -18,6 +18,7 @@ import { SunburstCard } from "../components/sunburst-card";
 import { WorkflowHeader } from "../components/workflow-header";
 import { ScenarioMapComparison } from "../features/scenario-map-comparison/components/ScenarioMapComparison";
 import { AllocationLedger } from "../features/scenario-map-comparison/components/AllocationLedger";
+import { selectExactScenario, upsertScenario } from "../features/scenario-map-comparison/domain/selection";
 import { createWhatIfScenarios, getCityBenchmarkSuite, getCityExperience, getCityMap, getCityPlannerValidation, getCitySpectral, getRobustnessLab, listCities, listCostSources, listInterventions, listRuns, listScenarios, queueRun, resetAndGenerateScenarios } from "../lib/api";
 import { defaultStudyCityId, defaultStudyCityLabel } from "../lib/study-city";
 import { personaModeProfiles, personaScenarioPresets } from "../lib/persona-modes";
@@ -624,6 +625,7 @@ export function ScenariosPage() {
   const [planningMode, setPlanningMode] = useState<PlanningMode>("best_under_budget");
   const [submissionMessage, setSubmissionMessage] = useState<string | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [latestScenario, setLatestScenario] = useState<ScenarioRecord | null>(null);
   const [runStatusFilter, setRunStatusFilter] = useState<"all" | RunRecord["status"]>("all");
   const [paretoFocusedScenarioId, setParetoFocusedScenarioId] = useState<string | null>(null);
   const [paretoHoveredScenarioId, setParetoHoveredScenarioId] = useState<string | null>(null);
@@ -649,7 +651,9 @@ export function ScenariosPage() {
       nextOptions?: { label?: string; presetKey?: string | null; planningMode?: PlanningMode };
     }) => createWhatIfScenarios(nextCityId, nextBudgetUsd, nextOptions),
     onSuccess: async (scenario, variables) => {
-      await queryClient.invalidateQueries({ queryKey: ["scenarios", variables.nextCityId] });
+      queryClient.setQueryData<ScenarioRecord[]>(["scenarios", variables.nextCityId], (records) => upsertScenario(records, scenario));
+      await queryClient.invalidateQueries({ queryKey: ["scenarios", variables.nextCityId], refetchType: "none" });
+      setLatestScenario(scenario);
       setCityId(variables.nextCityId);
       setBudgetUsd(variables.nextBudgetUsd);
       setChartScenarioId(scenario.id);
@@ -672,7 +676,9 @@ export function ScenariosPage() {
       nextOptions?: { label?: string; presetKey?: string | null; planningMode?: PlanningMode };
     }) => resetAndGenerateScenarios(nextCityId, nextBudgetUsd, nextOptions),
     onSuccess: async (result, variables) => {
-      await queryClient.invalidateQueries({ queryKey: ["scenarios", variables.nextCityId] });
+      queryClient.setQueryData<ScenarioRecord[]>(["scenarios", variables.nextCityId], [result.scenario]);
+      await queryClient.invalidateQueries({ queryKey: ["scenarios", variables.nextCityId], refetchType: "none" });
+      setLatestScenario(result.scenario);
       setCityId(variables.nextCityId);
       setBudgetUsd(variables.nextBudgetUsd);
       setChartScenarioId(result.scenario.id);
@@ -711,6 +717,10 @@ export function ScenariosPage() {
   }, [modePreset.budgetUsd, modePreset.cityId, modePreset.planningMode, search.budgetUsd, search.cityId]);
 
   const allScenarios = scenariosQuery.data ?? [];
+  const exactComparisonScenario = selectExactScenario(
+    latestScenario ? [latestScenario, ...allScenarios] : allScenarios,
+    { cityId, budgetUsd, planningMode },
+  );
   const filteredScenarios = useMemo(() => {
     return allScenarios.filter((scenario) => {
       const readinessLabel = scenario.evidenceSummary.readinessLabel.toLowerCase();
@@ -1113,10 +1123,13 @@ export function ScenariosPage() {
       ) : cityMapQuery.data ? (
         <ScenarioMapComparison
           cityMap={cityMapQuery.data}
-          scenario={budgetCurveScenario}
+          scenario={exactComparisonScenario}
           budgetUsd={budgetUsd}
           planningMode={planningMode}
-          onBudgetChange={setBudgetUsd}
+          onBudgetChange={(nextBudget) => {
+            setBudgetUsd(nextBudget);
+            createScenarioMutation.reset();
+          }}
           onGenerateExactScenario={() => {
             setSubmissionMessage(null);
             setSubmissionError(null);
@@ -1127,10 +1140,11 @@ export function ScenariosPage() {
             });
           }}
           generatingExactScenario={createScenarioMutation.isPending}
+          generationError={createScenarioMutation.isError ? "The comparison could not be created. Please try again." : null}
         />
       ) : null}
 
-      <AllocationLedger scenario={budgetCurveScenario} />
+      <AllocationLedger scenario={exactComparisonScenario} />
 
       <div className="scenario-visual-gallery" id="scenario-composition">
         <div className="scenario-visual-gallery-head">

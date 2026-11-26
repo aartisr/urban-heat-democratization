@@ -1,8 +1,17 @@
 # Scenario Map Comparison: Research and Product Design
 
-> **Status:** proposed. This document defines the product and scientific
-> boundary for a reusable before/scenario/difference map comparison. It does
-> not authorize calling a planning result a future temperature prediction.
+> **Status:** planning-priority comparison implemented; calibrated projection
+> and measured-outcome stages remain future work. This document defines the
+> product and scientific boundary for a reusable before/scenario/difference
+> comparison.
+
+The comparison selects a saved scenario by **city, budget, and planning mode**.
+Persona evidence rules can guide which scenarios appear in a browsing list,
+but they must not hide the selected scenario from its own comparison. A newly
+created scenario appears immediately; if creation fails, the map panel shows
+the error beside the retry action. The after view is a planning illustration
+derived from the scenario's budget and evidence record, not a temperature
+prediction or a mapped intervention footprint.
 
 ## 1. The decision this experience should support
 

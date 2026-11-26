@@ -468,6 +468,53 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
+test("comparison shows exact scenarios despite persona filters and updates after generation", async ({ page }) => {
+  const scenario = (budgetUsd: number) => ({
+    id: `scenario-boston-${budgetUsd}`,
+    label: `Boston $${budgetUsd.toLocaleString()} planning scenario`,
+    cityId: "boston",
+    planningMode: "benchmark_share",
+    budgetUsd,
+    estimatedCostUsd: null,
+    heatReductionC: null,
+    equityScore: null,
+    confidence: null,
+    summary: "Planning illustration for the selected budget.",
+    recommendedActions: [],
+    allocationSummary: { totalAllocatedBudgetUsd: budgetUsd, unallocatedBudgetUsd: 0, allocationCoveragePct: 1, allocationMethod: "mock" },
+    evidenceSummary: { verifiedUnitCostCount: 1, rankingOnlyCount: 1, benchmarkOnlyCount: 0, readinessLabel: "Partially costable", explanation: "Some costs remain provisional." },
+    benchmarkSummary: { wholeCityBenchmarkUsd: 1000000, budgetGapUsd: 1000000 - budgetUsd, budgetCoveragePct: budgetUsd / 1000000, benchmarkLabel: "Mock", explanation: "Mock" },
+    exhaustiveEstimateSummary: { available: false, estimatedCostUsd: null, fundedCostUsd: null, remainingGapUsd: null, coveragePct: null, costableActions: 0, methodology: "Mock" },
+  });
+  await page.route("**/api/v1/scenarios**", async (route) => {
+    if (route.request().method() === "POST" && route.request().postDataJSON().budgetUsd === 50000) {
+      await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Temporarily unavailable" }) });
+      return;
+    }
+    const body = route.request().method() === "POST"
+      ? scenario(route.request().postDataJSON().budgetUsd)
+      : [scenario(120000)];
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(body) });
+  });
+
+  await page.goto("/modes");
+  const educator = page.locator(".persona-card").filter({ hasText: "Educator" });
+  await educator.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
+  await page.goto("/scenarios");
+  await expect(page.getByLabel("Budget USD")).toHaveValue("120000");
+  await expect(page.getByRole("region", { name: /After · Modeled priority after scenario/ })).toBeVisible();
+  await expect(page.getByText(/Showing the \$120,000 scenario · Partially costable/)).toBeVisible();
+
+  await page.getByRole("button", { name: "$10k", exact: true }).click();
+  await page.getByRole("button", { name: "Create $10,000 comparison" }).click();
+  await expect(page.getByRole("region", { name: /After · Modeled priority after scenario/ })).toBeVisible();
+  await expect(page.getByText(/Showing the \$10,000 scenario · Partially costable/)).toBeVisible();
+
+  await page.getByRole("button", { name: "$50k", exact: true }).click();
+  await page.getByRole("button", { name: "Create $50,000 comparison" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "The comparison could not be created. Please try again." })).toBeVisible();
+});
+
 test("capture documentation screenshots", async ({ page }) => {
   await ensureScreenshotsDir();
   const captureSettledPage = async (fileName: string) => {
@@ -502,11 +549,12 @@ test("capture documentation screenshots", async ({ page }) => {
   await page.goto("/scenarios");
   await expect(page.getByRole("heading", { name: "See what this budget can fund." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Compare a cooling investment" })).toBeVisible();
+  await page.getByRole("button", { name: "$250k", exact: true }).click();
   await expect(page.getByRole("heading", { name: "What this budget is allowed to fund" })).toBeVisible();
   await captureSettledPage("scenarios.png");
   await page.getByRole("button", { name: "$10k", exact: true }).click();
-  await expect(page.getByText("No exact $10,000 scenario is loaded.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Generate $10,000 scenario" })).toBeVisible();
+  await expect(page.getByText("Create a $10,000 comparison to see the after view.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create $10,000 comparison" })).toBeVisible();
   await page.getByRole("button", { name: "Difference", exact: true }).click();
   await expect(page.getByRole("region", { name: "After scenario required for $10,000" })).toBeVisible();
   await page.getByRole("button", { name: "$250k", exact: true }).click();

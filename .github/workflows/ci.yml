@@ -80,4 +80,4 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run mocked smoke E2E
-        run: npx playwright test tests/e2e/smoke.spec.ts
+        run: npx playwright test tests/e2e/smoke.spec.ts tests/e2e/gallery.spec.ts --grep-invert 'capture documentation screenshots'

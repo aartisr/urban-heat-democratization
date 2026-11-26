@@ -1638,6 +1638,7 @@ body.is-resizing-sidebar {
 .scenario-comparison-required-copy a { border: 1px solid rgba(14, 116, 144, .28); border-radius: 999px; padding: 8px 11px; background: #0f766e; color: #fff; font: inherit; font-size: 12px; font-weight: 850; text-decoration: none; cursor: pointer; }
 .scenario-comparison-required-copy a { background: #fff; color: #155e75; }
 .scenario-comparison-required-copy button:disabled { cursor: progress; opacity: .65; }
+.scenario-comparison-required-copy [role="alert"] { color: #9f1239; font-weight: 700; }
 .scenario-comparison-basemap { position: absolute; z-index: 0; top: 45px; right: 12px; bottom: 28px; left: 12px; overflow: hidden; border-radius: 10px; background: #eaf3f7; pointer-events: none; }
 .scenario-comparison-map svg { position: relative; z-index: 1; width: 100%; aspect-ratio: 1.55; overflow: hidden; border-radius: 10px; border: 1px solid rgba(15, 23, 42, 0.12); touch-action: none; }
 .scenario-comparison-map-attribution { position: relative; z-index: 2; justify-self: end; margin-top: -33px; margin-right: 5px; padding: 2px 5px; border-radius: 4px; background: rgba(255,255,255,.86); color: #365963; font-size: 9px; line-height: 1.2; }

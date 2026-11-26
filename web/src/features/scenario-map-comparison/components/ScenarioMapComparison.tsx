@@ -115,15 +115,16 @@ function ComparisonNotice({ title, detail }: { title: string; detail: string }) 
   );
 }
 
-function ExactScenarioRequiredMap({ budgetUsd, onGenerate, generating }: { budgetUsd: number; onGenerate?: () => void; generating?: boolean }) {
+function ExactScenarioRequiredMap({ budgetUsd, onGenerate, generating, error }: { budgetUsd: number; onGenerate?: () => void; generating?: boolean; error?: string | null }) {
   return (
     <section className="scenario-comparison-map scenario-comparison-required-map" aria-label={`After scenario required for $${budgetUsd.toLocaleString()}`}>
-      <div className="scenario-comparison-map-head"><strong>After · exact scenario required</strong><span>No substituted result</span></div>
+      <div className="scenario-comparison-map-head"><strong>After · ${budgetUsd.toLocaleString()} comparison</strong><span>{generating ? "Creating…" : "Ready to create"}</span></div>
       <div className="scenario-comparison-required-copy">
-        <span className="eyebrow">Honest comparison</span>
-        <strong>Generate the ${budgetUsd.toLocaleString()} scenario to see its modeled priority field.</strong>
-        <p>The baseline is available now. The after map and difference remain blank until this exact budget has a documented allocation and evidence record.</p>
-        <div>{onGenerate ? <button type="button" onClick={onGenerate} disabled={generating}>{generating ? "Generating…" : `Generate $${budgetUsd.toLocaleString()} scenario`}</button> : null}<a href="#scenario-generator">Open generator</a></div>
+        <span className="eyebrow">Your next step</span>
+        <strong>Create a planning comparison for ${budgetUsd.toLocaleString()}.</strong>
+        <p>We’ll show a modeled priority map beside the baseline and a budget breakdown. The map is a planning illustration, not measured cooling.</p>
+        {onGenerate ? <button type="button" onClick={onGenerate} disabled={generating}>{generating ? "Creating comparison…" : `Create $${budgetUsd.toLocaleString()} comparison`}</button> : null}
+        {error ? <p role="alert">{error}</p> : null}
       </div>
     </section>
   );
@@ -266,7 +267,7 @@ function MiniMap({
   );
 }
 
-export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMode, onBudgetChange, onGenerateExactScenario, generatingExactScenario = false }: {
+export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMode, onBudgetChange, onGenerateExactScenario, generatingExactScenario = false, generationError = null }: {
   cityMap: CityMapData;
   scenario: ScenarioRecord | null;
   budgetUsd: number;
@@ -274,6 +275,7 @@ export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMo
   onBudgetChange: (budgetUsd: number) => void;
   onGenerateExactScenario?: () => void;
   generatingExactScenario?: boolean;
+  generationError?: string | null;
 }) {
   const [view, setView] = useState<ComparisonView>("side-by-side");
   const [mobileView, setMobileView] = useState<MobileView>("baseline");
@@ -309,14 +311,16 @@ export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMo
   const baselineMap = <MiniMap label="Before · baseline evidence and priority" values={baselineById} maxValue={maxPriority} kind="priority" {...mapProps} />;
   const scenarioMap = <MiniMap label={`After · ${comparisonScenarioTitle("planning", "priority")}`} values={scenarioById} maxValue={maxPriority} kind="priority" {...mapProps} />;
   const differenceMap = <MiniMap label="Difference · modeled priority reduction" values={deltaById} maxValue={maxReduction} kind="difference" {...mapProps} />;
-  const requiredMap = <ExactScenarioRequiredMap budgetUsd={budgetUsd} onGenerate={onGenerateExactScenario} generating={generatingExactScenario} />;
+  const requiredMap = <ExactScenarioRequiredMap budgetUsd={budgetUsd} onGenerate={onGenerateExactScenario} generating={generatingExactScenario} error={generationError} />;
   const showingDifference = compact ? mobileView === "difference" : view === "difference";
 
   return (
     <section className="scenario-comparison panel-card" aria-labelledby="scenario-comparison-title">
       <div className="scenario-comparison-head"><div><span className="eyebrow">Planning comparison</span><h2 id="scenario-comparison-title">Compare a cooling investment</h2><p>See the same evidence polygons before and after a documented planning scenario. The right view is a modeled priority field, not a temperature forecast.</p></div><span className="truth-badge derived">Planning model</span></div>
       <div className="scenario-comparison-controls" aria-label="Comparison budget"><span>Investment</span><div role="group" aria-label="Choose investment size">{COMPARISON_BUDGET_PRESETS.map((preset) => <button key={preset} type="button" className={budgetUsd === preset ? "active" : ""} onClick={() => onBudgetChange(preset)}>${preset >= 1000000 ? `${preset / 1000000}m` : `${preset / 1000}k`}</button>)}</div>{!compact ? <div className="scenario-comparison-view-control" role="group" aria-label="Comparison display"><button type="button" className={view === "side-by-side" ? "active" : ""} onClick={() => setView("side-by-side")}>Before / scenario</button><button type="button" className={view === "difference" ? "active" : ""} onClick={() => setView("difference")}>Difference</button></div> : null}</div>
-      {!isExactBudgetScenario ? <p className="scenario-comparison-scenario-note" role="status">No exact ${budgetUsd.toLocaleString()} scenario is loaded. The after map and difference are intentionally withheld rather than borrowing another budget’s result.</p> : null}
+      <p className="scenario-comparison-scenario-note" role="status">{comparisonScenario
+        ? `Showing the $${budgetUsd.toLocaleString()} scenario · ${comparisonScenario.evidenceSummary.readinessLabel}. The after view is a planning illustration.`
+        : `Create a $${budgetUsd.toLocaleString()} comparison to see the after view.`}</p>
       <div className="scenario-comparison-navigation" aria-label="Linked map navigation"><span>Maps move together</span><button type="button" onClick={() => setCamera((current) => zoomCamera(current, 1.25))}>Zoom in</button><button type="button" onClick={() => setCamera((current) => zoomCamera(current, 1 / 1.25))}>Zoom out</button><button type="button" onClick={() => setCamera(DEFAULT_CAMERA)}>Reset map view</button>{cityMap.accessZones.length > 0 ? <button type="button" aria-pressed={showCoolingContext} onClick={() => setShowCoolingContext((current) => !current)}>Cooling-access context: {showCoolingContext ? "On" : "Off"}</button> : null}</div>
       <div className="scenario-comparison-legend" aria-label="Priority interpretation">{showCoolingContext ? <span><i className="is-context" />Cooling-access context</span> : null}<span><i className="is-low" />Lower priority</span><span><i className="is-medium" />Moderate priority</span><span><i className="is-high" />Higher priority</span><span>Same scale before and after</span></div>
       {cityMap.accessZones.length > 0 ? <p className="scenario-comparison-context-note">{showCoolingContext ? "The pale grid is a separate, derived cooling-access layer. It is context only: colored polygons remain the only Cheeger-priority scores in this comparison." : "Showing only scored Cheeger-priority polygons. Turn on Cooling-access context to inspect the separate, derived study grid without mixing its values into this scale."}</p> : null}
