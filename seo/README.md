@@ -2,9 +2,12 @@
 
 `discovery-pages.json` is the source of truth for every intentionally public,
 indexable canonical route and GitHub Pages guide. Each entry needs a truthful
-title, description, path, priority, and update frequency. Canonical entries also
+title, description, and path. Set `lastmod` only when that specific page has a
+verifiable significant change; the sitemap omits it otherwise. Canonical entries also
 name their corresponding React route source so the refresh script can catch a
-missing route before deployment.
+missing route before deployment. Each app route also has a unique `summary`
+that appears in the HTML before JavaScript loads, alongside a visible author
+byline and links to methods and the citation record.
 
 Run this after adding or materially changing a public page:
 

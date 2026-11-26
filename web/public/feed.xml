@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>Urban Heat Democratization</title>
   <id>https://urban-heat.ai-aarti.com/</id>
-  <updated>2026-10-26T00:00:00Z</updated>
+  <updated>2026-11-26T00:00:00Z</updated>
   <link href="https://urban-heat.ai-aarti.com/feed.xml" rel="self" type="application/atom+xml" />
   <link href="https://urban-heat.ai-aarti.com/" rel="alternate" type="text/html" />
   <entry>
@@ -65,8 +65,8 @@
     <title>Interactive urban heat mitigation lab</title>
     <id>https://urban-heat.ai-aarti.com/mitigation-lab</id>
     <link href="https://urban-heat.ai-aarti.com/mitigation-lab" />
-    <updated>2026-10-26T00:00:00Z</updated>
-    <summary>Model reflective cool roofs, tree canopy expansion, cool pavements, and urban parks with real-time temperature and cost-benefit analysis.</summary>
+    <updated>2026-11-26T00:00:00Z</updated>
+    <summary>Explore cooling interventions with a bounded browser priority field and separate graph metrics. Outputs are not local temperature forecasts.</summary>
   </entry>
   <entry>
     <title>Address-level cooling action plan</title>

@@ -18,6 +18,9 @@ for (const page of registry.githubPagesPages) {
     `href="${mainBase}/"`,
     `href="${config.repositoryUrl}`,
     `href="${config.publicationsUrl}"`,
+    `<meta name="author" content="${config.authorName}">`,
+    `<p class="byline">`,
+    `>${config.authorName}</a>`,
     "CITATION.cff",
   ];
   for (const fragment of required) {
