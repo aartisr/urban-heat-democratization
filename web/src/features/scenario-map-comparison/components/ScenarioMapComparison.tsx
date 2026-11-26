@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { Map as MapLibreMap } from "maplibre-gl";
 
 import type { CityMapData, CityMapOverlay, PlanningMode, ScenarioRecord } from "../../../lib/types";
 import { COMPARISON_BUDGET_PRESETS, comparisonClaimBoundary, comparisonScenarioTitle } from "../domain/evidence-policy";
@@ -146,21 +147,14 @@ function StreetMapContext({ bounds, onStatus }: { bounds: NonNullable<CityMapDat
     if (!container) return;
     let disposed = false;
     onStatus("loading");
-    let map: {
-      fitBounds: (bounds: [[number, number], [number, number]], options?: { padding?: number; duration?: number }) => void;
-      resize: () => void;
-      remove: () => void;
-      once: (event: string, listener: () => void) => void;
-      on: (event: string, listener: () => void) => void;
-    } | null = null;
+    let map: MapLibreMap | null = null;
     const resizeObserver = new ResizeObserver(() => map?.resize());
     resizeObserver.observe(container);
 
     void (async () => {
       const [maplibreModule] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
       if (disposed || !containerRef.current) return;
-      const maplibregl = ("default" in maplibreModule ? maplibreModule.default : maplibreModule) as typeof maplibreModule.default;
-      map = new maplibregl.Map({
+      const instance = new maplibreModule.Map({
         container: containerRef.current,
         attributionControl: false,
         interactive: false,
@@ -173,9 +167,10 @@ function StreetMapContext({ bounds, onStatus }: { bounds: NonNullable<CityMapDat
         center: [(bounds.minLng + bounds.maxLng) / 2, (bounds.minLat + bounds.maxLat) / 2],
         zoom: 11,
       });
-      map.once("idle", () => { if (!disposed) onStatus("ready"); });
-      map.on("error", () => { if (!disposed) onStatus("unavailable"); });
-      map.fitBounds([[bounds.minLng, bounds.minLat], [bounds.maxLng, bounds.maxLat]], { padding: 18, duration: 0 });
+      map = instance;
+      instance.once("idle", () => { if (!disposed) onStatus("ready"); });
+      instance.on("error", () => { if (!disposed) onStatus("unavailable"); });
+      instance.fitBounds([[bounds.minLng, bounds.minLat], [bounds.maxLng, bounds.maxLat]], { padding: 18, duration: 0 });
     })().catch(() => { if (!disposed) onStatus("unavailable"); });
 
     return () => { disposed = true; resizeObserver.disconnect(); map?.remove(); };

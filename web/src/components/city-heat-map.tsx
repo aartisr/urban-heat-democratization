@@ -2321,7 +2321,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
         import("maplibre-gl"),
         import("maplibre-gl/dist/maplibre-gl.css"),
       ]);
-      const maplibregl = ("default" in maplibreModule ? maplibreModule.default : maplibreModule) as typeof maplibreModule.default;
+      const maplibregl = maplibreModule;
       maplibreRef.current = maplibregl;
 
       if (disposed || !mapContainerRef.current || mapRef.current) {
