@@ -44,7 +44,7 @@ Before submitting a contribution, ask:
 5. Does it need a caveat, license notice, or access restriction?
 6. Can another person reproduce or independently review it?
 
-Read [Artifact Strategy](../ARTIFACT_STRATEGY.md) for repository data rules and run `make test`, `make build`, and `make validate-packages` for relevant changes.
+Read [bundled-data and provenance guide](../../data/README.md) for repository data rules and run `make test`, `make build`, and `make validate-packages` for relevant changes.
 
 ## The standard we are aiming for
 

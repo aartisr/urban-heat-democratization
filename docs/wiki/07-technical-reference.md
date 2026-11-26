@@ -13,8 +13,8 @@ The project’s technical documentation is distributed across the repository rat
 | --- | --- | --- |
 | System architecture and production direction | [Production Blueprint](../PRODUCTION_BLUEPRINT.md) | Application layers, operational model, and production considerations |
 | Feature-level truth | [Implementation Status](../IMPLEMENTATION_STATUS.md) | Implemented, partial, and remaining capabilities |
-| Fast local operation | [Quick Reference](../QUICK_REFERENCE.md) | Setup, API/web startup, health checks, validation, and runtime files |
-| Repository artifact policy | [Artifact Strategy](../ARTIFACT_STRATEGY.md) | Provenance, Git policy, runtime versus bundled artifacts |
+| Fast local operation | [Repository README](../../README.md) | Project setup, architecture, commands, and implementation context |
+| Bundled-data policy | [bundled-data and provenance guide](../../data/README.md) | Bundled evidence, cost references, and data contribution rules |
 | System code | [`api/`](../../api/), [`core/`](../../core/), [`web/`](../../web/) | The executable source of truth |
 
 ## Service/API
@@ -73,12 +73,12 @@ surface is documented in [`web/README.md`](../../web/README.md) and
 
 | Topic | Reference |
 | --- | --- |
-| Bundled-data policy and provenance | [Artifact Strategy](../ARTIFACT_STRATEGY.md) |
+| Bundled-data policy and provenance | [bundled-data and provenance guide](../../data/README.md) |
 | Boston study meaning and limits | [Boston Study Guide](../BOSTON_STUDY_GUIDE.md) |
-| City registration recipes | [City Onboarding Recipes](../CITY_ONBOARDING_RECIPES.md) |
+| City onboarding path | [City onboarding and partnership](05-city-onboarding-and-partnership.md) |
 | Package validation | [`scripts/validate_city_packages.py`](../../scripts/validate_city_packages.py) and `make validate-packages` |
-| Cost sources and unit-cost model | [Verified Cost Sources](../verified_cost_sources.md), [Intervention Unit Costs](../INTERVENTION_UNIT_COSTS.md) |
-| Live payload configuration | [Live Thermal Setup](../LIVE_THERMAL_SETUP.md), [Live Provider Bridges](../LIVE_PROVIDER_BRIDGES.md) |
+| Cost sources and unit-cost model | [Cost references](../../data/cost_sources.json), [intervention unit costs](../../data/intervention_unit_costs.json), and [data guide](../../data/README.md) |
+| Live payload configuration | [Live Thermal Setup](../LIVE_THERMAL_SETUP.md) |
 | Provider bridge scripts | [`scripts/fetch_landsat_live_source.py`](../../scripts/fetch_landsat_live_source.py), [`scripts/fetch_ecostress_live_source.py`](../../scripts/fetch_ecostress_live_source.py), [`scripts/build_live_thermal_bridge.py`](../../scripts/build_live_thermal_bridge.py) |
 
 ## Validation and testing

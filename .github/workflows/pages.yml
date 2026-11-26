@@ -26,6 +26,8 @@ jobs:
         run: node scripts/refresh-discovery.mjs && node scripts/build-github-pages.mjs
       - name: Verify canonicals and backlinks
         run: node scripts/check-github-pages.mjs
+      - name: Validate GitHub wiki links and renderability
+        run: node scripts/render-github-wiki.mjs "$RUNNER_TEMP/urban-heat-wiki-preview"
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

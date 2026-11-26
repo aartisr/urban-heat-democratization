@@ -22,6 +22,8 @@ for (const page of registry.githubPagesPages) {
     `<p class="byline">`,
     `>${config.authorName}</a>`,
     "CITATION.cff",
+    'class="mobile-menu"',
+    'mobile navigation',
   ];
   for (const fragment of required) {
     if (!output.includes(fragment)) throw new Error(`${page.path} is missing discoverability or backlink fragment: ${fragment}`);

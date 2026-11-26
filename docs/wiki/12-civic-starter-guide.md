@@ -50,7 +50,7 @@ spectral overlays, costs, and local findings remain unregistered until they
 are actually available and reviewed.
 
 That distinction protects the public from a polished but unsupported result.
-For the complete technical path, see [City Onboarding Recipes](../CITY_ONBOARDING_RECIPES.md).
+For the onboarding path and its evidence limits, see [City onboarding and partnership](05-city-onboarding-and-partnership.md).
 
 ## A good meeting ends with an accountable next step
 

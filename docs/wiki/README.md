@@ -25,7 +25,6 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 | What can I safely conclude from a scenario or impact preview? | [Evidence and responsible use](04-evidence-and-responsible-use.md) |
 | How could my city participate responsibly? | [City onboarding and partnership](05-city-onboarding-and-partnership.md) |
 | How do I use this with my community or public team? | [Civic starter guide](12-civic-starter-guide.md) |
-| Could an address receive useful heat-mitigation guidance, and what remains before it can use an address? | [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md) |
 
 ## Read in this order
 
@@ -43,7 +42,6 @@ This wiki explains what the project is, why it exists, how to use it responsibly
 12. [Spectral Theory Contract](09-spectral-theory-contract.md) — exact guarantees, implementation scope, and validation boundaries.
 13. [Repeatability and Real-World Validation](10-repeatability-and-real-world-validation.md) — what is repeatable now and the pathway to responsible field use.
 14. [Help Operationalize Urban Heat Democratization](11-community-and-mentor-invitation.md) — roles for community members, mentors, public agencies, and partners.
-15. [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md) — the evidence, privacy, safety, validation, and product contract required before address-informed guidance is offered.
 
 ## The short version
 
@@ -70,15 +68,14 @@ This is a place for the community to learn about urban heat: how heat patterns a
 
 - [Documentation Guide](../README.md)
 - [Boston Study Guide](../BOSTON_STUDY_GUIDE.md)
-- [City Onboarding Recipes](../CITY_ONBOARDING_RECIPES.md)
+- [City onboarding and partnership](05-city-onboarding-and-partnership.md)
 - [Civic Starter Guide](12-civic-starter-guide.md)
 - [Live Thermal Setup](../LIVE_THERMAL_SETUP.md)
-- [Artifact Strategy](../ARTIFACT_STRATEGY.md)
+- [bundled-data and provenance guide](../../data/README.md)
 - [Research Sharing and Publication Strategy](../RESEARCH_SHARING_AND_PUBLICATION_STRATEGY.md)
-- [Address-Level Spectral Urbanism Advice](../ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md)
-- [Design and Accessibility System](../DESIGN_ACCESSIBILITY_SYSTEM.md)
 - [Implementation Status](../IMPLEMENTATION_STATUS.md)
-- [Interactive Heat-Mitigation Lab plan](../INTERACTIVE_MITIGATION_LAB_PLAN.md)
+
+This repository directory is the maintained source for the [hosted GitHub wiki](https://github.com/aartisr/urban-heat-democratization/wiki). To render its pages into a local wiki checkout and validate every local document link, run `node scripts/render-github-wiki.mjs /path/to/wiki-checkout`. The GitHub Pages build also validates these links on each deployment.
 
 ---
 

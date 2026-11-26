@@ -21,7 +21,7 @@ This classification prevents a common failure in climate technology: turning an 
 
 The repository keeps bundled data, cost references, city package metadata, and runtime products separate. `data/` contains bundled evidence and references; `data/runtime/` contains mutable local state such as onboarded cities, queued runs, JSON mirrors, SQLite data, and locally refreshed provider payloads.
 
-The [Artifact Strategy](../ARTIFACT_STRATEGY.md) specifies that artifacts used to support claims should have a stable provenance or reproducible generation path. Mutable runtime products should not be confused with reviewed source artifacts.
+The [bundled-data and provenance guide](../../data/README.md) specifies that artifacts used to support claims should have a stable provenance or reproducible generation path. Mutable runtime products should not be confused with reviewed source artifacts.
 
 ## Responsible scenario use
 

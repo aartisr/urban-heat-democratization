@@ -46,7 +46,7 @@ Community knowledge is not a decorative validation step. It can identify missing
 7. Commission the appropriate technical, public-health, and community review before formal commitments.
 8. Publish a plain-language account of inputs, limitations, decisions, and subsequent outcomes where safe and appropriate.
 
-For API and UI specifics, use [City Onboarding Recipes](../CITY_ONBOARDING_RECIPES.md).
+For current API and UI behavior, use [Implementation Status](../IMPLEMENTATION_STATUS.md) and the [technical reference](07-technical-reference.md).
 For a non-technical, meeting-ready route through the workspace, use the
 [Civic Starter Guide](12-civic-starter-guide.md).
 
