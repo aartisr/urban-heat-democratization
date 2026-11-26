@@ -4,7 +4,7 @@
 # requirements-research.txt. Keeping those optional tools out of this file is
 # necessary to keep the serverless function below Vercel's 500 MB limit.
 setuptools<81
-fastapi==0.110.0
+fastapi==0.165.0
 uvicorn[standard]==0.27.1
 numpy==1.26.4
 networkx==3.2.1
