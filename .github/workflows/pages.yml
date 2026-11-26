@@ -27,7 +27,7 @@ jobs:
       - name: Verify canonicals and backlinks
         run: node scripts/check-github-pages.mjs
       - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: site
   deploy:
