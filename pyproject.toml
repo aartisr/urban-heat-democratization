@@ -7,7 +7,7 @@ dependencies = [
   "setuptools<81",
   "fastapi==0.110.0",
   "uvicorn[standard]==0.27.1",
-  "numpy==1.26.4",
+  "numpy==2.5.5",
   "networkx==3.2.1",
   "pydantic==2.13.4",
 ]
