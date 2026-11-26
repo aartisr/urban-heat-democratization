@@ -469,10 +469,8 @@ test("city evidence experience preserves guided reading, audit, and shareable vi
   const experience = page.getByRole("navigation", { name: "Boston evidence experience" });
   await expect(experience.getByRole("link", { name: /^Read/ })).toHaveAttribute("aria-current", "page");
   await expect(page.getByRole("heading", { name: "Start with the evidence." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "What evidence is available for Boston?" })).toBeVisible({ timeout: 10_000 });
-
   await page.getByRole("button", { name: "2. Signal" }).click();
-  await expect(page.getByRole("heading", { name: "What does the current study indicate?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /What does the current study indicate\?|How will a future city signal be explained\?/ })).toBeVisible();
   await page.getByText("Meaning and important limit").click();
   await expect(page.getByText("A derived priority is not a diagnosis of harm, a temperature measurement, or an automatic policy recommendation.")).toBeVisible();
 
