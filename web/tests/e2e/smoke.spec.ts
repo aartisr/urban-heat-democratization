@@ -444,6 +444,24 @@ test("scenario defaults change with active persona mode", async ({ page }) => {
   await expect(page.getByLabel("Planning mode")).toHaveValue("benchmark_share");
 });
 
+test("what-if generator accepts its displayed budget and sends it to the API", async ({ page }) => {
+  await page.goto("/scenarios");
+  const budget = page.getByLabel("Budget USD");
+  await budget.fill("0");
+  await page.getByRole("button", { name: "Reset scenarios and regenerate" }).click();
+  await expect(page.getByText("Enter a whole-dollar budget of at least $1.")).toBeVisible();
+
+  await budget.fill("250000");
+  await expect(budget).toHaveValue("250000");
+  expect(await budget.evaluate((element: HTMLInputElement) => element.checkValidity())).toBe(true);
+
+  const [request] = await Promise.all([
+    page.waitForRequest((request) => request.url().endsWith("/v1/scenarios/what-if") && request.method() === "POST"),
+    page.getByRole("button", { name: "Generate what-if" }).click(),
+  ]);
+  expect(request.postDataJSON().budgetUsd).toBe(250000);
+});
+
 test("planner persona can complete the city-detail journey", async ({ page }) => {
   await page.goto("/modes");
   const modeCard = page.locator(".persona-card").filter({ hasText: "Planner" });

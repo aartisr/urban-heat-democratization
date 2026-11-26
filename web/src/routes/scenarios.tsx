@@ -1398,7 +1398,7 @@ export function ScenariosPage() {
                 value={budgetUsd}
                 onChange={(e) => setBudgetUsd(Number(e.target.value))}
                 min={1}
-                step={1000}
+                step={1}
               />
             </label>
             <label>
@@ -1420,6 +1420,10 @@ export function ScenariosPage() {
               onClick={async () => {
                 setSubmissionMessage(null);
                 setSubmissionError(null);
+                if (!Number.isSafeInteger(budgetUsd) || budgetUsd < 1) {
+                  setSubmissionError("Enter a whole-dollar budget of at least $1.");
+                  return;
+                }
                 resetScenarioMutation.mutate({
                   nextCityId: cityId,
                   nextBudgetUsd: budgetUsd,
