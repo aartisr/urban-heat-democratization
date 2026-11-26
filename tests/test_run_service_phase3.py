@@ -1,10 +1,9 @@
 """Tests for RunService"""
 
 import pytest
-from datetime import datetime
 
 from api.services.run import RunService, RunDTO
-from api.services.base import NotFoundError, ValidationError
+from api.domain import NotFoundError, ValidationError
 from api.repositories.run import RunRepository
 
 
@@ -67,8 +66,9 @@ class TestRunServiceList:
     @pytest.mark.asyncio
     async def test_list_empty_runs(self, service: RunService) -> None:
         """Test listing runs when none exist."""
-        result = await service.list_runs()
-        assert result == []
+        runs, total = await service.list_runs()
+        assert runs == []
+        assert total == 0
 
     @pytest.mark.asyncio
     async def test_list_multiple_runs(self, service: RunService, sample_run: RunDTO) -> None:
@@ -91,8 +91,9 @@ class TestRunServiceList:
         )
         await service.create_run(run1)
         await service.create_run(run2)
-        result = await service.list_runs()
-        assert len(result) == 2
+        runs, total = await service.list_runs()
+        assert len(runs) == 2
+        assert total == 2
 
     @pytest.mark.asyncio
     async def test_list_by_city(self, service: RunService, sample_run: RunDTO) -> None:
@@ -115,9 +116,10 @@ class TestRunServiceList:
         )
         await service.create_run(boston_run)
         await service.create_run(newyork_run)
-        result = await service.list_runs(city_id="boston")
-        assert len(result) == 1
-        assert result[0].city_id == "boston"
+        runs, total = await service.list_runs(city_id="boston")
+        assert len(runs) == 1
+        assert total == 1
+        assert runs[0].city_id == "boston"
 
 
 class TestRunServiceCreate:

@@ -202,7 +202,7 @@ Expected outcome:
 
 - [Architecture Decision Records](../docs/ARCHITECTURE_DECISION_RECORDS.md) - Updated
 - [Production Blueprint](../docs/PRODUCTION_BLUEPRINT.md) - References foundation
-- [Codebase Refactoring Plan](.CODEBASE_REFACTORING_PLAN.md) - Master document
+- [Codebase Refactoring Plan](CODEBASE_REFACTORING_PLAN.md) - Master document
 - Code comments - Every contract documented
 
 ---

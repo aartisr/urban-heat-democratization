@@ -31,3 +31,21 @@ Please do not represent an exploratory map, graph signal, or scenario as a healt
    ```
 
 For collaboration that needs discussion before code, open an issue or use the [public collaboration desk](https://urban-heat.ai-aarti.com/contact).
+
+## Local development
+
+Use Python 3.12 and Node.js 22 or newer. From the repository root:
+
+```bash
+make setup
+make api       # terminal 1
+make web       # terminal 2
+```
+
+For a change to the API, math, data, or city packages, run `make test-python` and `make validate-packages`. For a frontend change, run `make test-web` and `make build`. The [CI workflow](.github/workflows/ci.yml) also runs a browser smoke test. Include a focused test for behavior that could regress, and explain any check you could not run.
+
+Issues and pull requests are reviewed for correctness, evidence quality, privacy, licensing, accessibility, and maintainability. A maintainer may request changes or decline work that falls outside the project's public-interest and evidence standards. There is no guaranteed review time.
+
+For help, see [Support](.github/SUPPORT.md). Report vulnerabilities through the [Security policy](.github/SECURITY.md), and follow the [Code of conduct](.github/CODE_OF_CONDUCT.md).
+
+Maintainers should follow the [release process](docs/RELEASE_PROCESS.md) before publishing a versioned or citable result.

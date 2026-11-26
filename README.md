@@ -22,6 +22,8 @@ Official website: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com) · 
 
 Use [CITATION.cff](CITATION.cff) to cite the platform in research, teaching, reporting, or public proposals. For a substantive claim, cite the specific platform page and its linked method or source record as well; preserve the stated evidence boundary. The project’s machine-readable research brief is available at [`/ai.txt`](https://urban-heat.ai-aarti.com/ai.txt), with a concise reader-and-agent index at [`/llms.txt`](https://urban-heat.ai-aarti.com/llms.txt).
 
+To contribute, start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [issue templates](.github/ISSUE_TEMPLATE). For help or sensitive reports, see [Support](.github/SUPPORT.md), the [Security policy](.github/SECURITY.md), and the [Code of conduct](.github/CODE_OF_CONDUCT.md).
+
 ## Begin in one minute
 
 | If you are… | Start here | You will leave with… |
@@ -177,7 +179,7 @@ not a dashboard that asks people to decode everything at once.
   sidebar to a full-width mobile header, preserving readable navigation rather
   than squeezing labels into a narrow rail.
 
-For a route-by-route explanation, see the [Screen Tour](docs/SCREEN_TOUR.md).
+For a guided explanation of the main workflows, see [Platform and Workflows](docs/wiki/02-platform-and-workflows.md).
 
 ## Architecture
 
@@ -247,9 +249,9 @@ serverless demonstration and keeps its runtime limits visible: scratch state is
 not presented as durable research storage, interval workers are not assumed to
 survive, and lightweight demonstration runs complete inline.
 
-Follow the [Vercel Deployment Guide](docs/VERCEL_DEPLOYMENT.md) for exact
-environment variables, routing behavior, verification, and the path to durable
-production storage and jobs.
+See [vercel.json](vercel.json) for the current build and routing configuration.
+The deployment remains a demonstration; durable production storage and jobs
+require separate infrastructure.
 
 ## Current capability boundaries
 

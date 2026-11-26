@@ -3,7 +3,7 @@
 import pytest
 
 from api.services.scenario import ScenarioService, ScenarioDTO
-from api.services.base import NotFoundError, ValidationError
+from api.domain import NotFoundError, ValidationError
 from api.repositories.scenario import ScenarioRepository
 
 
@@ -57,8 +57,9 @@ class TestScenarioServiceList:
     @pytest.mark.asyncio
     async def test_list_empty_scenarios(self, service: ScenarioService) -> None:
         """Test listing scenarios when none exist."""
-        result = await service.list_scenarios()
-        assert result == []
+        scenarios, total = await service.list_scenarios()
+        assert scenarios == []
+        assert total == 0
 
     @pytest.mark.asyncio
     async def test_list_multiple_scenarios(
@@ -80,8 +81,9 @@ class TestScenarioServiceList:
         )
         await service.create_scenario(scenario1)
         await service.create_scenario(scenario2)
-        result = await service.list_scenarios()
-        assert len(result) == 2
+        scenarios, total = await service.list_scenarios()
+        assert len(scenarios) == 2
+        assert total == 2
 
 
 class TestScenarioServiceCreate:
