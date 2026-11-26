@@ -119,6 +119,12 @@ That is the democratic ambition: not to replace expertise, but to make expert ev
 
 ## Start here
 
+Repository layout: the project plans and architecture notes are in
+[docs/project](docs/project), historical reports are in
+[docs/archive](docs/archive), and one-off utilities are in
+[scripts/legacy](scripts/legacy). The root holds the README, citation and
+contribution files, build manifests, and deployment configuration.
+
 The project wiki is the fullest account of the mission, methods, evidence standard, practical workflows, and roadmap:
 
 - [Urban Heat Democratization Wiki](docs/wiki/README.md)

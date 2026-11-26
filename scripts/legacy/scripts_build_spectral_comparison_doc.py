@@ -111,6 +111,6 @@ def build(out_path: Path):
 
 
 if __name__ == "__main__":
-    out = Path(__file__).resolve().parent / "docs" / "spectral_comparison.docx"
+    out = Path(__file__).resolve().parents[2] / "docs" / "spectral_comparison.docx"
     build(out)
     print(out)

@@ -376,11 +376,11 @@ city_service = create_city_service(city_store=db)
 
 | Document | Purpose |
 |----------|---------|
-| [COMPREHENSIVE_VERIFICATION_REPORT.md](/Users/rraviku2/aarti/urban_heat_democratization/COMPREHENSIVE_VERIFICATION_REPORT.md) | Full verification details |
-| [FINAL_STATUS.md](/Users/rraviku2/.copilot/session-state/30165641-c73c-46cd-b97e-ec3bb81ccbfd/files/FINAL_STATUS.md) | Phase completion summary |
-| [docs/ARCHITECTURE.md](/Users/rraviku2/aarti/urban_heat_democratization/docs/ARCHITECTURE.md) | Architecture guide |
-| [docs/API.md](/Users/rraviku2/aarti/urban_heat_democratization/docs/API.md) | API reference |
-| [docs/DESIGN_PATTERNS.md](/Users/rraviku2/aarti/urban_heat_democratization/docs/DESIGN_PATTERNS.md) | Design patterns |
+| [COMPREHENSIVE_VERIFICATION_REPORT.md](COMPREHENSIVE_VERIFICATION_REPORT.md) | Full verification details |
+| [FINAL_STATUS.md](../../../../.copilot/session-state/30165641-c73c-46cd-b97e-ec3bb81ccbfd/files/FINAL_STATUS.md) | Phase completion summary |
+| [docs/ARCHITECTURE.md](../ARCHITECTURE.md) | Architecture guide |
+| [docs/API.md](../API.md) | API reference |
+| [docs/DESIGN_PATTERNS.md](../DESIGN_PATTERNS.md) | Design patterns |
 
 ---
 
@@ -416,7 +416,7 @@ The application is ready for immediate deployment with confidence in its:
 
 ## Next Steps
 
-1. **Review** the [COMPREHENSIVE_VERIFICATION_REPORT.md](/Users/rraviku2/aarti/urban_heat_democratization/COMPREHENSIVE_VERIFICATION_REPORT.md)
+1. **Review** the [COMPREHENSIVE_VERIFICATION_REPORT.md](COMPREHENSIVE_VERIFICATION_REPORT.md)
 2. **Deploy** to production or staging environment
 3. **Test** with existing clients (no changes needed)
 4. **Plan** database integration phase (optional)

@@ -99,19 +99,19 @@
 ## 🔗 Related Source Code
 
 **Core Implementation:**
-- [core/advanced_thermal_math.py](/Users/rraviku2/aarti/urban_heat_democratization/core/advanced_thermal_math.py) - 359 lines
+- [core/advanced_thermal_math.py](../../core/advanced_thermal_math.py) - 359 lines
   Complete thermal calculations and algorithms
 
 **Testing:**
-- [tests/test_advanced_thermal_math.py](/Users/rraviku2/aarti/urban_heat_democratization/tests/test_advanced_thermal_math.py) - 87 lines
+- [tests/test_advanced_thermal_math.py](../../tests/test_advanced_thermal_math.py) - 87 lines
   Comprehensive test suite
 
 **Integration:**
-- [scripts/build_live_thermal_bridge.py](/Users/rraviku2/aarti/urban_heat_democratization/scripts/build_live_thermal_bridge.py) - 299 lines
+- [scripts/build_live_thermal_bridge.py](../../scripts/build_live_thermal_bridge.py) - 299 lines
   Live thermal data integration
 
 **UI Components:**
-- [web/src/components/math-block.tsx](/Users/rraviku2/aarti/urban_heat_democratization/web/src/components/math-block.tsx)
+- [web/src/components/math-block.tsx](../../web/src/components/math-block.tsx)
   React component for displaying math
 
 ---

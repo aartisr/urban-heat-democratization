@@ -13,7 +13,7 @@ from docx.shared import Inches, Pt, RGBColor
 from PIL import Image, ImageDraw, ImageFont
 
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 OUT_DOCX = ROOT / "docs" / "Urban_Thermal_Math_Deep_Dive_Picturized.docx"
 TMP_DIR = Path(tempfile.mkdtemp(prefix="picturized_deep_dive_"))
 

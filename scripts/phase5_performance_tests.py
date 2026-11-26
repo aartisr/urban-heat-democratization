@@ -383,7 +383,7 @@ def main() -> int:
     print_summary(results)
     
     # Save results to file
-    output_file = Path(__file__).parent.parent / "phase5_results.json"
+    output_file = Path(__file__).parent.parent / "docs" / "archive" / "phase5_results.json"
     with open(output_file, "w") as f:
         # Convert non-serializable values
         json_results = {}
