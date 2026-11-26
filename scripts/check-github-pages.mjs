@@ -26,6 +26,11 @@ for (const page of registry.githubPagesPages) {
   for (const fragment of required) {
     if (!output.includes(fragment)) throw new Error(`${page.path} is missing discoverability or backlink fragment: ${fragment}`);
   }
+  for (const [, documentPath] of output.matchAll(new RegExp(`href="${config.repositoryUrl}/blob/main/(docs/[^"#]+)"`, "g"))) {
+    await readFile(resolve(root, decodeURIComponent(documentPath)), "utf8").catch(() => {
+      throw new Error(`${page.path} links to missing repository document: ${documentPath}`);
+    });
+  }
   for (const forbidden of ["clarity.ms", "posthog"]) {
     if (output.includes(forbidden)) throw new Error(`${page.path} includes ${forbidden} despite having no analytics-consent surface.`);
   }
