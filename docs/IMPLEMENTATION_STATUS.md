@@ -17,6 +17,6 @@ This is a concise status record for readers checking what the public application
 - Scenario costs and benefits are exploratory and partly benchmark-derived. The site does not provide validated city-specific engineering, temperature, health, or equity forecasts.
 - A graph bottleneck or modeled cooling-access constraint is a prompt for local investigation, not a measured outcome for a person or neighborhood.
 - Address-level planning remains a starting checklist. Immediate heat-safety decisions should use current local public-health guidance.
-- The current application stylesheet exceeds its 220 KiB CI performance budget. The performance gate needs a separate reduction.
+- The application stylesheet is substantial. CI enforces both a 250 KiB raw ceiling and a 60 KiB compressed-transfer ceiling; further CSS reduction remains worthwhile.
 
 For claims that an intervention changed heat, follow the [impact evidence protocol](IMPACT_EVIDENCE_PROTOCOL.md). For software attribution, use [CITATION.cff](../CITATION.cff).
