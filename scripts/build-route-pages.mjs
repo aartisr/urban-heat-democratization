@@ -6,6 +6,9 @@ const dist = resolve(root, "web/dist");
 const config = JSON.parse(await readFile(resolve(root, "seo/site.config.json"), "utf8"));
 const registry = JSON.parse(await readFile(resolve(root, "seo/discovery-pages.json"), "utf8"));
 const template = await readFile(resolve(dist, "index.html"), "utf8");
+if (!/<div id="root">[\s\S]*?<h1(?:\s|>)/.test(template)) {
+  throw new Error("The home page needs an H1 in the initial HTML inside #root.");
+}
 const base = config.mainSiteUrl.replace(/\/$/, "");
 const escapeHtml = (value) => String(value).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 const schemaJson = (value) => JSON.stringify(value).replaceAll("<", "\\u003c");
@@ -44,8 +47,7 @@ for (const page of registry.canonicalPages.filter((item) => item.path !== "/")) 
   html = html.replace(/<script id="page-schema" type="application\/ld\+json">[\s\S]*?<\/script>/, `<script id="page-schema" type="application/ld+json">${schemaJson(schema)}</script>`);
   const related = registry.canonicalPages.filter((item) => item.path !== page.path).slice(0, 4);
   const fallback = `<main><article><h1>${escapeHtml(page.title)}</h1><p>By <a rel="author" href="${escapeHtml(config.contactUrl)}">${escapeHtml(config.authorName)}</a></p><p>${escapeHtml(page.description)}</p><h2>What this page covers</h2><p>${escapeHtml(page.summary)}</p><p>Explore the interactive page with JavaScript enabled. For research and reporting, check the <a href="${escapeHtml(config.repositoryUrl)}/blob/main/CITATION.cff">citation record</a> and <a href="${escapeHtml(config.githubPagesUrl)}wiki/">research methods</a>.</p><nav aria-label="Related pages"><h2>Continue exploring</h2><ul>${related.map((item) => `<li><a href="${escapeHtml(item.path)}">${escapeHtml(item.title)}</a></li>`).join("")}</ul></nav></article></main>`;
-  html = html.replace('<div id="root"></div>', `<div id="root">${fallback}</div>`);
-  html = html.replace(/<noscript>[\s\S]*?<\/noscript>/, "");
+  html = html.replace(/<div id="root">[\s\S]*?<\/div>/, `<div id="root">${fallback}</div>`);
   const destination = resolve(dist, page.path.slice(1), "index.html");
   await mkdir(resolve(destination, ".."), { recursive: true });
   await writeFile(destination, html);
