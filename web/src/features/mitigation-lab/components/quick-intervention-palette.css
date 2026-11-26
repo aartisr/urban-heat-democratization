@@ -1,64 +1,23 @@
-.mitigation-quick-palette {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 12px 0 10px;
-  padding: 8px 10px;
-  border: 1px solid #c7ded9;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, .76);
-  color: #31545a;
-  font-size: 12px;
-  font-weight: 750;
-}
-
-.mitigation-quick-palette > div { display: flex; flex-wrap: wrap; gap: 7px; }
-
-.mitigation-quick-palette button {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid #b8d7d1;
-  border-radius: 10px;
-  background: #fff;
-  color: #075e54;
-  font: inherit;
-  font-size: 20px;
-  cursor: pointer;
-}
-
-.mitigation-quick-palette button.is-selected { border-color: #173f70; background: #173f70; color: #fff; box-shadow: 0 5px 12px rgba(23, 63, 112, .2); }
-.mitigation-quick-palette button:disabled { cursor: not-allowed; opacity: .42; }
-.mitigation-quick-palette button:focus-visible { outline: 3px solid #f3b449; outline-offset: 2px; }
-
-.mitigation-quick-palette button:after {
-  content: attr(data-tooltip);
-  position: absolute;
-  z-index: 4;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  width: min(210px, calc(100vw - 32px));
-  padding: 7px 9px;
-  border-radius: 8px;
-  background: #173f47;
-  color: #fff;
-  font-size: 12px;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
-  white-space: normal;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 4px);
-  transition: opacity .15s ease, transform .15s ease;
-}
-
-.mitigation-quick-palette button:hover:after,
-.mitigation-quick-palette button:focus-visible:after { opacity: 1; transform: translate(-50%, 0); }
-
-@media (max-width: 760px) {
-  .mitigation-quick-palette { align-items: flex-start; flex-direction: column; }
-  .mitigation-quick-palette button { width: 36px; height: 36px; }
-}
+.mitigation-quick-palette { display: flex; align-items: center; gap: 16px; margin: 12px 0 10px; padding: 12px; border: 1px solid #c7ded9; border-radius: 14px; background: rgba(255, 255, 255, .82); color: #274950; }
+.mitigation-quick-palette-heading { flex: 0 0 176px; display: grid; gap: 3px; line-height: 1.25; }
+.mitigation-quick-palette-heading strong { font-size: 14px; }
+.mitigation-quick-palette-heading span { color: #546873; font-size: 12px; font-weight: 500; }
+.mitigation-intervention-options { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.mitigation-intervention-options button { display: flex; align-items: center; gap: 8px; min-width: 0; min-height: 66px; padding: 8px; border: 1px solid #b8d7d1; border-radius: 12px; background: #fff; color: #075e54; font: inherit; text-align: left; cursor: pointer; transition: border-color .15s ease, background-color .15s ease, transform .15s ease; }
+.mitigation-intervention-options button:hover { border-color: #08776b; background: #f1faf7; transform: translateY(-1px); }
+.mitigation-intervention-options button.is-selected { border-color: #173f70; background: #e6f0fa; box-shadow: inset 0 0 0 1px #173f70; }
+.mitigation-intervention-options button:focus-visible, .mitigation-quick-controls button:focus-visible { outline: 3px solid #f3b449; outline-offset: 2px; }
+.mitigation-intervention-icon { flex: 0 0 36px; width: 36px; height: 36px; color: #08776b; }
+.mitigation-icon svg { width: 28px; height: 28px; }
+.mitigation-intervention-copy { display: grid; gap: 3px; min-width: 0; }
+.mitigation-intervention-copy strong { color: #12394b; font-size: 12px; line-height: 1.2; }
+.mitigation-intervention-copy small { color: #536a72; font-size: 10px; line-height: 1.25; }
+.mitigation-quick-controls { justify-content: space-between; font-size: 13px; font-weight: 750; }
+.mitigation-quick-controls > div { display: flex; gap: 7px; }
+.mitigation-quick-controls button { position: relative; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #b8d7d1; border-radius: 10px; background: #fff; color: #075e54; font: inherit; font-size: 20px; cursor: pointer; }
+.mitigation-quick-controls button:disabled { cursor: not-allowed; opacity: .42; }
+.mitigation-quick-controls button:after { content: attr(data-tooltip); position: absolute; z-index: 4; bottom: calc(100% + 8px); left: 50%; width: max-content; max-width: min(210px, calc(100vw - 32px)); padding: 7px 9px; border-radius: 8px; background: #173f47; color: #fff; font-size: 12px; line-height: 1.35; white-space: normal; opacity: 0; pointer-events: none; transform: translate(-50%, 4px); transition: opacity .15s ease, transform .15s ease; }
+.mitigation-quick-controls button:hover:after, .mitigation-quick-controls button:focus-visible:after { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 1450px) { .mitigation-quick-palette:not(.mitigation-quick-controls) { align-items: stretch; flex-direction: column; } .mitigation-quick-palette-heading { flex: auto; } .mitigation-intervention-options { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 760px) { .mitigation-intervention-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mitigation-quick-controls { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 420px) { .mitigation-intervention-options { grid-template-columns: 1fr; } }
