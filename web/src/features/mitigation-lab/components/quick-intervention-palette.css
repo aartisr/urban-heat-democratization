@@ -9,6 +9,13 @@
 .mitigation-intervention-options button:focus-visible, .mitigation-quick-controls button:focus-visible { outline: 3px solid #f3b449; outline-offset: 2px; }
 .mitigation-intervention-icon { flex: 0 0 36px; width: 36px; height: 36px; color: #08776b; }
 .mitigation-icon svg { width: 28px; height: 28px; }
+.mitigation-canvas-stage { position: relative; }
+.mitigation-placement-layer { position: absolute; inset: 0; overflow: hidden; border-radius: 13px; pointer-events: none; }
+.mitigation-placement-marker { position: absolute; width: 48px; height: 48px; transform: translate(-50%, -50%); }
+.mitigation-placement-icon { display: grid; place-items: center; width: 48px; height: 48px; border: 3px solid #075985; border-radius: 14px; background: #fff; color: #08776b; box-shadow: 0 3px 12px rgba(11, 48, 61, .22); }
+.mitigation-placement-icon svg { width: 34px; height: 34px; }
+.mitigation-placement-label { position: absolute; left: calc(100% + 6px); top: 50%; transform: translateY(-50%); max-width: 132px; padding: 5px 8px; border: 1px solid #a7cbc8; border-radius: 7px; background: rgba(255, 255, 255, .94); color: #12394b; font-size: 11px; font-weight: 750; line-height: 1.2; white-space: nowrap; box-shadow: 0 2px 8px rgba(11, 48, 61, .13); }
+.mitigation-placement-marker.is-left .mitigation-placement-label { left: auto; right: calc(100% + 6px); }
 .mitigation-intervention-copy { display: grid; gap: 3px; min-width: 0; }
 .mitigation-intervention-copy strong { color: #12394b; font-size: 12px; line-height: 1.2; }
 .mitigation-intervention-copy small { color: #536a72; font-size: 10px; line-height: 1.25; }
@@ -21,3 +28,4 @@
 @media (max-width: 1450px) { .mitigation-quick-palette:not(.mitigation-quick-controls) { align-items: stretch; flex-direction: column; } .mitigation-quick-palette-heading { flex: auto; } .mitigation-intervention-options { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 760px) { .mitigation-intervention-options { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mitigation-quick-controls { align-items: flex-start; flex-direction: column; } }
 @media (max-width: 420px) { .mitigation-intervention-options { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .mitigation-placement-marker, .mitigation-placement-icon { width: 42px; height: 42px; } .mitigation-placement-icon svg { width: 30px; height: 30px; } .mitigation-placement-label { max-width: 94px; overflow: hidden; text-overflow: ellipsis; font-size: 10px; } }

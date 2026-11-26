@@ -462,6 +462,31 @@ test("what-if generator accepts its displayed budget and sends it to the API", a
   expect(request.postDataJSON().budgetUsd).toBe(250000);
 });
 
+test("placed cooling actions keep their illustrations and names when dragged or resized", async ({ page }) => {
+  await page.goto("/mitigation-lab");
+  const picker = page.getByRole("toolbar", { name: "Quick intervention picker" });
+  const canvas = page.locator(".mitigation-canvas-shell canvas");
+  await picker.getByRole("button", { name: /Tree canopy/ }).click();
+  await canvas.click({ position: { x: 150, y: 150 } });
+
+  const marker = page.locator(".mitigation-placement-marker");
+  await expect(marker).toHaveCount(1);
+  await expect(marker.locator("svg")).toBeVisible();
+  await expect(marker.locator(".mitigation-placement-label")).toHaveText("Tree canopy");
+
+  const before = await marker.getAttribute("style");
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  await page.mouse.move(bounds!.x + 150, bounds!.y + 150);
+  await page.mouse.down();
+  await page.mouse.move(bounds!.x + 230, bounds!.y + 180, { steps: 5 });
+  await page.mouse.up();
+  expect(await marker.getAttribute("style")).not.toBe(before);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(marker.locator("svg")).toBeVisible();
+});
+
 test("planner persona can complete the city-detail journey", async ({ page }) => {
   await page.goto("/modes");
   const modeCard = page.locator(".persona-card").filter({ hasText: "Planner" });

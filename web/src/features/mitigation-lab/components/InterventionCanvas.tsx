@@ -3,6 +3,7 @@ import type { MitigationLabGraphBaseline } from "../../../lib/types";
 import type { InterventionDefinition, LabBaseline, LabResult, PlacedIntervention } from "../domain/types";
 import { QuickInterventionPalette } from "./QuickInterventionPalette";
 import { QuickScenarioControls } from "./QuickScenarioControls";
+import { InterventionIcon } from "./InterventionIcon";
 
 type Zone = { x: number; y: number; label: string };
 const zones: Zone[] = [
@@ -55,11 +56,54 @@ export function InterventionCanvas({ baseline, result, selected, interventions, 
       if (activeIndex !== null) { const zone = graphZones[activeIndex]; if (zone) { const value = priorityAt(zone), changed = isMitigated(zone); const message = changed ? "Changed by your intervention" : value >= .72 ? "Higher heat-pressure; fewer modeled alternatives" : value >= .55 ? "Moderate priority; check shade and route continuity" : "Lower modeled priority; check local access"; drawZoneTooltip(ctx, width, height, zone, message); } }
       ctx.fillStyle = "#35576f"; ctx.font = "600 12px system-ui"; ctx.textAlign = "center"; ctx.fillText("Same zone locations as the vulnerable-zone view · teal means changed by your intervention", width / 2, 28);
     }
-    interventions.forEach((item, index) => { const p = item.geometry.points[0], radius = Math.max(30, (item.parameters.radius ?? .1) * Math.min(width, height)); ctx.beginPath(); ctx.arc(p.x * width, p.y * height, radius, 0, Math.PI * 2); ctx.fillStyle = "rgba(8,142,122,.24)"; ctx.fill(); ctx.setLineDash([6,5]); ctx.strokeStyle = "#087a6b"; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(p.x * width, p.y * height, 14, 0, Math.PI * 2); ctx.fillStyle = "#fff"; ctx.fill(); ctx.strokeStyle = "#075985"; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = "#075985"; ctx.font = "700 12px system-ui"; ctx.textAlign = "center"; ctx.fillText(String(index + 1), p.x * width, p.y * height + 4); if (index === 0 && view === "zone") { ctx.fillStyle = "#075e54"; ctx.fillText("Modeled mitigation extent", p.x * width, p.y * height - radius - 12); } });
+    interventions.forEach((item, index) => {
+      const p = item.geometry.points[0];
+      const radius = Math.max(30, (item.parameters.radius ?? .1) * Math.min(width, height));
+      ctx.beginPath();
+      ctx.arc(p.x * width, p.y * height, radius, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(8,142,122,.24)";
+      ctx.fill();
+      ctx.setLineDash([6, 5]);
+      ctx.strokeStyle = "#087a6b";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      if (index === 0 && view === "zone") {
+        ctx.fillStyle = "#075e54";
+        ctx.font = "700 12px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("Modeled mitigation extent", p.x * width, p.y * height - radius - 12);
+      }
+    });
   }, [baseline, focusedZone, graphLinks, graphZones, hoveredZone, interventions, isMitigated, priorityAt, result, view]);
   const paint = useCallback(() => { const canvas = canvasRef.current; if (!canvas) return; const rect = canvas.getBoundingClientRect(); canvas.width = Math.round(rect.width * devicePixelRatio); canvas.height = Math.round(rect.height * devicePixelRatio); const ctx = canvas.getContext("2d"); if (!ctx) return; ctx.scale(devicePixelRatio, devicePixelRatio); render(ctx, rect.width, rect.height); }, [render]);
-  useEffect(() => { const frame = requestAnimationFrame(paint); return () => cancelAnimationFrame(frame); }, [paint]);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    let frame = requestAnimationFrame(paint);
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(paint);
+    });
+    observer.observe(canvas);
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+  }, [paint]);
   const point = (event: React.PointerEvent<HTMLCanvasElement>) => { const rect = event.currentTarget.getBoundingClientRect(); return { x: Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)), y: Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height)) }; };
   const focused = focusedZone === null ? null : graphZones[focusedZone]; const focusedPriority = focused ? priorityAt(focused) : 0;
-  return <section className="mitigation-canvas-shell"><div className="mitigation-canvas-heading"><div><span className="eyebrow">{baseline.name}</span><h2>{view === "zone" ? "See the vulnerable zone. Test one mitigating action." : "See which zones need stronger cooling continuity."}</h2><p>{selected ? <><strong>{selected.name} is ready.</strong> Place it in the amber/red zone.</> : interventions.length ? "Teal halo = bounded modeled mitigation extent. Drag the marker to test another placement." : "Amber/red = vulnerable heat-pressure zone. Choose one intervention, then place it there."}</p></div><span className="mitigation-scale">Study scale · not an address</span></div><div className="mitigation-view-switch" role="tablist"><button type="button" role="tab" aria-selected={view === "zone"} onClick={() => { setView("zone"); setFocusedZone(null); }}>1 · Vulnerable zone</button><button type="button" role="tab" aria-selected={view === "network"} onClick={() => setView("network")}>2 · Cooling network</button></div>{view === "network" ? <div className="mitigation-node-explainer" aria-live="polite">{focused ? <><strong>{focused.label}</strong><span>{focusedPriority >= .72 ? "Higher modeled heat-pressure priority with fewer modeled alternatives nearby." : focusedPriority >= .55 ? "Moderate modeled heat-pressure priority; investigate shade and route continuity." : "Lower modeled priority in this scenario; still check access and maintenance conditions."}</span></> : "Select a numbered zone to learn why it is a modeled priority."}</div> : null}<QuickInterventionPalette definitions={quickInterventions} selectedId={selected?.id ?? null} onSelect={onSelectIntervention} /><QuickScenarioControls canUndo={canUndo} hasInterventions={interventions.length > 0} onUndo={onUndo} onReset={onReset} onCopy={onCopy} onExport={onExport} /><canvas ref={canvasRef} className={selected || interventions.length ? "is-placement-ready" : ""} onPointerDown={(event) => { const p = point(event); const item = interventions.find((entry) => distance(entry.geometry.points[0], p) < .05); if (item) { setDraggingId(item.id); event.currentTarget.setPointerCapture(event.pointerId); } else if (view === "network" && !selected) { const index = graphZones.findIndex((zone) => distance(zone, p) < .055); setFocusedZone(index < 0 ? null : index); } else if (selected) onPlace(p.x, p.y); }} onPointerMove={(event) => { if (draggingId) { const p = point(event); onMove(draggingId, p.x, p.y); } }} onPointerUp={() => setDraggingId(null)} onPointerCancel={() => setDraggingId(null)} tabIndex={0} aria-label={view === "zone" ? "Vulnerable heat-pressure zone. Amber and red mean higher modeled priority. Teal halos show modeled mitigation extent." : "Modeled cooling network. Select a zone to learn why it is prioritized."} onKeyDown={(event) => { const item = interventions.at(-1); if (item && ["Delete","Backspace"].includes(event.key)) { event.preventDefault(); onRemove(item.id); } }} /><div className="mitigation-legend"><span><i className="priority-low"/>Lower modeled priority</span><span><i className="priority-high"/>Vulnerable heat-pressure zone</span><span><i className="placement-dot"/>Modeled mitigation extent</span></div></section>;
+  return <section className="mitigation-canvas-shell"><div className="mitigation-canvas-heading"><div><span className="eyebrow">{baseline.name}</span><h2>{view === "zone" ? "See the vulnerable zone. Test one mitigating action." : "See which zones need stronger cooling continuity."}</h2><p>{selected ? <><strong>{selected.name} is ready.</strong> Place it in the amber/red zone.</> : interventions.length ? "Teal halo = bounded modeled mitigation extent. Drag the marker to test another placement." : "Amber/red = vulnerable heat-pressure zone. Choose one intervention, then place it there."}</p></div><span className="mitigation-scale">Study scale · not an address</span></div><div className="mitigation-view-switch" role="tablist"><button type="button" role="tab" aria-selected={view === "zone"} onClick={() => { setView("zone"); setFocusedZone(null); }}>1 · Vulnerable zone</button><button type="button" role="tab" aria-selected={view === "network"} onClick={() => setView("network")}>2 · Cooling network</button></div>{view === "network" ? <div className="mitigation-node-explainer" aria-live="polite">{focused ? <><strong>{focused.label}</strong><span>{focusedPriority >= .72 ? "Higher modeled heat-pressure priority with fewer modeled alternatives nearby." : focusedPriority >= .55 ? "Moderate modeled heat-pressure priority; investigate shade and route continuity." : "Lower modeled priority in this scenario; still check access and maintenance conditions."}</span></> : "Select a numbered zone to learn why it is a modeled priority."}</div> : null}<QuickInterventionPalette definitions={quickInterventions} selectedId={selected?.id ?? null} onSelect={onSelectIntervention} /><QuickScenarioControls canUndo={canUndo} hasInterventions={interventions.length > 0} onUndo={onUndo} onReset={onReset} onCopy={onCopy} onExport={onExport} /><div className="mitigation-canvas-stage"><canvas ref={canvasRef} className={selected || interventions.length ? "is-placement-ready" : ""} onPointerDown={(event) => { const p = point(event); const item = interventions.find((entry) => distance(entry.geometry.points[0], p) < .05); if (item) { setDraggingId(item.id); event.currentTarget.setPointerCapture(event.pointerId); } else if (view === "network" && !selected) { const index = graphZones.findIndex((zone) => distance(zone, p) < .055); setFocusedZone(index < 0 ? null : index); } else if (selected) onPlace(p.x, p.y); }} onPointerMove={(event) => { if (draggingId) { const p = point(event); onMove(draggingId, p.x, p.y); } }} onPointerUp={() => setDraggingId(null)} onPointerCancel={() => setDraggingId(null)} tabIndex={0} aria-label={view === "zone" ? "Vulnerable heat-pressure zone. Amber and red mean higher modeled priority. Teal halos show modeled mitigation extent." : "Modeled cooling network. Select a zone to learn why it is prioritized."} onKeyDown={(event) => { const item = interventions.at(-1); if (item && ["Delete","Backspace"].includes(event.key)) { event.preventDefault(); onRemove(item.id); } }} />
+      <div className="mitigation-placement-layer" aria-hidden="true">
+        {interventions.map((item) => {
+          const point = item.geometry.points[0];
+          const definition = quickInterventions.find((candidate) => candidate.id === item.definitionId);
+          return <div
+            key={item.id}
+            className={`mitigation-placement-marker${point.x > 0.6 ? " is-left" : ""}`}
+            style={{ left: `clamp(24px, ${point.x * 100}%, calc(100% - 24px))`, top: `clamp(24px, ${point.y * 100}%, calc(100% - 24px))` }}
+          >
+            <span className="mitigation-placement-icon"><InterventionIcon interventionId={item.definitionId} fallback={definition?.accessibility.icon} /></span>
+            <span className="mitigation-placement-label">{definition?.name ?? "Cooling action"}</span>
+          </div>;
+        })}
+      </div>
+    </div><div className="mitigation-legend"><span><i className="priority-low"/>Lower modeled priority</span><span><i className="priority-high"/>Vulnerable heat-pressure zone</span><span><i className="placement-dot"/>Modeled mitigation extent</span></div></section>;
 }
