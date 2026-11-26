@@ -359,8 +359,8 @@ Document                                What it covers
 ─────────────────────────────────────────────────────────────
 BOSTON_DATA_FLOW_PART1.md              Stages 1-4 (data to API)
 BOSTON_DATA_FLOW_PART2.md              Stage 5 (visualization)
-MODULARITY.md                          Architecture patterns
-FEATURE_DEVELOPMENT.md                 Adding new features
+docs/project/MODULARITY.md             Architecture patterns
+docs/project/FEATURE_DEVELOPMENT.md    Adding new features
 core/cities.py                         City profiles
 core/city_maps.py                      Data processing
 web/src/components/city-heat-map.tsx   Map rendering

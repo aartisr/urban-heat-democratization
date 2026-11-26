@@ -972,12 +972,12 @@ def _trust_audit(city_id: str) -> dict[str, object]:
         ),
         _trust_manifest_entry(
             "Master plan",
-            _repo_root() / "01_master_plan.md",
+            _repo_root() / "docs/project/01_master_plan.md",
             note="Top-level mission and evidence hierarchy.",
         ),
         _trust_manifest_entry(
             "Phase roadmap",
-            _repo_root() / "03_phase_roadmap.md",
+            _repo_root() / "docs/project/03_phase_roadmap.md",
             note="Delivery sequence and trust-phase target.",
         ),
         _trust_manifest_entry(
