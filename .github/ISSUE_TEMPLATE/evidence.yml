@@ -1,0 +1,31 @@
+name: Data or evidence correction
+description: Flag a source, method, interpretation, accessibility, or local-context concern.
+title: "[Evidence] "
+body:
+  - type: markdown
+    attributes:
+      value: "Share only public or appropriately licensed material. Do not include personal, sensitive, or re-identifiable location data."
+  - type: textarea
+    id: location
+    attributes:
+      label: Page, layer, city, or claim
+      description: Link the exact public page or name the relevant file and section.
+    validations:
+      required: true
+  - type: textarea
+    id: concern
+    attributes:
+      label: What needs correction?
+      description: Explain what is inaccurate, unclear, inaccessible, or missing.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Supporting source and context
+      description: Include source, date, geography, method, limitations, and license when applicable.
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Suggested change
+      description: What wording, data, method, or review would improve the result?

@@ -1,0 +1,23 @@
+name: Improvement proposal
+description: Propose a bounded feature, documentation change, or collaboration.
+title: "[Idea] "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Who needs this and why?
+      description: Name the user or community question and the decision it would help.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed approach
+      description: Describe a small first step and how it could be reviewed.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence, constraints, and alternatives
+      description: Include sources, privacy or licensing concerns, and relevant existing work.

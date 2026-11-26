@@ -6,10 +6,18 @@ on:
       - main
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   python:
     name: Python tests and package validation
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Check out repository
@@ -28,7 +36,7 @@ jobs:
           python -m pip install -r requirements-research.txt
 
       - name: Run Python tests
-        run: PYTHONPATH=. pytest tests
+        run: PYTHONPATH=. pytest --strict-markers tests
 
       - name: Validate bundled city packages
         run: PYTHONPATH=. python scripts/validate_city_packages.py
@@ -36,6 +44,7 @@ jobs:
   web:
     name: Web build and tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     defaults:
       run:
