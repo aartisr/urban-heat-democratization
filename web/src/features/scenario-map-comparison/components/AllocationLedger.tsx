@@ -22,7 +22,7 @@ function downloadLedger(scenario: ScenarioRecord) {
   URL.revokeObjectURL(url);
 }
 
-export function AllocationLedger({ scenario }: { scenario: ScenarioRecord | null }) {
+export function AllocationLedger({ scenario, preview = false }: { scenario: ScenarioRecord | null; preview?: boolean }) {
   if (!scenario) return null;
   const ledger = buildAllocationLedger(scenario);
   return (
@@ -38,7 +38,7 @@ export function AllocationLedger({ scenario }: { scenario: ScenarioRecord | null
         <div className="allocation-ledger-row allocation-ledger-row-head" role="row"><span role="columnheader">Action</span><span role="columnheader">Evidence state</span><span role="columnheader">Budget treatment</span><span role="columnheader">Supported quantity</span></div>
         {ledger.lines.map((line) => <div className="allocation-ledger-row" role="row" key={line.id}><div role="cell"><strong>{line.label}</strong><small>{line.explanation}</small></div><div role="cell"><span className={`allocation-ledger-state is-${line.state}`}>{stateLabel(line.state)}</span><small>{line.evidenceLabel}</small></div><div role="cell"><strong>{money(line.allocatedUsd)}</strong>{line.residualUsd > 0 ? <small>{money(line.residualUsd)} retained as remainder</small> : null}</div><div role="cell">{line.quantity == null ? <><strong>Not stated</strong><small>Evidence does not support a quantity</small></> : <><strong>{line.quantity.toLocaleString()} {line.measurementUnit ?? "units"}</strong><small>{money(line.committedUsd)} costed</small></>}</div></div>)}
       </div> : <p className="allocation-ledger-empty">This scenario contains no structured actions yet. Its full budget remains unallocated until source-backed actions are attached.</p>}
-      {ledger.unallocatedUsd > ledger.budgetUsd * 0.10 ? <p className="allocation-ledger-reconciliation">This saved scenario leaves more than 10% of its budget unallocated. <a href="#scenario-generator">Re-run this budget with the current allocation rules</a>; this ledger will never conceal the remaining balance.</p> : null}
+      {ledger.unallocatedUsd > ledger.budgetUsd * 0.10 ? <p className="allocation-ledger-reconciliation">This {preview ? "planning preview" : "scenario record"} leaves more than 10% of its budget unallocated. <a href="#scenario-generator">Review this budget in the generator</a>; this ledger will never conceal the remaining balance.</p> : null}
       {ledger.reconciliationUsd > 0 ? <p className="allocation-ledger-reconciliation">{money(ledger.reconciliationUsd)} is retained as unallocated because the scenario summary does not attach it to an action.</p> : null}
       <p className="allocation-ledger-boundary">A provisional envelope records a planning intent and evidence state. It is not a procurement commitment, installed quantity, or mapped project site.</p>
     </section>

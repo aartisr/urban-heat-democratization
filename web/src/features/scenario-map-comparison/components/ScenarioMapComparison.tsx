@@ -115,16 +115,16 @@ function ComparisonNotice({ title, detail }: { title: string; detail: string }) 
   );
 }
 
-function ExactScenarioRequiredMap({ budgetUsd, onGenerate, generating, error }: { budgetUsd: number; onGenerate?: () => void; generating?: boolean; error?: string | null }) {
+function ComparisonPendingMap({ budgetUsd, onRetry, loading, error }: { budgetUsd: number; onRetry?: () => void; loading?: boolean; error?: string | null }) {
   return (
-    <section className="scenario-comparison-map scenario-comparison-required-map" aria-label={`After scenario required for $${budgetUsd.toLocaleString()}`}>
-      <div className="scenario-comparison-map-head"><strong>After · ${budgetUsd.toLocaleString()} comparison</strong><span>{generating ? "Creating…" : "Ready to create"}</span></div>
+    <section className="scenario-comparison-map scenario-comparison-required-map" aria-label={`Planning comparison for $${budgetUsd.toLocaleString()}`} aria-live="polite">
+      <div className="scenario-comparison-map-head"><strong>Planning preview · ${budgetUsd.toLocaleString()}</strong><span>{loading ? "Preparing…" : "Unavailable"}</span></div>
       <div className="scenario-comparison-required-copy">
-        <span className="eyebrow">Your next step</span>
-        <strong>Create a planning comparison for ${budgetUsd.toLocaleString()}.</strong>
-        <p>We’ll show a modeled priority map beside the baseline and a budget breakdown. The map is a planning illustration, not measured cooling.</p>
-        {onGenerate ? <button type="button" onClick={onGenerate} disabled={generating}>{generating ? "Creating comparison…" : `Create $${budgetUsd.toLocaleString()} comparison`}</button> : null}
+        <span className="eyebrow">{loading ? "Preparing your view" : "Comparison unavailable"}</span>
+        <strong>{loading ? `Preparing the $${budgetUsd.toLocaleString()} planning preview…` : `We couldn't show the $${budgetUsd.toLocaleString()} preview.`}</strong>
+        <p>{loading ? "The after map and budget breakdown will appear here shortly." : "The baseline remains available. Try loading the comparison again."}</p>
         {error ? <p role="alert">{error}</p> : null}
+        {!loading && onRetry ? <button type="button" onClick={onRetry}>Try again</button> : null}
       </div>
     </section>
   );
@@ -267,15 +267,16 @@ function MiniMap({
   );
 }
 
-export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMode, onBudgetChange, onGenerateExactScenario, generatingExactScenario = false, generationError = null }: {
+export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMode, onBudgetChange, onRetryComparison, loadingComparison = false, comparisonError = null, isPreview = false }: {
   cityMap: CityMapData;
   scenario: ScenarioRecord | null;
   budgetUsd: number;
   planningMode: PlanningMode;
   onBudgetChange: (budgetUsd: number) => void;
-  onGenerateExactScenario?: () => void;
-  generatingExactScenario?: boolean;
-  generationError?: string | null;
+  onRetryComparison?: () => void;
+  loadingComparison?: boolean;
+  comparisonError?: string | null;
+  isPreview?: boolean;
 }) {
   const [view, setView] = useState<ComparisonView>("side-by-side");
   const [mobileView, setMobileView] = useState<MobileView>("baseline");
@@ -284,7 +285,7 @@ export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMo
   const [showCoolingContext, setShowCoolingContext] = useState(false);
   const compact = useCompactComparison();
   const overlays = cityMap.heatZones;
-  const isExactBudgetScenario = scenario?.budgetUsd === budgetUsd && scenario.planningMode === planningMode;
+  const isExactBudgetScenario = scenario?.cityId === cityMap.cityId && scenario.budgetUsd === budgetUsd && scenario.planningMode === planningMode;
   const comparisonScenario = isExactBudgetScenario ? scenario : null;
   const comparison = useMemo(() => comparisonScenario ? modelPlanningPriority(overlays.map((overlay) => ({ id: overlay.id, baseline: overlay.score })), comparisonScenario) : null, [comparisonScenario, overlays]);
   const baselineById = useMemo(() => new Map(overlays.map((overlay) => [overlay.id, overlay.score])), [overlays]);
@@ -311,7 +312,7 @@ export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMo
   const baselineMap = <MiniMap label="Before · baseline evidence and priority" values={baselineById} maxValue={maxPriority} kind="priority" {...mapProps} />;
   const scenarioMap = <MiniMap label={`After · ${comparisonScenarioTitle("planning", "priority")}`} values={scenarioById} maxValue={maxPriority} kind="priority" {...mapProps} />;
   const differenceMap = <MiniMap label="Difference · modeled priority reduction" values={deltaById} maxValue={maxReduction} kind="difference" {...mapProps} />;
-  const requiredMap = <ExactScenarioRequiredMap budgetUsd={budgetUsd} onGenerate={onGenerateExactScenario} generating={generatingExactScenario} error={generationError} />;
+  const requiredMap = <ComparisonPendingMap budgetUsd={budgetUsd} onRetry={onRetryComparison} loading={loadingComparison} error={comparisonError} />;
   const showingDifference = compact ? mobileView === "difference" : view === "difference";
 
   return (
@@ -319,8 +320,8 @@ export function ScenarioMapComparison({ cityMap, scenario, budgetUsd, planningMo
       <div className="scenario-comparison-head"><div><span className="eyebrow">Planning comparison</span><h2 id="scenario-comparison-title">Compare a cooling investment</h2><p>See the same evidence polygons before and after a documented planning scenario. The right view is a modeled priority field, not a temperature forecast.</p></div><span className="truth-badge derived">Planning model</span></div>
       <div className="scenario-comparison-controls" aria-label="Comparison budget"><span>Investment</span><div role="group" aria-label="Choose investment size">{COMPARISON_BUDGET_PRESETS.map((preset) => <button key={preset} type="button" className={budgetUsd === preset ? "active" : ""} onClick={() => onBudgetChange(preset)}>${preset >= 1000000 ? `${preset / 1000000}m` : `${preset / 1000}k`}</button>)}</div>{!compact ? <div className="scenario-comparison-view-control" role="group" aria-label="Comparison display"><button type="button" className={view === "side-by-side" ? "active" : ""} onClick={() => setView("side-by-side")}>Before / scenario</button><button type="button" className={view === "difference" ? "active" : ""} onClick={() => setView("difference")}>Difference</button></div> : null}</div>
       <p className="scenario-comparison-scenario-note" role="status">{comparisonScenario
-        ? `Showing the $${budgetUsd.toLocaleString()} scenario · ${comparisonScenario.evidenceSummary.readinessLabel}. The after view is a planning illustration.`
-        : `Create a $${budgetUsd.toLocaleString()} comparison to see the after view.`}</p>
+        ? `${isPreview ? "Live planning preview" : "Scenario record"} for $${budgetUsd.toLocaleString()} · ${comparisonScenario.evidenceSummary.readinessLabel}. This is an illustration, not measured cooling.`
+        : loadingComparison ? `Preparing a $${budgetUsd.toLocaleString()} planning preview…` : `A $${budgetUsd.toLocaleString()} planning preview is not available right now.`}</p>
       <div className="scenario-comparison-navigation" aria-label="Linked map navigation"><span>Maps move together</span><button type="button" onClick={() => setCamera((current) => zoomCamera(current, 1.25))}>Zoom in</button><button type="button" onClick={() => setCamera((current) => zoomCamera(current, 1 / 1.25))}>Zoom out</button><button type="button" onClick={() => setCamera(DEFAULT_CAMERA)}>Reset map view</button>{cityMap.accessZones.length > 0 ? <button type="button" aria-pressed={showCoolingContext} onClick={() => setShowCoolingContext((current) => !current)}>Cooling-access context: {showCoolingContext ? "On" : "Off"}</button> : null}</div>
       <div className="scenario-comparison-legend" aria-label="Priority interpretation">{showCoolingContext ? <span><i className="is-context" />Cooling-access context</span> : null}<span><i className="is-low" />Lower priority</span><span><i className="is-medium" />Moderate priority</span><span><i className="is-high" />Higher priority</span><span>Same scale before and after</span></div>
       {cityMap.accessZones.length > 0 ? <p className="scenario-comparison-context-note">{showCoolingContext ? "The pale grid is a separate, derived cooling-access layer. It is context only: colored polygons remain the only Cheeger-priority scores in this comparison." : "Showing only scored Cheeger-priority polygons. Turn on Cooling-access context to inspect the separate, derived study grid without mixing its values into this scale."}</p> : null}

@@ -19,7 +19,7 @@ import { WorkflowHeader } from "../components/workflow-header";
 import { ScenarioMapComparison } from "../features/scenario-map-comparison/components/ScenarioMapComparison";
 import { AllocationLedger } from "../features/scenario-map-comparison/components/AllocationLedger";
 import { selectExactScenario, upsertScenario } from "../features/scenario-map-comparison/domain/selection";
-import { createWhatIfScenarios, getCityBenchmarkSuite, getCityExperience, getCityMap, getCityPlannerValidation, getCitySpectral, getRobustnessLab, listCities, listCostSources, listInterventions, listRuns, listScenarios, queueRun, resetAndGenerateScenarios } from "../lib/api";
+import { createWhatIfScenarios, getCityBenchmarkSuite, getCityExperience, getCityMap, getCityPlannerValidation, getCitySpectral, getRobustnessLab, listCities, listCostSources, listInterventions, listRuns, listScenarios, previewWhatIfScenario, queueRun, resetAndGenerateScenarios } from "../lib/api";
 import { defaultStudyCityId, defaultStudyCityLabel } from "../lib/study-city";
 import { personaModeProfiles, personaScenarioPresets } from "../lib/persona-modes";
 import { useActivePersonaMode } from "../lib/use-active-persona-mode";
@@ -620,9 +620,9 @@ export function ScenariosPage() {
   const modePreset = personaScenarioPresets[activeModeId];
   const search = useSearch({ from: "/scenarios" });
   const queryClient = useQueryClient();
-  const [cityId, setCityId] = useState(search.cityId ?? defaultStudyCityId);
-  const [budgetUsd, setBudgetUsd] = useState(search.budgetUsd ?? 250000);
-  const [planningMode, setPlanningMode] = useState<PlanningMode>("best_under_budget");
+  const [cityId, setCityId] = useState(search.cityId ?? modePreset.cityId);
+  const [budgetUsd, setBudgetUsd] = useState(search.budgetUsd ?? modePreset.budgetUsd);
+  const [planningMode, setPlanningMode] = useState<PlanningMode>(modePreset.planningMode);
   const [submissionMessage, setSubmissionMessage] = useState<string | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [latestScenario, setLatestScenario] = useState<ScenarioRecord | null>(null);
@@ -641,6 +641,12 @@ export function ScenariosPage() {
   const costSourcesQuery = useQuery({ queryKey: ["cost-sources"], queryFn: listCostSources });
   const interventionsQuery = useQuery({ queryKey: ["interventions"], queryFn: listInterventions });
   const scenariosQuery = useQuery({ queryKey: ["scenarios", cityId], queryFn: () => listScenarios(cityId) });
+  const previewQuery = useQuery({
+    queryKey: ["scenario-preview", cityId, budgetUsd, planningMode],
+    queryFn: () => previewWhatIfScenario(cityId, budgetUsd, planningMode),
+    enabled: Boolean(cityId) && Number.isSafeInteger(budgetUsd) && budgetUsd >= 1,
+    staleTime: 5 * 60 * 1000,
+  });
   const runsQuery = useQuery({ queryKey: ["runs", cityId], queryFn: () => listRuns(cityId) });
   const [lastQueuedRun, setLastQueuedRun] = useState<{ id: string; scenario: string } | null>(null);
   const evidenceThreshold = modeProfile.evidenceThreshold;
@@ -719,6 +725,10 @@ export function ScenariosPage() {
   const allScenarios = scenariosQuery.data ?? [];
   const exactComparisonScenario = selectExactScenario(
     latestScenario ? [latestScenario, ...allScenarios] : allScenarios,
+    { cityId, budgetUsd, planningMode },
+  );
+  const comparisonScenario = exactComparisonScenario ?? selectExactScenario(
+    previewQuery.data ? [previewQuery.data] : [],
     { cityId, budgetUsd, planningMode },
   );
   const filteredScenarios = useMemo(() => {
@@ -1123,28 +1133,23 @@ export function ScenariosPage() {
       ) : cityMapQuery.data ? (
         <ScenarioMapComparison
           cityMap={cityMapQuery.data}
-          scenario={exactComparisonScenario}
+          scenario={comparisonScenario}
+          isPreview={!exactComparisonScenario}
           budgetUsd={budgetUsd}
           planningMode={planningMode}
           onBudgetChange={(nextBudget) => {
             setBudgetUsd(nextBudget);
             createScenarioMutation.reset();
           }}
-          onGenerateExactScenario={() => {
-            setSubmissionMessage(null);
-            setSubmissionError(null);
-            createScenarioMutation.mutate({
-              nextCityId: cityId,
-              nextBudgetUsd: budgetUsd,
-              nextOptions: { planningMode },
-            });
-          }}
-          generatingExactScenario={createScenarioMutation.isPending}
-          generationError={createScenarioMutation.isError ? "The comparison could not be created. Please try again." : null}
+          onRetryComparison={Number.isSafeInteger(budgetUsd) && budgetUsd >= 1 ? () => { void previewQuery.refetch(); } : undefined}
+          loadingComparison={!exactComparisonScenario && previewQuery.isFetching}
+          comparisonError={!Number.isSafeInteger(budgetUsd) || budgetUsd < 1
+            ? "Enter a whole-dollar budget of at least $1."
+            : previewQuery.isError ? "The comparison could not be loaded. Check your connection and try again." : null}
         />
       ) : null}
 
-      <AllocationLedger scenario={exactComparisonScenario} />
+      <AllocationLedger scenario={comparisonScenario} preview={!exactComparisonScenario} />
 
       <div className="scenario-visual-gallery" id="scenario-composition">
         <div className="scenario-visual-gallery-head">

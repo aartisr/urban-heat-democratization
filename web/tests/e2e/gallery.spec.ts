@@ -7,6 +7,26 @@ const currentFile = fileURLToPath(import.meta.url);
 const currentDir = path.dirname(currentFile);
 const screenshotsDir = path.resolve(currentDir, "../../../docs/screenshots");
 
+function previewFixture(budgetUsd: number, planningMode = "best_under_budget") {
+  return {
+    id: `preview-boston-${budgetUsd}-${planningMode}`,
+    label: `Boston $${budgetUsd.toLocaleString()} planning preview`,
+    cityId: "boston",
+    planningMode,
+    budgetUsd,
+    estimatedCostUsd: null,
+    heatReductionC: null,
+    equityScore: null,
+    confidence: null,
+    summary: "Read-only planning preview.",
+    recommendedActions: [],
+    allocationSummary: { totalAllocatedBudgetUsd: 0, unallocatedBudgetUsd: budgetUsd, allocationCoveragePct: 0, allocationMethod: "mock" },
+    evidenceSummary: { verifiedUnitCostCount: 1, rankingOnlyCount: 1, benchmarkOnlyCount: 0, readinessLabel: "Partially costable", explanation: "Some costs remain provisional." },
+    benchmarkSummary: { wholeCityBenchmarkUsd: 1000000, budgetGapUsd: 1000000 - budgetUsd, budgetCoveragePct: budgetUsd / 1000000, benchmarkLabel: "Mock", explanation: "Mock" },
+    exhaustiveEstimateSummary: { available: false, estimatedCostUsd: null, fundedCostUsd: null, remainingGapUsd: null, coveragePct: null, costableActions: 0, methodology: "Mock" },
+  };
+}
+
 async function ensureScreenshotsDir() {
   await fs.mkdir(screenshotsDir, { recursive: true });
 }
@@ -138,6 +158,11 @@ test.beforeEach(async ({ page }) => {
   });
 
   await page.route("**/api/v1/scenarios**", async (route) => {
+    if (route.request().url().includes("/scenarios/preview")) {
+      const query = new URL(route.request().url()).searchParams;
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(previewFixture(Number(query.get("budget_usd")), query.get("planning_mode") ?? undefined)) });
+      return;
+    }
     if (route.request().method() === "POST") {
       await route.fulfill({
         status: 200,
@@ -487,7 +512,13 @@ test("comparison shows exact scenarios despite persona filters and updates after
     exhaustiveEstimateSummary: { available: false, estimatedCostUsd: null, fundedCostUsd: null, remainingGapUsd: null, coveragePct: null, costableActions: 0, methodology: "Mock" },
   });
   await page.route("**/api/v1/scenarios**", async (route) => {
-    if (route.request().method() === "POST" && route.request().postDataJSON().budgetUsd === 50000) {
+    if (route.request().url().includes("/scenarios/preview")) {
+      const query = new URL(route.request().url()).searchParams;
+      const budgetUsd = Number(query.get("budget_usd"));
+      if (budgetUsd !== 50000) {
+        await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(previewFixture(budgetUsd, query.get("planning_mode") ?? undefined)) });
+        return;
+      }
       await route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ detail: "Temporarily unavailable" }) });
       return;
     }
@@ -503,16 +534,19 @@ test("comparison shows exact scenarios despite persona filters and updates after
   await page.goto("/scenarios");
   await expect(page.getByLabel("Budget USD")).toHaveValue("120000");
   await expect(page.getByRole("region", { name: /After · Modeled priority after scenario/ })).toBeVisible();
-  await expect(page.getByText(/Showing the \$120,000 scenario · Partially costable/)).toBeVisible();
+  await expect(page.getByText(/Scenario record for \$120,000 · Partially costable/)).toBeVisible();
 
   await page.getByRole("button", { name: "$10k", exact: true }).click();
-  await page.getByRole("button", { name: "Create $10,000 comparison" }).click();
   await expect(page.getByRole("region", { name: /After · Modeled priority after scenario/ })).toBeVisible();
-  await expect(page.getByText(/Showing the \$10,000 scenario · Partially costable/)).toBeVisible();
+  await expect(page.getByText(/Live planning preview for \$10,000 · Partially costable/)).toBeVisible();
 
   await page.getByRole("button", { name: "$50k", exact: true }).click();
-  await page.getByRole("button", { name: "Create $50,000 comparison" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "The comparison could not be created. Please try again." })).toBeVisible();
+  await expect(page.getByRole("alert").filter({ hasText: "The comparison could not be loaded. Check your connection and try again." })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Generate what-if" }).click();
+  await expect(page.getByRole("region", { name: /After · Modeled priority after scenario/ })).toBeVisible();
+  await expect(page.getByText(/Scenario record for \$50,000 · Partially costable/)).toBeVisible();
 });
 
 test("capture documentation screenshots", async ({ page }) => {
@@ -553,10 +587,9 @@ test("capture documentation screenshots", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "What this budget is allowed to fund" })).toBeVisible();
   await captureSettledPage("scenarios.png");
   await page.getByRole("button", { name: "$10k", exact: true }).click();
-  await expect(page.getByText("Create a $10,000 comparison to see the after view.")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Create $10,000 comparison" })).toBeVisible();
+  await expect(page.getByText(/Live planning preview for \$10,000/)).toBeVisible();
   await page.getByRole("button", { name: "Difference", exact: true }).click();
-  await expect(page.getByRole("region", { name: "After scenario required for $10,000" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Difference · modeled priority reduction" })).toBeVisible();
   await page.getByRole("button", { name: "$250k", exact: true }).click();
   await expect(page.getByRole("region", { name: "Difference · modeled priority reduction" })).toBeVisible();
   await page.getByRole("button", { name: /Priority area A/ }).first().click();

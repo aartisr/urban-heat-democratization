@@ -16,7 +16,7 @@ from uuid import uuid4
 
 import networkx as nx
 import numpy as np
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
@@ -3442,6 +3442,22 @@ async def scenarios(city_id: str | None = None):
     except Exception as e:
         logger.error(f"Error retrieving scenarios for city {city_id}: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error retrieving scenarios")
+
+
+@app.get("/api/v1/scenarios/preview", response_model=ScenarioRecordResponse)
+async def preview_scenario(
+    city_id: str,
+    budget_usd: int = Query(ge=1),
+    planning_mode: str = "best_under_budget",
+):
+    """Compute a read-only planning preview without relying on serverless storage."""
+    if city_id not in _CITY_STORE:
+        raise HTTPException(status_code=404, detail="City not found")
+    normalized_mode = normalize_planning_mode(planning_mode)
+    record = _benchmark_scenario(city_id, budget_usd, planning_mode=normalized_mode)
+    fingerprint = hashlib.sha256(f"{city_id}|{budget_usd}|{normalized_mode}".encode()).hexdigest()[:12]
+    record["id"] = f"preview-{fingerprint}"
+    return ScenarioRecordResponse.model_validate(record)
 
 
 @app.get("/api/v1/cost-sources", response_model=list[CostSourceResponse])

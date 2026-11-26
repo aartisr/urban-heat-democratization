@@ -317,6 +317,12 @@ export async function listScenarios(cityId?: string): Promise<ScenarioRecord[]> 
   return fetchJson<ScenarioRecord[]>(`/v1/scenarios${query}`);
 }
 
+/** Stateless comparison source; safe across serverless cold starts and deployments. */
+export async function previewWhatIfScenario(cityId: string, budgetUsd: number, planningMode: PlanningMode): Promise<ScenarioRecord> {
+  const query = new URLSearchParams({ city_id: cityId, budget_usd: String(budgetUsd), planning_mode: planningMode });
+  return fetchJson<ScenarioRecord>(`/v1/scenarios/preview?${query}`);
+}
+
 export async function listCostSources(): Promise<CostSource[]> {
   return fetchJson<CostSource[]>("/v1/cost-sources");
 }

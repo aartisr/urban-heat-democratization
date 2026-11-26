@@ -5,13 +5,16 @@
 > product and scientific boundary for a reusable before/scenario/difference
 > comparison.
 
-The comparison selects a saved scenario by **city, budget, and planning mode**.
-Persona evidence rules can guide which scenarios appear in a browsing list,
-but they must not hide the selected scenario from its own comparison. A newly
-created scenario appears immediately; if creation fails, the map panel shows
-the error beside the retry action. The after view is a planning illustration
-derived from the scenario's budget and evidence record, not a temperature
-prediction or a mapped intervention footprint.
+The comparison selects a scenario record by **city, budget, and planning
+mode**. When no matching record exists, a read-only API computes the same
+planning allocation as a live preview. This works across serverless cold
+starts and does not depend on deployment-local `/tmp` storage. Persona evidence
+rules can guide which records appear in a browsing list, but they must not
+hide the selected comparison. A newly generated record appears immediately;
+if the preview request fails, the map panel shows a retry action. The after
+view is a planning illustration derived from the scenario's budget and
+evidence record, not a temperature prediction or a mapped intervention
+footprint.
 
 ## 1. The decision this experience should support
 
