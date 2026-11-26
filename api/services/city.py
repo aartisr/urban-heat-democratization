@@ -4,28 +4,9 @@ Handles all city-related business logic: profile management, validation,
 and coordination with the repository. Completely decoupled from FastAPI.
 """
 
-from typing import Optional, List
-from dataclasses import dataclass
-
-from api.services.base import AbstractService, Repository, NotFoundError, ValidationError
-
-
-@dataclass
-class CityDTO:
-    """Data Transfer Object for City.
-    
-    Represents a city with all its attributes. Used for service layer
-    communication and type safety.
-    """
-    id: str
-    name: str
-    region: str
-    population: str
-    status: str
-    baseline_temp_c: float
-    canopy_coverage: str
-    planning_cost_multiplier: float
-    description: str
+from typing import Optional, List, Any
+from api.domain import Repository, NotFoundError, ValidationError, CityDTO
+from api.services.base import AbstractService
 
 
 class CityService(AbstractService):
@@ -82,13 +63,17 @@ class CityService(AbstractService):
             raise NotFoundError(f"City '{city_id}' not found in registry")
         return city
 
-    async def list_cities(self) -> List[CityDTO]:
-        """List all available cities.
+    async def list_cities(self, offset: int = 0, limit: int | None = None) -> tuple[List[CityDTO], int]:
+        """List all available cities with pagination.
+
+        Args:
+            offset: Starting position (0-based)
+            limit: Maximum cities to return
 
         Returns:
-            List of all city profiles (may be empty)
+            Tuple of (cities, total_count)
         """
-        return await self._repository.list()
+        return await self._repository.list(offset=offset, limit=limit)
 
     async def create_city(self, city: CityDTO) -> CityDTO:
         """Create new city profile.

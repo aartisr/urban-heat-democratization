@@ -576,3 +576,34 @@ export type MitigationLabGraphDelta = {
   reliabilityIntervention: number;
   notes: string[];
 };
+
+// Map overlay types used by city-heat-map component
+export type OverlayLayer = "heat" | "cooling";
+export type OverlayEntry = {
+  key: string;
+  layer: OverlayLayer;
+  color: string;
+  layerLabel: string;
+  overlay: CityMapOverlay;
+};
+
+// Scenario service types
+export type ScenarioPlacementAnchor = {
+  id: string;
+  layer: string;
+  lng: number;
+  lat: number;
+};
+
+export type ScenarioPlacementScore = {
+  total: number;
+  confidence: number;
+  evidence: number;
+  priority: number;
+  layerFit: number;
+  separation: number;
+  rationale: string;
+};
+
+// Alias for compatibility with existing code
+export type ThermalSource = CityThermalSource;

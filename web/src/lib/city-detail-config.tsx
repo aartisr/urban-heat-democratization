@@ -225,12 +225,12 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
       children: (
         <div className="metric-list">
           <div><span>Population</span><strong>{cityProfile?.population ?? "-"}</strong></div>
-          <div><span>Baseline heat</span><strong>{cityProfile ? `${cityProfile.baselineTempC.toFixed(1)}°C` : "-"}</strong></div>
+          <div><span>Baseline heat</span><strong>{cityProfile?.baselineTempC != null ? `${cityProfile.baselineTempC.toFixed(1)}°C` : "-"}</strong></div>
           <div><span>Canopy coverage</span><strong>{cityProfile?.canopyCoverage ?? "-"}</strong></div>
           <div><span>Bundled packages</span><strong>{cityExperience?.availablePackageIds.length ?? 0}</strong></div>
           <div><span>Bottleneck cells</span><strong>{citySpectral?.cheegerFeatureCount ?? 0}</strong></div>
           <div><span>Low-access zones</span><strong>{citySpectral?.coolingZoneCount ?? 0}</strong></div>
-          <div><span>Reliability demo</span><strong>{robustness ? robustness.reliabilityIntervention.toFixed(2) : "-"}</strong></div>
+          <div><span>Reliability demo</span><strong>{robustness?.reliabilityIntervention != null ? robustness.reliabilityIntervention.toFixed(2) : "-"}</strong></div>
         </div>
       ),
     },
@@ -266,15 +266,15 @@ export function buildCityDetailViewConfig(input: CityDetailConfigInput) {
   const robustnessCards: SectionCard[] = [
     {
       title: "Lambda2 improvement",
-      body: robustness ? (robustness.lambda2Intervention - robustness.lambda2Baseline).toFixed(3) : "-",
+      body: robustness?.lambda2Intervention != null && robustness?.lambda2Baseline != null ? (robustness.lambda2Intervention - robustness.lambda2Baseline).toFixed(3) : "-",
     },
     {
       title: "Reliability improvement",
-      body: robustness ? (robustness.reliabilityIntervention - robustness.reliabilityBaseline).toFixed(3) : "-",
+      body: robustness?.reliabilityIntervention != null && robustness?.reliabilityBaseline != null ? (robustness.reliabilityIntervention - robustness.reliabilityBaseline).toFixed(3) : "-",
     },
     {
       title: "Conductance improvement",
-      body: robustness ? (robustness.phiBaseline - robustness.phiIntervention).toFixed(3) : "-",
+      body: robustness?.phiBaseline != null && robustness?.phiIntervention != null ? (robustness.phiBaseline - robustness.phiIntervention).toFixed(3) : "-",
     },
   ];
 

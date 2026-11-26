@@ -3,10 +3,13 @@ from __future__ import annotations
 from collections.abc import Callable
 from threading import RLock
 from uuid import uuid4
+import logging
 
 from fastapi import APIRouter, HTTPException, Request
 
 from api.access_control import AccessControl
+
+logger = logging.getLogger(__name__)
 
 
 def create_runs_router(
@@ -26,8 +29,18 @@ def create_runs_router(
 
     @router.get("/api/v1/runs")
     async def runs(city_id: str | None = None):
-        records = run_store if city_id is None else [item for item in run_store if item.get("cityId") == city_id]
-        return records
+        try:
+            records = run_store if city_id is None else [item for item in run_store if item.get("cityId") == city_id]
+            
+            # Import resilience layer
+            from api.data_resilience import RUN_RECORD_SCHEMA, normalize_records
+            
+            # Normalize all records to ensure required fields are present and correctly typed
+            normalized = normalize_records(records, RUN_RECORD_SCHEMA)
+            return normalized
+        except Exception as e:
+            logger.error(f"Error listing runs: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Error retrieving runs")
 
     @router.get("/api/v1/runs/{run_id}")
     async def run_detail(run_id: str):

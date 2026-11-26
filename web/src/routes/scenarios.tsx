@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useSearch } from "@tanstack/react-router";
+import { useSearch, Link } from "@tanstack/react-router";
+import { 
+  safeLocaleCompareReverse, 
+  safeSortByString,
+  safeFilter,
+  safeReduce,
+  safeMap
+} from "../lib/data-resilience";
 import { createColumnHelper, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 
 import { MathBlock } from "../components/math-block";
@@ -1001,32 +1008,37 @@ export function ScenariosPage() {
   }, [paretoFocusedScenarioId, paretoPlot]);
 
   const recentRuns = useMemo(
-    () => [...(runsQuery.data ?? [])]
-      .filter((run: RunRecord) => runStatusFilter === "all" || run.status === runStatusFilter)
-      .sort((left: RunRecord, right: RunRecord) => right.updatedAt.localeCompare(left.updatedAt))
-      .slice(0, 4),
+    () => safeSortByString(
+      safeFilter(runsQuery.data ?? [], (run: RunRecord) => runStatusFilter === "all" || run.status === runStatusFilter),
+      (run: RunRecord) => run.updatedAt,
+      true
+    ).slice(0, 4),
     [runsQuery.data, runStatusFilter],
   );
+
   const groupedRuns = useMemo(() => {
     const groups = new Map<string, RunRecord[]>();
-    for (const run of (runsQuery.data ?? []).filter((item: RunRecord) => runStatusFilter === "all" || item.status === runStatusFilter)) {
+    for (const run of safeFilter(runsQuery.data ?? [], (item: RunRecord) => runStatusFilter === "all" || item.status === runStatusFilter)) {
       const current = groups.get(run.scenario) ?? [];
       current.push(run);
       groups.set(run.scenario, current);
     }
-    return Array.from(groups.entries()).map(([scenario, runs]) => ({
-      scenario,
-      runs: runs.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt)),
-      summary: {
-        queued: runs.filter((run) => run.status === "queued").length,
-        running: runs.filter((run) => run.status === "running").length,
-        succeeded: runs.filter((run) => run.status === "succeeded").length,
-        failed: runs.filter((run) => run.status === "failed").length,
-        latestUpdatedAt: runs.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0]?.updatedAt ?? null,
-        averageProgress: runs.length > 0 ? Math.round(runs.reduce((sum, run) => sum + run.progress, 0) / runs.length) : 0,
-        maxProgress: runs.length > 0 ? Math.max(...runs.map((run) => run.progress)) : 0,
-      },
-    }));
+    return Array.from(groups.entries()).map(([scenario, runs]) => {
+      const sortedRuns = safeSortByString(runs, (run: RunRecord) => run.updatedAt, true);
+      return {
+        scenario,
+        runs: sortedRuns,
+        summary: {
+          queued: safeFilter(runs, (run) => run.status === "queued").length,
+          running: safeFilter(runs, (run) => run.status === "running").length,
+          succeeded: safeFilter(runs, (run) => run.status === "succeeded").length,
+          failed: safeFilter(runs, (run) => run.status === "failed").length,
+          latestUpdatedAt: sortedRuns[0]?.updatedAt ?? null,
+          averageProgress: runs.length > 0 ? Math.round(safeReduce(runs, (sum, run) => sum + run.progress, 0) / runs.length) : 0,
+          maxProgress: runs.length > 0 ? Math.max(...safeMap(runs, (run) => run.progress ?? 0)) : 0,
+        },
+      };
+    });
   }, [runsQuery.data, runStatusFilter]);
 
   return (

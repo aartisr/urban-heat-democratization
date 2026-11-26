@@ -361,7 +361,24 @@ export async function resetAndGenerateScenarios(
 
 export async function listRuns(cityId?: string): Promise<RunRecord[]> {
   const query = cityId ? `?city_id=${encodeURIComponent(cityId)}` : "";
-  return fetchJson<RunRecord[]>(`/v1/runs${query}`);
+  const response = await fetchJson<{ runs: any[] }>(`/v1/runs${query}`);
+  
+  // Normalize response to ensure required fields are present and correctly named
+  const runs = response.runs ?? [];
+  return runs.map(run => ({
+    id: run.id ?? "",
+    cityId: run.cityId ?? run.city_id ?? "",
+    scenario: run.scenario ?? "",
+    queueJobId: run.queueJobId ?? run.queue_job_id ?? null,
+    status: run.status ?? "queued",
+    progress: typeof run.progress === "number" ? run.progress : 0,
+    // CRITICAL: Ensure updatedAt is always a string, never undefined
+    updatedAt: String(run.updatedAt ?? run.updated_at ?? run.createdAt ?? run.created_at ?? new Date().toISOString()),
+    outputs: Array.isArray(run.outputs) ? run.outputs : [],
+    summary: run.summary ?? "",
+    outputArtifactIds: Array.isArray(run.outputArtifactIds ?? run.output_artifact_ids) ? (run.outputArtifactIds ?? run.output_artifact_ids) : [],
+    logs: Array.isArray(run.logs) ? run.logs : [],
+  })) as RunRecord[];
 }
 
 export async function getRun(runId: string): Promise<RunDetail> {

@@ -1,0 +1,31 @@
+{
+  "startup_time": 0.0512547492980957,
+  "startup_success": false,
+  "import_chain": {
+    "api.domain": 0.008237838745117188,
+    "api.services.city": 0.0008630752563476562,
+    "api.services.run": 0.00014519691467285156,
+    "api.repositories.city": 0.0004608631134033203,
+    "api.repositories.run": 0.000164031982421875,
+    "api.di_container": 0.005658864974975586,
+    "api.routers.cities": 0.0005497932434082031,
+    "api.routers.runs_refactored": 0.00016999244689941406
+  },
+  "memory": {},
+  "services": {
+    "CityService": 4.0531158447265625e-06,
+    "RunService": 9.059906005859375e-06
+  },
+  "methods": {
+    "CityService": {
+      "list_cities": 1.71661376953125e-05,
+      "get_city": 4.76837158203125e-06,
+      "health_check": 3.0994415283203125e-06
+    },
+    "RunService": {
+      "list_runs": 1.6689300537109375e-05,
+      "get_run": 6.198883056640625e-06,
+      "health_check": 0.0
+    }
+  }
+}

@@ -14,6 +14,7 @@ def create_system_router(
     utc_now: Callable[[], str],
     access_control: AccessControl,
     workspace_id_from_request: Callable[[Request], str],
+    health_monitor = None,
 ) -> APIRouter:
     router = APIRouter()
 
@@ -35,6 +36,21 @@ def create_system_router(
             "apiVersion": "v1",
             "authEnforced": access_control.enforce_auth,
         }
+
+    @router.get("/api/v1/diagnostics/health")
+    async def comprehensive_health_check():
+        """Comprehensive health check with all system diagnostics."""
+        if health_monitor is None:
+            return {
+                "timestamp": utc_now(),
+                "status": "ok",
+                "product": "Urban Heat Democratization",
+                "uptimeSec": round(time.time() - app_started_at, 2),
+                "message": "Health monitor not available",
+            }
+        
+        report = await health_monitor.run_all_checks()
+        return report.to_dict()
 
     @router.get("/api/v1/auth/session")
     async def auth_session(request: Request):

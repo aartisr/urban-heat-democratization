@@ -84,10 +84,11 @@ class TestCityServiceList:
     async def test_list_empty(self, service: CityService) -> None:
         """List cities from empty service returns empty list."""
         # Act
-        result = await service.list_cities()
+        cities_list, total_count = await service.list_cities()
 
         # Assert
-        assert result == []
+        assert cities_list == []
+        assert total_count == 0
 
     @pytest.mark.asyncio
     async def test_list_multiple(self, service: CityService, sample_city: CityDTO, boston_city: CityDTO) -> None:
@@ -97,12 +98,13 @@ class TestCityServiceList:
         await service.create_city(boston_city)
 
         # Act
-        result = await service.list_cities()
+        cities_list, total_count = await service.list_cities()
 
         # Assert
-        assert len(result) == 2
-        assert any(c.id == "test-city" for c in result)
-        assert any(c.id == "boston" for c in result)
+        assert len(cities_list) == 2
+        assert total_count == 2
+        assert any(c.id == "test-city" for c in cities_list)
+        assert any(c.id == "boston" for c in cities_list)
 
 
 class TestCityServiceCreate:

@@ -86,11 +86,16 @@ class Repository(ABC, Generic[T]):
         pass
 
     @abstractmethod
-    async def list(self) -> List[T]:
-        """List all items.
+    async def list(self, filter: dict | None = None, offset: int = 0, limit: int | None = None) -> tuple[List[T], int]:
+        """List all items with optional filtering and pagination.
+
+        Args:
+            filter: Optional filter criteria
+            offset: Starting position (0-based)
+            limit: Maximum items to return
 
         Returns:
-            List of all items (may be empty)
+            Tuple of (items, total_count)
 
         Raises:
             ServiceError: On database errors
