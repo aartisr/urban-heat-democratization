@@ -11,7 +11,7 @@ scikit-image==0.22.0
 folium==0.15.1
 leafmap
 xarray==2024.3.0
-localtileserver==0.10.6
+localtileserver==1.0.0
 plotly==5.19.0
 python-docx==1.1.0
 reportlab==4.0.9
