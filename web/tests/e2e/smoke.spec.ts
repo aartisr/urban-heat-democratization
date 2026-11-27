@@ -377,6 +377,22 @@ test("landing page keeps its primary path usable on a narrow phone", async ({ pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
+test("guided journey shows the next stop and remembers only pages actually opened", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  const journey = page.getByRole("navigation", { name: "Guided journey" });
+  await expect(journey.getByText("0 of 5 visited")).toBeVisible();
+  await page.getByRole("link", { name: "Start guided journey" }).click();
+  await expect(page).toHaveURL(/\/modes$/);
+  await expect(journey.getByText("1 of 5 visited")).toBeVisible();
+  await journey.getByRole("link", { name: /Next: Explore a city/ }).click();
+  await expect(page).toHaveURL(/\/cities$/);
+  await expect(journey.getByText("2 of 5 visited")).toBeVisible();
+  await page.goto("/");
+  await expect(journey.getByText("2 of 5 visited")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
 test("city Read and Audit views reflow without page-level overflow on a narrow phone", async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 720 });
   await page.goto("/cities/boston");
@@ -419,6 +435,7 @@ test("five persona journeys persist mode and route guidance", async ({ page }) =
     const matchingRoute = modeCase.expectedNextRoute === "/cities" ? /Explore cities|Inspect (a )?city|Browse cities/i
       : modeCase.expectedNextRoute === "/exports" ? /Review exports|Download artifacts|Download exports/i
         : /Try scenarios|Open scenarios|Review scenarios/i;
+    await modeCard.locator("details.persona-more-options summary").click();
     await modeCard.getByRole("link", { name: matchingRoute }).first().click();
     await expect(page).toHaveURL(new RegExp(`${modeCase.expectedNextRoute}$`));
 
@@ -491,6 +508,7 @@ test("planner persona can complete the city-detail journey", async ({ page }) =>
   await page.goto("/modes");
   const modeCard = page.locator(".persona-card").filter({ hasText: "Planner" });
   await modeCard.getByRole("button", { name: /Set as active mode|Active mode/ }).click();
+  await modeCard.locator("details.persona-more-options summary").click();
   await modeCard.getByRole("link", { name: /Inspect city layers/i }).first().click();
   await expect(page).toHaveURL(/\/cities$/);
 
@@ -501,7 +519,7 @@ test("planner persona can complete the city-detail journey", async ({ page }) =>
   await expect(page.getByText("Planning readiness and data requirements")).toBeVisible();
   await page.getByText("More ways to work with this city").click();
   await expect(page.getByRole("button", { name: "Queue a baseline run" })).toBeVisible();
-  await expect(page.getByText("You are here")).toBeVisible();
+  await expect(page.locator(".app-main-toolbar").getByText("You are here")).toBeVisible();
   await expect(page.getByText("City Detail")).toBeVisible();
   await expect(page.getByRole("link", { name: "Open scenarios for this city" })).toBeVisible();
 });

@@ -17,16 +17,16 @@ export function HomePage() {
             A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.
           </p>
           <div className="quick-links">
+            <Link to="/modes" preload="intent" className="button-link">Start guided journey</Link>
             {featuredExperience ? (
-              <Link to="/cities/$cityId" params={{ cityId: featuredExperience.cityId }} preload="intent" className="button-link">
+              <Link to="/cities/$cityId" params={{ cityId: featuredExperience.cityId }} preload="intent" className="button-link secondary">
                 Explore {featuredExperience.cityName}
               </Link>
             ) : (
-              <Link to="/cities" preload="intent" className="button-link">Explore a city</Link>
+              <Link to="/cities" preload="intent" className="button-link secondary">Explore a city</Link>
             )}
-            <Link to="/modes" preload="intent" className="quiet-link">Not sure where to begin? Choose a path.</Link>
           </div>
-          <p className="muted calm-hero-note">Start with the map. Technical detail appears when you ask for it.</p>
+          <p className="muted calm-hero-note">Five simple stops take you from a question to a shareable finding. You can jump ahead anytime.</p>
         </div>
         <aside className="hero-climate-portrait" aria-label="A visual metaphor for turning heat evidence into cooling action">
           <div className="hero-portrait-atmosphere" aria-hidden="true">

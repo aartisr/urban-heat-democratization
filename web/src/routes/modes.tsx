@@ -183,28 +183,11 @@ export function ModesPage() {
     <section className="page-stack modes-page">
       <header className="hero-card modes-hero premium-city-hero">
         <div className="city-hero-copy modes-hero-copy">
-          <div className="eyebrow">Persona modes</div>
-          <h1>Choose the doorway that matches the decision you need to make.</h1>
+          <div className="eyebrow">Step 1 · Choose your path</div>
+          <h1>What brings you here today?</h1>
           <p>
-            Same evidence base, different emphasis. The app stays calm and defensible while each mode lifts the part of the story that matters most.
+            Choose the role closest to your goal. This changes the guidance you see, not the underlying evidence. You can switch paths anytime.
           </p>
-          <div className="quick-links">
-            <Link to="/" className="button-link">Open overview</Link>
-            <Link
-              to="/scenarios"
-              search={{
-                cityId: defaultStudyCityId,
-                budgetUsd: 250000,
-                focus: undefined,
-                sourceLayer: undefined,
-                selectedLabel: undefined,
-              }}
-              className="button-link secondary"
-            >
-              Try scenarios
-            </Link>
-            <Link to="/exports" className="button-link secondary">See exports</Link>
-          </div>
           <div className="mode-anchor-strip">
             {modeAnchors.map((anchor) => (
               <a key={anchor.label} href={anchor.to} className="persona-chip">
@@ -314,25 +297,26 @@ export function ModesPage() {
               >
                 {activeModeId === mode.id ? "Active mode" : "Set as active mode"}
               </button>
+              {activeModeId === mode.id ? <Link to="/cities" className="button-link">Continue: Explore a city</Link> : null}
             </div>
             <div className="persona-promise">
               <strong>What this mode gives you</strong>
               <span>{mode.promise}</span>
             </div>
             <p className="persona-outcome">{mode.outcome}</p>
-            <div className="persona-actions">
-              {mode.startingRoutes.map((route) => (
-                <Link key={`${mode.id}-${route.to}`} to={route.to} className="button-link secondary">
-                  {route.label}
-                </Link>
-              ))}
-            </div>
-            <div className="persona-focus-header">
-              <span>Key things to notice</span>
-            </div>
-            <ul className="bullet-list">
-              {mode.focusPoints.map((point) => <li key={point}>{point}</li>)}
-            </ul>
+            <details className="persona-more-options">
+              <summary>Other starting points and helpful tips</summary>
+              <div className="persona-actions">
+                {mode.startingRoutes.map((route) => (
+                  <Link key={`${mode.id}-${route.to}`} to={route.to} className="button-link secondary">
+                    {route.label}
+                  </Link>
+                ))}
+              </div>
+              <ul className="bullet-list">
+                {mode.focusPoints.map((point) => <li key={point}>{point}</li>)}
+              </ul>
+            </details>
           </article>
         ))}
       </div>

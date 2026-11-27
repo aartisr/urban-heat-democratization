@@ -3,8 +3,6 @@ import { defaultStudyCityId } from "./study-city";
 
 export type PersonaModeId = "educator" | "student" | "planner" | "researcher" | "community-advocate";
 
-export type AppFlowRoute = "/" | "/cities" | "/scenarios" | "/exports" | "/runs" | "/modes";
-
 export type PersonaModeProfile = {
   id: PersonaModeId;
   label: string;
@@ -17,7 +15,6 @@ export type PersonaModeProfile = {
     maxBenchmarkOnlyActions: number;
     requireReadinessKeyword?: string;
   };
-  flow: AppFlowRoute[];
 };
 
 export type PersonaScenarioPreset = {
@@ -48,7 +45,6 @@ export const personaModeProfiles: Record<PersonaModeId, PersonaModeProfile> = {
       maxBenchmarkOnlyActions: 3,
       requireReadinessKeyword: "ready",
     },
-    flow: ["/", "/cities", "/exports"],
   },
   student: {
     id: "student",
@@ -61,7 +57,6 @@ export const personaModeProfiles: Record<PersonaModeId, PersonaModeProfile> = {
       minVerifiedUnitCostActions: 0,
       maxBenchmarkOnlyActions: 4,
     },
-    flow: ["/", "/cities", "/scenarios"],
   },
   planner: {
     id: "planner",
@@ -75,7 +70,6 @@ export const personaModeProfiles: Record<PersonaModeId, PersonaModeProfile> = {
       maxBenchmarkOnlyActions: 2,
       requireReadinessKeyword: "ready",
     },
-    flow: ["/scenarios", "/cities", "/exports"],
   },
   researcher: {
     id: "researcher",
@@ -88,7 +82,6 @@ export const personaModeProfiles: Record<PersonaModeId, PersonaModeProfile> = {
       minVerifiedUnitCostActions: 0,
       maxBenchmarkOnlyActions: 6,
     },
-    flow: ["/runs", "/exports", "/scenarios"],
   },
   "community-advocate": {
     id: "community-advocate",
@@ -101,7 +94,6 @@ export const personaModeProfiles: Record<PersonaModeId, PersonaModeProfile> = {
       minVerifiedUnitCostActions: 0,
       maxBenchmarkOnlyActions: 3,
     },
-    flow: ["/cities", "/scenarios", "/exports"],
   },
 };
 
@@ -145,18 +137,4 @@ export function normalizePersonaModeId(value: string | null | undefined): Person
     return value;
   }
   return defaultPersonaMode;
-}
-
-export function modeProgress(modeId: PersonaModeId, currentRoute: AppFlowRoute): {
-  orderedRoutes: AppFlowRoute[];
-  completed: AppFlowRoute[];
-  active: AppFlowRoute;
-  next: AppFlowRoute | null;
-} {
-  const orderedRoutes = personaModeProfiles[modeId].flow;
-  const index = Math.max(0, orderedRoutes.indexOf(currentRoute));
-  const active = orderedRoutes[index] ?? orderedRoutes[0];
-  const completed = orderedRoutes.slice(0, index);
-  const next = orderedRoutes[index + 1] ?? null;
-  return { orderedRoutes, completed, active, next };
 }

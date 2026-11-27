@@ -10,6 +10,7 @@ import {
 
 import { capturePageView } from "./lib/analytics";
 import { defaultSeo, setPageSeo } from "./lib/seo";
+import { GuidedJourney } from "./components/guided-journey";
 const HomePage = lazy(() => import("./routes/home").then((module) => ({ default: module.HomePage })));
 const CitiesPage = lazy(() => import("./routes/cities").then((module) => ({ default: module.CitiesPage })));
 const CityDetailPage = lazy(() => import("./routes/city-detail").then((module) => ({ default: module.CityDetailPage })));
@@ -463,6 +464,7 @@ function RootLayout() {
               ) : null}
             </div>
           </section>
+          <GuidedJourney pathname={pathname} />
           <Outlet />
           <footer className="app-attribution">
             <p className="app-mission">A public-interest workspace for seeing local heat patterns, understanding the evidence, and helping shape thoughtful action on cooling, shade, and public investment.</p>
