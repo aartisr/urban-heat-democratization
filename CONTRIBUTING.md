@@ -42,7 +42,7 @@ make api       # terminal 1
 make web       # terminal 2
 ```
 
-For a change to the API, math, data, or city packages, run `make test-python` and `make validate-packages`. For a frontend change, run `make test-web` and `make build`. The [CI workflow](.github/workflows/ci.yml) also runs a browser smoke test. Include a focused test for behavior that could regress, and explain any check you could not run.
+For a change to the API, math, data, or city packages, run `make test-python` and `make validate-packages`. `make test-python` covers both `tests/` and `api/tests/`. For a frontend change, run `make test-web` and `make build`. The [CI workflow](.github/workflows/ci.yml) also runs the browser regression suite, including the Atlas layer check. Include a focused test for behavior that could regress, and explain any check you could not run.
 
 Issues and pull requests are reviewed for correctness, evidence quality, privacy, licensing, accessibility, and maintainability. A maintainer may request changes or decline work that falls outside the project's public-interest and evidence standards. There is no guaranteed review time.
 

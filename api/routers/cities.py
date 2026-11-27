@@ -13,11 +13,15 @@ Design:
 - 100% testable by mocking service
 """
 
+import logging
+
 from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from api.services.city import CityService, CityDTO
 from api.services.base import NotFoundError, ValidationError
+
+logger = logging.getLogger(__name__)
 
 
 class CityProfileResponse(BaseModel):
@@ -71,8 +75,9 @@ def create_cities_router(service: CityService) -> APIRouter:
                     for c in cities_list
                 ]
             }
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Could not list cities")
+            raise HTTPException(status_code=500, detail="Could not list cities")
 
     @router.get("/api/v1/cities/{city_id}", response_model=CityProfileResponse)
     async def get_city(city_id: str) -> CityProfileResponse:
@@ -102,8 +107,9 @@ def create_cities_router(service: CityService) -> APIRouter:
             )
         except NotFoundError:
             raise HTTPException(status_code=404, detail=f"City '{city_id}' not found")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Could not load city %s", city_id)
+            raise HTTPException(status_code=500, detail="Could not load city")
 
     @router.post("/api/v1/cities", response_model=CityProfileResponse, status_code=201)
     async def create_city(request: dict) -> CityProfileResponse:
@@ -144,7 +150,8 @@ def create_cities_router(service: CityService) -> APIRouter:
             )
         except ValidationError as e:
             raise HTTPException(status_code=422, detail=str(e))
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Could not create city")
+            raise HTTPException(status_code=500, detail="Could not create city")
 
     return router

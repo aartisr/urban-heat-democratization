@@ -77,7 +77,7 @@ test-web:
 
 test-python:
 	@test -x "$(PYTHON_IN_VENV)" || (echo "Virtualenv is missing. Run 'make setup' first."; exit 1)
-	PYTHONPATH=. $(PYTHON_IN_VENV) -m pytest --strict-markers tests
+	PYTHONPATH=. $(PYTHON_IN_VENV) -m pytest --strict-markers tests api/tests
 
 validate-packages:
 	@test -x "$(PYTHON_IN_VENV)" || (echo "Virtualenv is missing. Run 'make setup' first."; exit 1)

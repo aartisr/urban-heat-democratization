@@ -7,6 +7,7 @@ Covers:
 """
 
 import pytest
+from api.domain.errors import NotFoundError
 from api.repositories.run import RunRepository
 from api.services.run import RunDTO
 
@@ -72,10 +73,11 @@ class TestRunRepositoryList:
     async def test_list_empty(self, repository: RunRepository) -> None:
         """List empty repository returns empty list."""
         # Act
-        result = await repository.list()
+        result, total = await repository.list()
 
         # Assert
         assert result == []
+        assert total == 0
 
     @pytest.mark.asyncio
     async def test_list_multiple(self, repository: RunRepository) -> None:
@@ -95,10 +97,11 @@ class TestRunRepositoryList:
         await repository.create(run2)
 
         # Act
-        result = await repository.list()
+        result, total = await repository.list()
 
         # Assert
         assert len(result) == 2
+        assert total == 2
         assert any(r.id == "run1" for r in result)
         assert any(r.id == "run2" for r in result)
 
@@ -148,9 +151,9 @@ class TestRunRepositoryUpdate:
 
     @pytest.mark.asyncio
     async def test_update_nonexistent_run(self, repository: RunRepository, sample_run: RunDTO) -> None:
-        """Update non-existent run raises KeyError."""
+        """Update non-existent run raises the shared domain error."""
         # Act & Assert
-        with pytest.raises(KeyError):
+        with pytest.raises(NotFoundError):
             await repository.update("nonexistent", sample_run)
 
 

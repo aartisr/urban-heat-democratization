@@ -35,8 +35,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements-research.txt
 
+      - name: Keep generated files out of Git
+        run: python scripts/check_repository_hygiene.py
+
       - name: Run Python tests
-        run: PYTHONPATH=. pytest --strict-markers tests
+        run: PYTHONPATH=. pytest --strict-markers tests api/tests
 
       - name: Validate bundled city packages
         run: PYTHONPATH=. python scripts/validate_city_packages.py
@@ -79,5 +82,5 @@ jobs:
       - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run mocked smoke E2E
-        run: npx playwright test tests/e2e/smoke.spec.ts tests/e2e/gallery.spec.ts --grep-invert 'capture documentation screenshots'
+      - name: Run browser regression suite
+        run: npx playwright test --grep-invert 'capture documentation screenshots'

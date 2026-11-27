@@ -7,6 +7,7 @@ import re
 import sqlite3
 import threading
 import time
+from contextlib import asynccontextmanager
 from functools import lru_cache
 import urllib.error
 import urllib.request
@@ -64,7 +65,22 @@ from core.spectra import lambda2_and_fiedler, sweep_conductance
 
 logger = build_api_logger()
 
-app = FastAPI(title="Urban Heat Democratization API")
+@asynccontextmanager
+async def app_lifespan(_: FastAPI):
+    """Run background workers only for a persistent local API process."""
+    if not is_serverless_runtime():
+        _RUN_QUEUE.start()
+        _resume_live_thermal_workers()
+    try:
+        yield
+    finally:
+        if not is_serverless_runtime():
+            _RUN_QUEUE.stop()
+            for city_id in list(_LIVE_THERMAL_WORKERS.keys()):
+                _stop_live_thermal_worker(city_id)
+
+
+app = FastAPI(title="Urban Heat Democratization API", lifespan=app_lifespan)
 APP_STARTED_AT = time.time()
 _ACCESS_CONTROL = AccessControl.from_env()
 
@@ -112,23 +128,6 @@ install_http_middleware(app, logger)
 # Initialize health monitor
 _HEALTH_MONITOR = HealthMonitor()
 _HEALTH_MONITOR.register_checker(MemoryHealthChecker())
-
-
-@app.on_event("startup")
-async def resume_live_thermal_workers_on_startup() -> None:
-    if is_serverless_runtime():
-        return
-    _RUN_QUEUE.start()
-    _resume_live_thermal_workers()
-
-
-@app.on_event("shutdown")
-async def stop_background_workers_on_shutdown() -> None:
-    if is_serverless_runtime():
-        return
-    _RUN_QUEUE.stop()
-    for city_id in list(_LIVE_THERMAL_WORKERS.keys()):
-        _stop_live_thermal_worker(city_id)
 
 
 def utc_now() -> str:

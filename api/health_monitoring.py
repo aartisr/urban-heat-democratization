@@ -10,7 +10,7 @@ Provides:
 
 import logging
 from typing import Dict, List, Any, Optional, Callable, Awaitable
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass, asdict
 from enum import Enum
 import asyncio
@@ -107,7 +107,7 @@ class HealthChecker:
                 response_time_ms=self.timeout_seconds * 1000,
                 message=f"Health check timed out after {self.timeout_seconds}s",
                 details={"error_type": "timeout"},
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             )
             self.last_check = result
             return result
@@ -118,7 +118,7 @@ class HealthChecker:
                 response_time_ms=0,
                 message=f"Health check failed: {str(e)}",
                 details={"error_type": type(e).__name__, "error": str(e)},
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             )
             self.last_check = result
             return result
@@ -147,7 +147,7 @@ class DatabaseHealthChecker(HealthChecker):
                     response_time_ms=response_time,
                     message="Database connection healthy",
                     details={"connected": True},
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                 )
             else:
                 result = HealthCheckResult(
@@ -156,7 +156,7 @@ class DatabaseHealthChecker(HealthChecker):
                     response_time_ms=response_time,
                     message="Database connection failed",
                     details={"connected": False},
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                 )
             
             self.last_check = result
@@ -169,7 +169,7 @@ class DatabaseHealthChecker(HealthChecker):
                 response_time_ms=response_time,
                 message=f"Database check error: {str(e)}",
                 details={"error": str(e)},
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             )
             self.last_check = result
             return result
@@ -200,7 +200,7 @@ class APIEndpointHealthChecker(HealthChecker):
                     response_time_ms=response_time,
                     message=f"Endpoint responding normally",
                     details={"status_code": response.status_code},
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                 )
             elif 500 <= response.status_code < 600:
                 result = HealthCheckResult(
@@ -209,7 +209,7 @@ class APIEndpointHealthChecker(HealthChecker):
                     response_time_ms=response_time,
                     message=f"Endpoint returned server error: {response.status_code}",
                     details={"status_code": response.status_code},
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                 )
             else:
                 result = HealthCheckResult(
@@ -218,7 +218,7 @@ class APIEndpointHealthChecker(HealthChecker):
                     response_time_ms=response_time,
                     message=f"Endpoint returned unusual status: {response.status_code}",
                     details={"status_code": response.status_code},
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                 )
             
             self.last_check = result
@@ -231,7 +231,7 @@ class APIEndpointHealthChecker(HealthChecker):
                 response_time_ms=response_time,
                 message=f"Endpoint check error: {str(e)}",
                 details={"error": str(e)},
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             )
             self.last_check = result
             return result
@@ -271,7 +271,7 @@ class MemoryHealthChecker(HealthChecker):
                     "available_mb": memory.available / (1024 * 1024),
                     "total_mb": memory.total / (1024 * 1024),
                 },
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             )
             self.last_check = result
             return result
@@ -283,7 +283,7 @@ class MemoryHealthChecker(HealthChecker):
                 response_time_ms=0,
                 message="Memory check unavailable",
                 details={"reason": "psutil not installed"},
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             )
             self.last_check = result
             return result
@@ -294,7 +294,7 @@ class HealthMonitor:
 
     def __init__(self):
         self.checkers: Dict[str, HealthChecker] = {}
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
 
     def register_checker(self, checker: HealthChecker) -> None:
         """Register a health checker."""
@@ -317,11 +317,11 @@ class HealthMonitor:
         else:
             overall_status = ServiceStatus.DEGRADED
 
-        uptime = (datetime.utcnow() - self.start_time).total_seconds()
+        uptime = (datetime.now(timezone.utc) - self.start_time).total_seconds()
         checks_passed = sum(1 for check in checks if check.is_healthy())
 
         report = SystemHealthReport(
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             overall_status=overall_status,
             checks=checks,
             uptime_seconds=uptime,

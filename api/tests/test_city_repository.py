@@ -7,6 +7,7 @@ Covers:
 """
 
 import pytest
+from api.domain.errors import NotFoundError
 from api.repositories.city import CityRepository
 from api.services.city import CityDTO
 
@@ -68,10 +69,11 @@ class TestCityRepositoryList:
     async def test_list_empty(self, repository: CityRepository) -> None:
         """List empty repository returns empty list."""
         # Act
-        result = await repository.list()
+        result, total = await repository.list()
 
         # Assert
         assert result == []
+        assert total == 0
 
     @pytest.mark.asyncio
     async def test_list_multiple(self, repository: CityRepository) -> None:
@@ -83,10 +85,11 @@ class TestCityRepositoryList:
         await repository.create(city2)
 
         # Act
-        result = await repository.list()
+        result, total = await repository.list()
 
         # Assert
         assert len(result) == 2
+        assert total == 2
         assert any(c.id == "id1" for c in result)
         assert any(c.id == "id2" for c in result)
 
@@ -133,9 +136,9 @@ class TestCityRepositoryUpdate:
 
     @pytest.mark.asyncio
     async def test_update_nonexistent_city(self, repository: CityRepository, sample_city: CityDTO) -> None:
-        """Update non-existent city raises KeyError."""
+        """Update non-existent city raises the shared domain error."""
         # Act & Assert
-        with pytest.raises(KeyError):
+        with pytest.raises(NotFoundError):
             await repository.update("nonexistent", sample_city)
 
 

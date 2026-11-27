@@ -13,7 +13,7 @@ import logging
 import traceback
 import uuid
 from typing import Callable, Any, Optional, Dict
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -36,7 +36,7 @@ class ErrorResponse:
         self.message = message
         self.status_code = status_code
         self.details = details or {}
-        self.timestamp = timestamp or (datetime.utcnow().isoformat() if isinstance(timestamp, str) or timestamp is None else timestamp)
+        self.timestamp = timestamp or (datetime.now(timezone.utc).isoformat() if isinstance(timestamp, str) or timestamp is None else timestamp)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
@@ -72,7 +72,7 @@ class RobustErrorHandlingMiddleware(BaseHTTPMiddleware):
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         
         # Log request
         logger.info(
@@ -89,7 +89,7 @@ class RobustErrorHandlingMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             
             # Log successful response
-            duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+            duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
             logger.info(
                 f"[{request_id}] {request.method} {request.url.path} completed with status {response.status_code}",
                 extra={
@@ -220,11 +220,11 @@ class HealthMonitoringMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             if response.status_code >= 400:
                 self.error_count += 1
-                self.last_error_time = datetime.utcnow()
+                self.last_error_time = datetime.now(timezone.utc)
             return response
         except Exception as e:
             self.error_count += 1
-            self.last_error_time = datetime.utcnow()
+            self.last_error_time = datetime.now(timezone.utc)
             raise
 
     def get_health_metrics(self) -> Dict[str, Any]:

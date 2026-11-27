@@ -496,7 +496,11 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
 
   const loadAtlas = page.getByRole("button", { name: "Show the city atlas" });
   if (await loadAtlas.isVisible()) {
-    await loadAtlas.click({ force: true, timeout: 40_000 });
+    // The guided brief can activate the atlas while this button is visible.
+    // In that case the button disappears and the map is the successful result.
+    await loadAtlas.click({ force: true, timeout: 5_000 }).catch(async () => {
+      await expect(page.locator(".maplibre-stage")).toBeVisible({ timeout: 15_000 });
+    });
   }
 
   const openButton = page.getByRole("button", { name: "Open full page map" });
@@ -560,7 +564,9 @@ test("mobile map begins with one question and keeps the map as the primary surfa
 
   const loadAtlas = page.getByRole("button", { name: "Show the city atlas" });
   if (await loadAtlas.isVisible()) {
-    await loadAtlas.click({ force: true, timeout: 40_000 });
+    await loadAtlas.click({ force: true, timeout: 5_000 }).catch(async () => {
+      await expect(page.locator(".maplibre-stage")).toBeVisible({ timeout: 15_000 });
+    });
   }
   const startWithPriorities = page.getByRole("button", { name: /Where is help needed\?/ });
   await expect(startWithPriorities).toBeVisible({ timeout: 15_000 });

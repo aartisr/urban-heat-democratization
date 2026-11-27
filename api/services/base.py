@@ -6,23 +6,9 @@ must implement. This ensures consistent contracts and enables dependency injecti
 
 from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, Optional, List
+from api.domain.errors import DomainError as ServiceError, NotFoundError, ValidationError
 
 T = TypeVar("T")
-
-
-class ServiceError(Exception):
-    """Base exception for all service errors."""
-    pass
-
-
-class NotFoundError(ServiceError):
-    """Raised when a requested resource is not found."""
-    pass
-
-
-class ValidationError(ServiceError):
-    """Raised when input validation fails."""
-    pass
 
 
 class AbstractService(ABC):

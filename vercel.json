@@ -9,7 +9,7 @@
   "functions": {
     "api/main.py": {
       "includeFiles": "{data/*.json,data/*.geojson,data/metadata/thermal_sources.json,data/thermal/*.npy,docs/**/*.md}",
-      "excludeFiles": "{.venv/**,web/**,site/**,tests/**,data/runtime/**,docs/screenshots/**}",
+      "excludeFiles": "{.venv/**,venv/**,web/**,site/**,tests/**,data/runtime/**,docs/screenshots/**}",
       "maxDuration": 60
     }
   },

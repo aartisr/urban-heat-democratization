@@ -221,6 +221,9 @@ source .venv/bin/activate
 python --version
 ```
 
+Generated Python environments and package metadata are intentionally excluded
+from Git; each contributor builds them locally with `make setup`.
+
 Then use two terminals:
 
 ```bash
@@ -239,6 +242,7 @@ Useful checks:
 make test
 make build
 make validate-packages
+python scripts/check_repository_hygiene.py
 ```
 
 ## Deploy on Vercel

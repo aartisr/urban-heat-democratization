@@ -9,6 +9,8 @@ coverage/
 bun.lock
 .vite/
 .venv/
+venv/
+*.egg-info/
 __pycache__/
 *.pyc
 .pytest_cache/

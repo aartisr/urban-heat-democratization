@@ -13,11 +13,15 @@ Design:
 - 100% testable by mocking service
 """
 
+import logging
+
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from api.services.run import RunService, RunDTO
 from api.services.base import NotFoundError, ValidationError
+
+logger = logging.getLogger(__name__)
 
 
 class RunResponse(BaseModel):
@@ -82,8 +86,9 @@ def create_runs_router(service: RunService) -> APIRouter:
                     for r in runs_list
                 ]
             }
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Could not list runs")
+            raise HTTPException(status_code=500, detail="Could not list runs")
 
     @router.get("/api/v1/runs/{run_id}", response_model=RunResponse)
     async def get_run(run_id: str) -> RunResponse:
@@ -117,8 +122,9 @@ def create_runs_router(service: RunService) -> APIRouter:
             )
         except NotFoundError:
             raise HTTPException(status_code=404, detail=f"Run '{run_id}' not found")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Could not load run %s", run_id)
+            raise HTTPException(status_code=500, detail="Could not load run")
 
     @router.post("/api/v1/runs", response_model=RunResponse, status_code=201)
     async def create_run(request: dict) -> RunResponse:
@@ -167,7 +173,8 @@ def create_runs_router(service: RunService) -> APIRouter:
             )
         except ValidationError as e:
             raise HTTPException(status_code=422, detail=str(e))
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        except Exception:
+            logger.exception("Could not create run")
+            raise HTTPException(status_code=500, detail="Could not create run")
 
     return router

@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from api.services.base import AbstractService, Repository, NotFoundError, ValidationError
 
@@ -71,9 +71,9 @@ class ExperienceService(AbstractService):
             city_id=city_id,
             interaction_type=interaction_type,
             duration_ms=duration_ms,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             metadata=metadata or {},
-            created_at=datetime.utcnow().isoformat(),
+            created_at=datetime.now(timezone.utc).isoformat(),
         )
         self._validate_experience(experience)
         return await self._repository.create(experience)
