@@ -249,7 +249,7 @@ def build_pdf() -> None:
     toc.levelStyles = [TOC_ENTRY]
     story = [
         Spacer(1, 88), Paragraph("Can the Same Heat Values<br/>Tell Different Stories?", TITLE),
-        Paragraph("An auditable graph experiment for community-centered urban heat research", COVER),
+        Paragraph("Testing one link in an inspectable, community-centered heat evidence chain", COVER),
         Spacer(1, 60), Paragraph("Aarti Sri Ravikumar", COVER),
         Paragraph("Partner: [none listed / complete if applicable]", COVER),
         Paragraph("School: [school name] · Grade and class: [grade and class]", COVER),
