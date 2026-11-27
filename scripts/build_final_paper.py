@@ -93,6 +93,9 @@ TITLE = ParagraphStyle(
 COVER = ParagraphStyle("CoverDetail", parent=BODY, fontSize=12, leading=20, alignment=TA_CENTER)
 TOC_HEADING = ParagraphStyle("TOCHeading", parent=HEADING, fontSize=19, leading=24)
 TOC_ENTRY = ParagraphStyle("TOCEntry", parent=BODY, fontSize=10.4, leading=16, leftIndent=10, firstLineIndent=0)
+BIBLIOGRAPHY = ParagraphStyle(
+    "Bibliography", parent=BODY, fontSize=10.3, leading=14.5, spaceAfter=7,
+)
 
 
 def run_experiment() -> list[dict]:
@@ -268,7 +271,8 @@ def build_pdf() -> None:
                 para.toc_level = 0
                 story.append(para)
             elif kind == "Para":
-                story.append(Paragraph(inline_markup(block["c"], math), BODY))
+                style = BIBLIOGRAPHY if section == "Works Cited (MLA)" else BODY
+                story.append(Paragraph(inline_markup(block["c"], math), style))
             elif kind == "OrderedList":
                 for index, item in enumerate(block["c"][1], start=1):
                     content = block_markup(item, math)
