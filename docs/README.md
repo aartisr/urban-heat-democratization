@@ -36,6 +36,7 @@ Boston is the bundled study. Other city presets and onboarding paths do not impl
 
 - **Public use:** [wiki](wiki/README.md), [Boston study](BOSTON_STUDY_GUIDE.md), [classroom guide](BOSTON_CLASSROOM_GUIDE.md).
 - **Methods and evidence:** [math accountability](MATH_INNOVATION_ACCOUNTABILITY.md), [urban thermal math deep dive](Urban_Thermal_Math_Deep_Dive.md), [impact evidence protocol](IMPACT_EVIDENCE_PROTOCOL.md), [data and provenance](../data/README.md).
+- **Working paper:** [source Markdown](DEMOCRATIZING_URBAN_HEAT_RESILIENCE_JOURNAL.md), [PDF](DEMOCRATIZING_URBAN_HEAT_RESILIENCE_JOURNAL.pdf), and [editable Word](DEMOCRATIZING_URBAN_HEAT_RESILIENCE_JOURNAL.docx). This methods and perspective manuscript is not peer reviewed.
 - **Engineering:** [API](API.md), [architecture](ARCHITECTURE.md), [design patterns](DESIGN_PATTERNS.md), [release process](RELEASE_PROCESS.md), [live thermal setup](LIVE_THERMAL_SETUP.md).
 - **Proposals and research directions:** [advanced math and layers plan](ADVANCED_THERMAL_MATH_AND_MAP_LAYERS_IMPLEMENTATION_PLAN.md), [future research](FUTURE_COMPUTATIONAL_URBAN_THERMAL_RESEARCH.md), [scenario comparison design](SCENARIO_MAP_COMPARISON_DESIGN.md). A plan is not a shipped feature.
 - **Historical snapshots:** [archive](archive/README.md). Old test counts and completion claims are not current verification.

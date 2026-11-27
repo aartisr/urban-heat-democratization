@@ -367,6 +367,23 @@ test("home page renders and navigates to cities", async ({ page }) => {
   await expect(page.getByText("Onboard a city")).toBeVisible();
 });
 
+test("working manuscript offers three usable downloads on desktop and phone", async ({ page }) => {
+  await page.goto("/");
+  const journal = page.getByRole("region", { name: "The Right to Question the Map" });
+  await expect(journal.getByText("Working manuscript · not peer reviewed")).toBeVisible();
+  for (const extension of ["pdf", "docx", "md"]) {
+    const link = journal.locator(`a[href="/journal/urban-heat-democratization.${extension}"]`);
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("download", new RegExp(`\\.${extension}$`));
+    const response = await page.request.get(`/journal/urban-heat-democratization.${extension}`);
+    expect(response.ok()).toBe(true);
+    expect((await response.body()).length).toBeGreaterThan(10_000);
+  }
+  await page.setViewportSize({ width: 375, height: 812 });
+  await expect(journal.getByRole("link", { name: /Download Word/ })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
 test("landing page keeps its primary path usable on a narrow phone", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");

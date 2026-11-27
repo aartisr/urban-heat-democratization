@@ -24,6 +24,8 @@ Official website: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com) · 
 
 Use [CITATION.cff](CITATION.cff) to cite the platform in research, teaching, reporting, or public proposals. For a substantive claim, cite the specific platform page and its linked method or source record as well; preserve the stated evidence boundary. The project’s machine-readable research brief is available at [`/ai.txt`](https://urban-heat.ai-aarti.com/ai.txt), with a concise reader-and-agent index at [`/llms.txt`](https://urban-heat.ai-aarti.com/llms.txt).
 
+The open working manuscript, **The Right to Question the Map**, is available from the homepage as [PDF](docs/DEMOCRATIZING_URBAN_HEAT_RESILIENCE_JOURNAL.pdf), [editable Word](docs/DEMOCRATIZING_URBAN_HEAT_RESILIENCE_JOURNAL.docx), and [source Markdown](docs/DEMOCRATIZING_URBAN_HEAT_RESILIENCE_JOURNAL.md). It is a methods and perspective paper, not a peer-reviewed or validated intervention study. The Markdown is canonical; regenerate the Word edition with `python scripts/render_urban_heat_journal_docx.py` and the PDF with `python scripts/render_urban_heat_journal.py`, then run `node scripts/sync-journal-downloads.mjs`.
+
 To contribute, start with [CONTRIBUTING.md](CONTRIBUTING.md) and the [issue templates](.github/ISSUE_TEMPLATE). For help or sensitive reports, see [Support](.github/SUPPORT.md), the [Security policy](.github/SECURITY.md), and the [Code of conduct](.github/CODE_OF_CONDUCT.md).
 
 ## Begin in one minute

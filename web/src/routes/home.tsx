@@ -91,6 +91,38 @@ export function HomePage() {
         </div>
       </article>
 
+      <section className="panel-card home-journal" aria-labelledby="home-journal-title">
+        <div className="home-journal-intro">
+          <div>
+            <div className="eyebrow">Open research manuscript</div>
+            <h2 id="home-journal-title">The Right to Question the Map</h2>
+            <p className="muted">A plain-language, methods-focused paper on how urban heat evidence can be inspected, challenged, and used in community decisions.</p>
+          </div>
+          <p className="home-journal-status">Working manuscript · not peer reviewed</p>
+        </div>
+        <div className="home-journal-formats" aria-label="Download the manuscript">
+          <a className="home-journal-format home-journal-format--primary" href="/journal/urban-heat-democratization.pdf" download="The-Right-to-Question-the-Map.pdf">
+            <span className="home-journal-format-type">PDF <span>Recommended</span></span>
+            <strong>Read or print</strong>
+            <small>Best for reading, sharing, and citation</small>
+            <span className="home-journal-format-action">Download PDF ↓</span>
+          </a>
+          <a className="home-journal-format" href="/journal/urban-heat-democratization.docx" download="The-Right-to-Question-the-Map.docx">
+            <span className="home-journal-format-type">Word</span>
+            <strong>Edit or review</strong>
+            <small>Editable manuscript with equations and references</small>
+            <span className="home-journal-format-action">Download Word ↓</span>
+          </a>
+          <a className="home-journal-format" href="/journal/urban-heat-democratization.md" download="The-Right-to-Question-the-Map.md">
+            <span className="home-journal-format-type">Markdown</span>
+            <strong>Inspect the source</strong>
+            <small>Plain text for reuse, versioning, and accessibility</small>
+            <span className="home-journal-format-action">Download Markdown ↓</span>
+          </a>
+        </div>
+        <p className="home-journal-footnote">All three formats contain the same working paper by Aarti Sri Ravikumar. Its modeled results are research and planning aids, not measured intervention outcomes.</p>
+      </section>
+
       <details className="panel-card premium-feature-card home-secondary-section">
         <summary>Research library, methods, and participation</summary>
         <div className="home-secondary-section-content">

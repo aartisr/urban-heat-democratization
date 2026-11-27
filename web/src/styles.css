@@ -9977,6 +9977,29 @@ body.map-fullpage-lock .sidebar-restore {
 }
 
 .home-secondary-section { padding: 0; }
+.home-journal {
+  background: linear-gradient(135deg, #f5fbf9, #fffdf7);
+  border-color: rgba(6, 95, 89, 0.18);
+}
+.home-journal-intro { display: flex; justify-content: space-between; align-items: start; gap: 18px; }
+.home-journal-intro h2 { margin-bottom: 8px; }
+.home-journal-intro p { max-width: 68ch; margin: 0; }
+.home-journal-status { flex: 0 0 auto; padding: 8px 12px; border-radius: 999px; color: #124e49; background: #e0f2ed; font-size: 0.85rem; font-weight: 750; }
+.home-journal-formats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 22px; }
+.home-journal-format { display: flex; flex-direction: column; gap: 7px; min-width: 0; padding: 20px; border: 1px solid #c8ded8; border-radius: 18px; background: #fff; color: #153b3c; text-decoration: none; box-shadow: 0 8px 24px rgba(14, 66, 63, 0.04); transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease; }
+.home-journal-format:hover { transform: translateY(-3px); border-color: #08796d; box-shadow: 0 12px 28px rgba(14, 66, 63, 0.12); }
+.home-journal-format:focus-visible { outline: 3px solid #ad7233; outline-offset: 3px; }
+.home-journal-format--primary { background: #075f59; border-color: #075f59; color: #fff; }
+.home-journal-format--primary:hover { border-color: #054c47; }
+.home-journal-format-type { font-size: .81rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.home-journal-format-type span { margin-left: 5px; padding: 4px 7px; border-radius: 999px; background: #d4f3e5; color: #174b40; font-size: .66rem; letter-spacing: 0; text-transform: none; }
+.home-journal-format strong { font-size: 1.12rem; }
+.home-journal-format--primary strong { color: #fff; }
+.home-journal-format small { color: #496667; font-size: .89rem; line-height: 1.45; }
+.home-journal-format--primary small { color: #e0f5ee; }
+.home-journal-format-action { margin-top: auto; padding-top: 12px; font-size: .88rem; font-weight: 850; }
+.home-journal-footnote { margin: 16px 0 0; color: #486166; font-size: .86rem; line-height: 1.5; }
+@media (max-width: 800px) { .home-journal-intro { flex-direction: column; } .home-journal-status { margin: 0; } .home-journal-formats { grid-template-columns: 1fr; } }
 .home-secondary-section > summary {
   display: block;
   padding: 16px 20px;
