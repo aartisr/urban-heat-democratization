@@ -10,6 +10,7 @@ import html
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 
@@ -216,6 +217,10 @@ def header_footer(canvas, doc):
 
 
 def render() -> None:
+    source_text = SOURCE.read_text(encoding="utf-8")
+    baseline_match = re.search(r"implementation baseline \[`([0-9a-f]+)`\]", source_text)
+    if baseline_match is None:
+        raise ValueError("Manuscript must declare its implementation baseline")
     parsed = subprocess.check_output(["pandoc", str(SOURCE), "-t", "json"])
     document = json.loads(parsed)
     blocks = document["blocks"]
@@ -231,7 +236,7 @@ def render() -> None:
         story += [Paragraph("Aarti Sri Ravikumar", TITLE_DETAIL)]
         story += [Paragraph("Independent researcher and creator, Urban Heat Democratization", TITLE_DETAIL)]
         story += [Paragraph("ORCID: 0009-0009-9807-5273 · https://urban-heat.ai-aarti.com/", TITLE_DETAIL)]
-        story += [Paragraph("Open working manuscript; not peer reviewed · November 27, 2026 · Code baseline: 4c073d5", TITLE_DETAIL)]
+        story += [Paragraph(f"Open working manuscript; not peer reviewed · November 27, 2026 · Code baseline: {baseline_match.group(1)}", TITLE_DETAIL)]
 
         # Source author/version lines repeat the formatted title page.
         index = next(
