@@ -3,6 +3,10 @@ title: "Can the Same Heat Values Tell Different Stories?"
 subtitle: "Testing one link in an inspectable, community-centered heat evidence chain"
 author: "Aarti Sri Ravikumar"
 date: "November 27, 2026"
+school: "Pioneer Charter School of Science II"
+grade_class: "9th grade · Ms. Focke's class"
+teacher: "Ms. Focke"
+location: "[City], [State] [ZIP code]"
 ---
 
 ## Abstract

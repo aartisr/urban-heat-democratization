@@ -190,8 +190,19 @@ def footer(canvas, doc):
     canvas.restoreState()
 
 
-def read_blocks() -> list[dict]:
-    return json.loads(subprocess.check_output(["pandoc", str(SOURCE), "-t", "json"]))["blocks"]
+def read_document() -> dict:
+    return json.loads(subprocess.check_output(["pandoc", str(SOURCE), "-t", "json"]))
+
+
+def cover_text(metadata: dict, key: str) -> str:
+    value = metadata[key]
+    if value["t"] != "MetaInlines":
+        raise ValueError(f"Expected plain cover metadata for {key}")
+    return "".join(
+        item["c"] if item["t"] == "Str" else " "
+        for item in value["c"]
+        if item["t"] in ("Str", "Space", "SoftBreak")
+    ).strip()
 
 
 def render_table(block: dict, math: MathImages) -> list:
@@ -238,7 +249,9 @@ def render_figure(block: dict, math: MathImages) -> list:
 
 
 def build_pdf() -> None:
-    blocks = read_blocks()
+    document = read_document()
+    blocks = document["blocks"]
+    metadata = document["meta"]
     doc = PaperDoc(str(OUTPUT), pagesize=letter, leftMargin=57, rightMargin=57,
                    topMargin=58, bottomMargin=62, title="Can the Same Heat Values Tell Different Stories?",
                    author="Aarti Sri Ravikumar", subject="Student-facing scientific paper on auditable urban heat graphs")
@@ -251,10 +264,10 @@ def build_pdf() -> None:
         Spacer(1, 88), Paragraph("Can the Same Heat Values<br/>Tell Different Stories?", TITLE),
         Paragraph("Testing one link in an inspectable, community-centered heat evidence chain", COVER),
         Spacer(1, 60), Paragraph("Aarti Sri Ravikumar", COVER),
-        Paragraph("Partner: [none listed / complete if applicable]", COVER),
-        Paragraph("School: [school name] · Grade and class: [grade and class]", COVER),
-        Paragraph("Teacher: [teacher name]", COVER),
-        Paragraph("[City], [State] [ZIP code]", COVER),
+        Paragraph(f"School: {html.escape(cover_text(metadata, 'school'))}", COVER),
+        Paragraph(f"Grade and class: {html.escape(cover_text(metadata, 'grade_class'))}", COVER),
+        Paragraph(f"Teacher: {html.escape(cover_text(metadata, 'teacher'))}", COVER),
+        Paragraph(html.escape(cover_text(metadata, "location")), COVER),
         Spacer(1, 55), Paragraph("November 27, 2026", COVER),
         Paragraph("Methods paper · computer experiment · no field measurements", COVER),
         PageBreak(), Paragraph("Table of Contents", TOC_HEADING), toc, PageBreak(),
