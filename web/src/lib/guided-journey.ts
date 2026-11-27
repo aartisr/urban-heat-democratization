@@ -8,6 +8,58 @@ export const journeySteps = [
 
 export type JourneyStepId = (typeof journeySteps)[number]["id"];
 
+type InnovationMoment = { title: string; detail: string };
+
+/** Explain the practical value at the point where a visitor can experience it. */
+export function innovationMomentForPath(pathname: string, search: string = ""): InnovationMoment {
+  if (pathname.startsWith("/cities/")) {
+    const view = new URLSearchParams(search).get("view");
+    if (view === "explore") return {
+      title: "A map you can question",
+      detail: "Select an area to see its modeled priority, source context, and limits together.",
+    };
+    if (view === "audit") return {
+      title: "A result you can trace",
+      detail: "Check the evidence, provenance, and caveats behind the city story.",
+    };
+    return {
+      title: "A clear starting point",
+      detail: "Begin with a plain-language answer, then open the layers that support it.",
+    };
+  }
+
+  switch (pathname) {
+    case "/modes": return {
+      title: "A path shaped by your question",
+      detail: "Choose your role and the app points you toward the evidence and tools most useful to you.",
+    };
+    case "/cities": return {
+      title: "Evidence before the map",
+      detail: "See which cities have real study data before exploring a result.",
+    };
+    case "/mitigation-lab": return {
+      title: "See an idea on the ground",
+      detail: "Place a cooling action and inspect its modeled reach on the learning grid.",
+    };
+    case "/address-plan": return {
+      title: "Turn local knowledge into a plan",
+      detail: "Record what a place needs alongside the evidence, so the map is a starting point for action.",
+    };
+    case "/scenarios": return {
+      title: "Make tradeoffs visible",
+      detail: "Compare what a budget might support while keeping assumptions and uncertainty in view.",
+    };
+    case "/exports": return {
+      title: "Take the evidence with you",
+      detail: "Share findings and source records that others can inspect beyond this app.",
+    };
+    default: return {
+      title: "From evidence to action, in one path",
+      detail: "Explore heat, test cooling ideas, compare choices, and carry the evidence into a conversation.",
+    };
+  }
+}
+
 export function journeyStepForPath(pathname: string): JourneyStepId | null {
   if (pathname === "/modes") return "choose";
   if (pathname === "/cities" || pathname.startsWith("/cities/")) return "explore";

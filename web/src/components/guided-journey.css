@@ -35,6 +35,12 @@
 .guided-journey-step-copy small { color: #526b74; font-size: 11px; line-height: 1.25; }
 .guided-journey-step-copy em { color: #146658; font-size: 10px; font-style: normal; font-weight: 800; }
 .guided-journey-step.is-current .guided-journey-step-copy em { color: #175b91; }
+.guided-journey-innovation { display: flex; align-items: center; gap: 11px; min-width: 0; margin-top: 14px; padding: 10px 13px; border: 1px solid #c6dfd9; border-radius: 12px; background: rgba(255, 255, 255, .78); box-shadow: inset 3px 0 #c99538; }
+.guided-journey-innovation-mark { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; border-radius: 9px; background: #e5f5f0; color: #08766d; font-size: 17px; }
+.guided-journey-innovation-copy { display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 10px; min-width: 0; line-height: 1.35; }
+.guided-journey-innovation-copy small { color: #08766d; font-size: 10px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.guided-journey-innovation-copy strong { color: #123347; font-size: 13px; }
+.guided-journey-innovation-copy > span { color: #4d6470; font-size: 12px; }
 
 @media (max-width: 1100px) {
   .guided-journey-steps { grid-template-columns: repeat(5, minmax(152px, 1fr)); overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x proximity; }
@@ -48,4 +54,6 @@
   .guided-journey .guided-journey-scroll-hint { display: block; margin-top: 10px; color: #42646d; font-size: 11px; font-weight: 700; }
   .guided-journey-steps { grid-template-columns: repeat(5, 160px); margin-top: 12px; }
   .guided-journey-step a { min-height: 100px; }
+  .guided-journey-innovation { align-items: start; }
+  .guided-journey-innovation-copy { display: grid; gap: 2px; }
 }

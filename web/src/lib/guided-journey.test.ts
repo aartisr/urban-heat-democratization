@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { journeyStepForPath, nextJourneyStep, validJourneyVisits } from "./guided-journey";
+import { innovationMomentForPath, journeyStepForPath, nextJourneyStep, validJourneyVisits } from "./guided-journey";
 
 describe("guided journey navigation", () => {
   it("recognizes the city detail and planning pages as part of the same journey", () => {
@@ -16,5 +16,11 @@ describe("guided journey navigation", () => {
 
   it("ignores unknown or repeated saved visits", () => {
     expect(validJourneyVisits(["choose", "choose", "unknown", 2, "explore"])).toEqual(["choose", "explore"]);
+  });
+
+  it("explains the value of the activity actually open, including city views", () => {
+    expect(innovationMomentForPath("/cities/boston", "?view=explore").title).toBe("A map you can question");
+    expect(innovationMomentForPath("/cities/boston", "?view=audit").title).toBe("A result you can trace");
+    expect(innovationMomentForPath("/scenarios").detail).toContain("budget");
   });
 });

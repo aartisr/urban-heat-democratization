@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 
-import { journeyStepForPath, journeySteps, nextJourneyStep, validJourneyVisits, type JourneyStepId } from "../lib/guided-journey";
+import { innovationMomentForPath, journeyStepForPath, journeySteps, nextJourneyStep, validJourneyVisits, type JourneyStepId } from "../lib/guided-journey";
 import "./guided-journey.css";
 
 const STORAGE_KEY = "uhd.guided-journey.visited.v1";
@@ -14,9 +14,11 @@ function readVisits(): JourneyStepId[] {
 
 /** Navigation history is local to this browser; a check means viewed, not completed. */
 export function GuidedJourney({ pathname }: { pathname: string }) {
+  const search = useRouterState({ select: (state) => state.location.searchStr });
   const [visited, setVisited] = useState<JourneyStepId[]>(readVisits);
   const currentId = journeyStepForPath(pathname);
   const next = nextJourneyStep(pathname, visited);
+  const innovation = innovationMomentForPath(pathname, search);
 
   useEffect(() => {
     if (!currentId) return;
@@ -63,6 +65,14 @@ export function GuidedJourney({ pathname }: { pathname: string }) {
           </li>;
         })}
       </ol>
+      <div className="guided-journey-innovation" aria-label="Innovation in action">
+        <span className="guided-journey-innovation-mark" aria-hidden="true">✦</span>
+        <span className="guided-journey-innovation-copy">
+          <small>Innovation in action</small>
+          <strong>{innovation.title}</strong>
+          <span>{innovation.detail}</span>
+        </span>
+      </div>
     </nav>
   );
 }

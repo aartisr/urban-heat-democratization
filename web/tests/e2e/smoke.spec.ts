@@ -382,12 +382,15 @@ test("guided journey shows the next stop and remembers only pages actually opene
   await page.goto("/");
   const journey = page.getByRole("navigation", { name: "Guided journey" });
   await expect(journey.getByText("0 of 5 visited")).toBeVisible();
+  await expect(journey.getByLabel("Innovation in action")).toContainText("From evidence to action, in one path");
   await page.getByRole("link", { name: "Start guided journey" }).click();
   await expect(page).toHaveURL(/\/modes$/);
   await expect(journey.getByText("1 of 5 visited")).toBeVisible();
+  await expect(journey.getByLabel("Innovation in action")).toContainText("A path shaped by your question");
   await journey.getByRole("link", { name: /Next: Explore a city/ }).click();
   await expect(page).toHaveURL(/\/cities$/);
   await expect(journey.getByText("2 of 5 visited")).toBeVisible();
+  await expect(journey.getByLabel("Innovation in action")).toContainText("Evidence before the map");
   await page.goto("/");
   await expect(journey.getByText("2 of 5 visited")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
