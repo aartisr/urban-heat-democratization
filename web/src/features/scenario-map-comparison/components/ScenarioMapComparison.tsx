@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 
 import type { CityMapData, CityMapOverlay, PlanningMode, ScenarioRecord } from "../../../lib/types";
+import { loadMapLibre } from "../../../lib/load-maplibre";
 import { COMPARISON_BUDGET_PRESETS, comparisonClaimBoundary, comparisonScenarioTitle } from "../domain/evidence-policy";
 import { modelPlanningPriority } from "../engine/planning-priority";
 
@@ -152,7 +153,7 @@ function StreetMapContext({ bounds, onStatus }: { bounds: NonNullable<CityMapDat
     resizeObserver.observe(container);
 
     void (async () => {
-      const [maplibreModule] = await Promise.all([import("maplibre-gl"), import("maplibre-gl/dist/maplibre-gl.css")]);
+      const maplibreModule = await loadMapLibre();
       if (disposed || !containerRef.current) return;
       const instance = new maplibreModule.Map({
         container: containerRef.current,

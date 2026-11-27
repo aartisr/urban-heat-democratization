@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import type { FilterSpecification, GeoJSONSource, Map as MapLibreMap, MapGeoJSONFeature, MapMouseEvent, Popup as MapLibrePopup } from "maplibre-gl";
 
 import { disableCityLiveThermal, enableCityLiveThermal, refreshCityLiveThermal } from "../lib/api";
+import { loadMapLibre } from "../lib/load-maplibre";
 import type { CityMapData, CityMapOverlay, GeoJsonFeature, GeoJsonFeatureCollection, PlanningMode, ScenarioAction, ScenarioRecord } from "../lib/types";
 import { useAppShellLayout } from "../router";
 
@@ -2317,11 +2318,7 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
     const bounds = data.bounds;
 
     void (async () => {
-      const [maplibreModule] = await Promise.all([
-        import("maplibre-gl"),
-        import("maplibre-gl/dist/maplibre-gl.css"),
-      ]);
-      const maplibregl = maplibreModule;
+      const maplibregl = await loadMapLibre();
       maplibreRef.current = maplibregl;
 
       if (disposed || !mapContainerRef.current || mapRef.current) {
@@ -3592,7 +3589,12 @@ export function CityHeatMap({ data, scenarios, onMapRefresh }: CityHeatMapProps)
           </div>
 
           <div className={`map-stage map-stage-geographic ${liveScenePulse ? "live-update-flash" : ""}${fullPageMap ? " map-stage-fullpage" : ""}`}>
-            <div ref={mapContainerRef} className={`maplibre-stage${fullPageMap ? " maplibre-stage-fullpage" : ""}`} />
+            <div
+              ref={mapContainerRef}
+              className={`maplibre-stage${fullPageMap ? " maplibre-stage-fullpage" : ""}`}
+              data-map-ready={mapReady}
+              data-study-layers-ready={mapReady && safeHasLayer(mapRef.current, "heat-fill") && safeHasLayer(mapRef.current, "cooling-fill")}
+            />
             {mapLens === "action" ? (
               <aside className="map-action-brief" aria-label="How to use action readiness">
                 <span className="eyebrow">Derived planning screen</span>

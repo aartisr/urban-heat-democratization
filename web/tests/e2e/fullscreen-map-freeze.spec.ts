@@ -159,6 +159,7 @@ function buildCityMapPayload() {
         },
       },
     ],
+    advancedLayers: [],
     liveThermalAdapter: {
       status: "configured",
       headline: "Live thermal stream configured",
@@ -471,8 +472,20 @@ test.beforeEach(async ({ page }) => {
 test("full page map toggle does not freeze the city atlas", async ({ page }) => {
   test.setTimeout(90_000);
   const pageErrors: string[] = [];
+  const workerErrors: string[] = [];
+  const workerResponses: number[] = [];
   page.on("pageerror", (error) => {
     pageErrors.push(error.message);
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error" && /worker failed to load/i.test(message.text())) {
+      workerErrors.push(message.text());
+    }
+  });
+  page.on("response", (response) => {
+    if (response.url().includes("maplibre-gl-worker")) {
+      workerResponses.push(response.status());
+    }
   });
 
   await page.goto("/cities/boston");
@@ -488,7 +501,12 @@ test("full page map toggle does not freeze the city atlas", async ({ page }) => 
 
   const openButton = page.getByRole("button", { name: "Open full page map" });
   await expect(openButton).toBeVisible({ timeout: 15_000 });
-  await expect(page.locator(".maplibre-stage")).toBeVisible({ timeout: 15_000 });
+  const mapStage = page.locator(".maplibre-stage");
+  await expect(mapStage).toBeVisible({ timeout: 15_000 });
+  await expect(mapStage).toHaveAttribute("data-study-layers-ready", "true", { timeout: 20_000 });
+  await expect.poll(() => workerResponses.length, { timeout: 20_000 }).toBeGreaterThan(0);
+  expect(workerResponses).toEqual([200]);
+  expect(workerErrors).toEqual([]);
 
   await openButton.click();
   await expect(page.locator("article.map-card-fullpage")).toBeVisible({ timeout: 10_000 });
