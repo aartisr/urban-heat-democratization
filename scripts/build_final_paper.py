@@ -96,6 +96,7 @@ TOC_ENTRY = ParagraphStyle("TOCEntry", parent=BODY, fontSize=10.4, leading=16, l
 BIBLIOGRAPHY = ParagraphStyle(
     "Bibliography", parent=BODY, fontSize=10.3, leading=14.5, spaceAfter=7,
 )
+MATH_BODY = ParagraphStyle("MathBody", parent=BODY, leading=17, spaceAfter=9)
 
 
 def run_experiment() -> list[dict]:
@@ -205,6 +206,16 @@ def cover_text(metadata: dict, key: str) -> str:
     ).strip()
 
 
+def display_math(block: dict) -> str | None:
+    if block["t"] != "Para":
+        return None
+    visible = [item for item in block["c"] if item["t"] not in ("Space", "SoftBreak")]
+    if (len(visible) == 1 and visible[0]["t"] == "Math"
+            and visible[0]["c"][0]["t"] == "DisplayMath"):
+        return visible[0]["c"][1]
+    return None
+
+
 def render_table(block: dict, math: MathImages) -> list:
     _, _, _, head, bodies, _ = block["c"]
     rows = list(head[1])
@@ -275,7 +286,7 @@ def build_pdf() -> None:
     with tempfile.TemporaryDirectory(prefix="final-paper-math-") as directory:
         math = MathImages(Path(directory))
         section = ""
-        for block in blocks:
+        for index, block in enumerate(blocks):
             kind = block["t"]
             if kind == "Header":
                 heading = inline_markup(block["c"][2], math)
@@ -284,8 +295,23 @@ def build_pdf() -> None:
                 para.toc_level = 0
                 story.append(para)
             elif kind == "Para":
-                style = BIBLIOGRAPHY if section == "Works Cited (MLA)" else BODY
-                story.append(Paragraph(inline_markup(block["c"], math), style))
+                equation = display_math(block)
+                if equation is not None:
+                    path, width, height = math.get(equation, True)
+                    story.append(KeepTogether([
+                        Spacer(1, 3), Image(str(path), width=width, height=height, hAlign="CENTER"),
+                        Spacer(1, 7),
+                    ]))
+                else:
+                    if section == "Works Cited (MLA)":
+                        style = BIBLIOGRAPHY
+                    elif section in ("Analysis and Mathematical Proof", "Same-Input Comparison with a Simple Heat Map"):
+                        style = MATH_BODY
+                    else:
+                        style = BODY
+                    if index + 1 < len(blocks) and display_math(blocks[index + 1]) is not None:
+                        style = ParagraphStyle(f"BeforeEquation{index}", parent=style, keepWithNext=True)
+                    story.append(Paragraph(inline_markup(block["c"], math), style))
             elif kind == "OrderedList":
                 for index, item in enumerate(block["c"][1], start=1):
                     content = block_markup(item, math)

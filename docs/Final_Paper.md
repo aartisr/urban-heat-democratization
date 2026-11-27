@@ -80,7 +80,7 @@ Figure 1 records the exact computer-generated input grids, not a satellite or fi
 
 **Table 1.** Results from the repository's graph code. Lower conductance means a weaker cut *in the declared graph*. Values are rounded to four decimals for reading; the script retains full precision.
 
-| Grid | Alpha | Mean input | Lambda 2 | Sweep conductance | Exact conductance |
+| Grid | Alpha | Mean input | $\lambda_2$ | Sweep conductance | Exact conductance |
 |:--|--:|--:|--:|--:|--:|
 | Smooth | 1 | 5.0 | 0.4201 | 0.3976 | 0.3319 |
 | Scattered | 1 | 5.0 | 0.4170 | 0.4086 | 0.3495 |
@@ -99,7 +99,14 @@ Figure 2 plots the sweep and exact conductance for both arrangements as alpha ch
 
 ## Same-Input Comparison with a Simple Heat Map
 
-To make Question 4 concrete, I compared two rules on each bundled, source-labeled 32-by-32 array. A simple map selected the hottest 5% of cells; the project's graph priority selected the same number from the **same input array**. At default alpha 3, each chose 52 cells and shared 24 (Jaccard overlap 0.300) in both arrays. Figure 3 shows the Landsat-labeled array; both arrays and alpha 1 and 5 are in the [full reproducible comparison](BUNDLED_MAP_COMPARISON.md). The graph-selected cells had lower mean normalized heat and lower mean modeled poor access than the simple-map cells. The rules choose differently, **not** demonstrably better. Scene identifiers, dates, georeferencing, quality masks, and field labels are missing, so these arrays cannot validate a Boston site recommendation.
+To make Question 4 concrete, I compared two rules on each bundled, source-labeled 32-by-32 array. A simple map selected the hottest 5% of cells; the project's graph priority selected the same number from the **same input array**. At default alpha 3, each chose 52 cells and shared 24 in both arrays. If $H$ is the simple-map set and $G$ the graph set, their Jaccard overlap is
+
+$$
+J(H,G)=\frac{|H\cap G|}{|H\cup G|}
+=\frac{24}{52+52-24}=0.300.
+$$
+
+Figure 3 shows the Landsat-labeled array; both arrays and alpha 1 and 5 are in the [full reproducible comparison](BUNDLED_MAP_COMPARISON.md). The graph-selected cells had lower mean normalized heat and lower mean modeled poor access than the simple-map cells. The rules choose differently, **not** demonstrably better. Scene identifiers, dates, georeferencing, quality masks, and field labels are missing, so these arrays cannot validate a Boston site recommendation.
 
 ![Figure 3. Simple hottest-cell selection, graph-priority selection, and overlap within the Landsat-labeled array. These are array positions, not verified geographic locations.](final_paper_assets/bundled_map_comparison_paper.png)
 
@@ -107,13 +114,71 @@ To make Question 4 concrete, I compared two rules on each bundled, source-labele
 
 The results support the hypothesis for these two arrangements. At alpha 3, both grids have mean 5, but sweep conductance rises from 0.3927 for the smooth grid to 0.4396 for the scattered grid, a difference of about 0.0469. The exact minimum changes from 0.3290 to 0.3941. Both comparisons detect spatial arrangement that the mean misses. The sweep score is above the exact minimum in every run, so the method produces a candidate cut rather than claiming to find the best cut. Alpha matters as well: the scattered grid's sweep score rises from 0.4086 at alpha 1 to 0.4861 at alpha 5. Lambda 2 does not move in one direction across all three settings, which is another reason to report all measures instead of choosing a favorable one. These are descriptive results for six prespecified computations, not estimates of a population effect.
 
-The mechanism is visible in the code. Each valid cell becomes a vertex. With vegetation absent, neighboring cells i and j receive a positive weight `w_ij = max(10^-9, exp(-alpha*g_ij))`, where `g_ij` averages their local gradient magnitudes. Rearranging the same nine values can change those gradients and the weighted adjacency matrix A. A mean contains no information about which values touch. This proves that equal means do not force equal graph inputs; the six observed differences show that this particular rearrangement changed the outputs. I am **not** claiming that every rearrangement must do so.
+**1. The graph records arrangement.** Each valid grid cell becomes a vertex. For neighboring cells $i$ and $j$, the code averages their local gradient magnitudes into $g_{ij}$. With vegetation absent, it gives that edge the positive weight
 
-Let D be the diagonal matrix of weighted degrees and L = D - A. For any vector q, the identity `q^T L q = sum over edges w_ij (q_i - q_j)^2` is nonnegative because every weight and every square is nonnegative. Therefore L is positive semidefinite. Zero energy requires equal q values at the ends of every edge. In this connected, positive-weight nine-node graph, that equality extends to all vertices, leaving only one independent zero-energy direction. The normalized Laplacian `D^-1/2 L D^-1/2` therefore has exactly one zero eigenvalue and a positive second eigenvalue, lambda 2. This proves a structural fact about the chosen graph. It does **not** prove where physical heat flows or how a person feels.
+$$
+w_{ij}=\max\!\left\{10^{-9},\,e^{-\alpha g_{ij}}\right\}.
+$$
 
-There is a useful proof connecting lambda 2 to the best cut. Take any nonempty set S. Call its weighted volume `a` and the other side's volume `b`. Give every vertex in S the value `1 - a/(a+b)` and every vertex outside S the value `-a/(a+b)`. This makes a degree-weighted vector centered at zero. Its Rayleigh quotient is `cut(S,not S) * (a+b)/(a*b)`. Since `(a+b)/(a*b) = 1/a + 1/b` is at most `2/min(a,b)`, the quotient is at most twice the conductance of S. The variational rule defining lambda 2 says lambda 2 is no larger than this quotient. Therefore `lambda 2 / 2 <= best possible conductance`. The other side of the classical Cheeger inequality is an established theorem, not a new proof in this paper, and it does not certify our raw-eigenvector implementation (Kwok et al., 2013).
+The weight depends on nearby gradients, so it can change when values move. Rearranging the nine inputs can therefore change the weighted adjacency matrix $A$, even though their mean and histogram remain fixed. A mean does not record which values touch. This explains *how* the graph can add information; the six calculated rows show that these particular arrangements do. It does not mean every rearrangement must change every score.
 
-For a set S of vertices, define its cut weight as the sum of edges crossing from S to the rest. Define its volume as the sum of weighted degrees inside S. Its conductance is `cut(S,not S) / min(volume(S), volume(not S))`. With nine nodes, fixing the first node outside S leaves eight yes/no choices. Excluding the empty set leaves `2^8 - 1 = 255` distinct nontrivial cuts, with complements counted only once. The exact benchmark tries all 255, so its answer cannot be greater than the sweep's answer. That inequality appears in every row of Table 1. It is a useful test of the algorithm and of our interpretation. The code orders the raw symmetric-normalized eigenvector rather than the degree-adjusted coordinates used in the standard sweep guarantee (Kwok et al., 2013). I therefore do **not** claim a certified approximation bound for the implemented cut.
+**2. The second eigenvalue has a precise meaning.** Let $d_i=\sum_j w_{ij}$ be the weighted degree of cell $i$, and put those degrees on the diagonal of $D$. The code forms the graph Laplacian $L=D-A$ and its normalized version:
+
+$$
+L_{\mathrm{sym}}=D^{-1/2}(D-A)D^{-1/2}.
+$$
+
+For any real numbers $q_i$ assigned to the cells,
+
+$$
+q^\top Lq=\sum_{ij\in E}w_{ij}(q_i-q_j)^2\geq 0.
+$$
+
+The sum counts each undirected edge once. Every term is nonnegative. The expression is zero only when adjacent cells have equal $q$-values. All nine cells are connected by positive-weight edges, so zero energy means the same value everywhere. Because every degree is positive, $L_{\mathrm{sym}}$ has the single zero direction $D^{1/2}\mathbf{1}$ and a positive second eigenvalue, $\lambda_2$. A small $\lambda_2$ describes a weakly connected *declared graph*; it is not a temperature, a person's exposure, or a measured flow of cooling.
+
+**3. A checkable link between the eigenvalue and a cut.** The following variational formula expresses $\lambda_2$ as the smallest energy ratio among nonconstant, degree-centered assignments:
+
+$$
+\lambda_2=
+\min_{\substack{q\ne 0\\ \sum_i d_iq_i=0}}
+\frac{\sum_{ij\in E}w_{ij}(q_i-q_j)^2}
+{\sum_i d_iq_i^2}.
+$$
+
+To see why, substitute $x=D^{1/2}q$ into the ordinary Rayleigh quotient for $L_{\mathrm{sym}}$. The condition $x\perp D^{1/2}\mathbf{1}$ becomes $\sum_i d_iq_i=0$. The formula says that any valid assignment gives an *upper bound* on $\lambda_2$.
+
+Now choose any nonempty proper group of cells $S$. Its volume is $a=\sum_{i\in S}d_i$; the other group's volume is $b=\sum_{i\notin S}d_i$. Both are positive. Let $c(S)$ be the total weight of edges crossing between the groups. Conductance compares that crossing weight with the smaller group's volume:
+
+$$
+\phi(S)=\frac{c(S)}{\min(a,b)},\qquad
+\phi_*=\min_{\varnothing\ne S\ne V}\phi(S).
+$$
+
+Give cells in $S$ the value $q_i=1/a$ and cells outside $S$ the value $q_i=-1/b$. This assignment is degree-centered because $\sum_i d_iq_i=a(1/a)-b(1/b)=0$. Only crossing edges contribute to its energy. Its Rayleigh quotient is therefore
+
+$$
+\frac{\sum_{ij\in E}w_{ij}(q_i-q_j)^2}{\sum_i d_iq_i^2}
+=c(S)\!\left(\frac{1}{a}+\frac{1}{b}\right)
+\leq \frac{2c(S)}{\min(a,b)}
+=2\phi(S).
+$$
+
+The variational formula applies to *every* such group. Taking the group with minimum conductance proves the lower side of the Cheeger relation:
+
+$$
+\frac{\lambda_2}{2}\leq\phi_*.
+$$
+
+This is a short proof about this weighted graph, not a new graph theorem. The classical upper side requires more argument and does not certify the particular sweep used in this repo (Kwok et al., 2013).
+
+**4. What the code actually checks.** The spectral sweep sorts the code's raw normalized-Laplacian eigenvector and tests the cuts in that order. It is a fast *candidate* search. The exact benchmark tries every different cut on nine cells: fix one cell outside $S$, give the other eight a yes/no choice, and exclude the empty group. That leaves $2^8-1=255$ nonduplicate cuts. Therefore
+
+$$
+\phi_*\leq\phi_{\mathrm{sweep}},\qquad
+\Delta=\phi_{\mathrm{sweep}}-\phi_*\geq 0.
+$$
+
+At $\alpha=3$, Table 1 gives $\Delta=0.0637$ for the smooth grid and $\Delta=0.0455$ for the scattered grid, after rounding. These gaps show why “candidate” matters. The code sorts the raw eigenvector rather than the degree-adjusted coordinates used in a standard sweep guarantee; I do not claim that guarantee for this implementation. Exact enumeration is feasible here because there are only nine cells, not for a citywide raster.
 
 This experiment answers Questions 1 and 2: it isolates what the graph adds beyond a mean and shows where the spectral shortcut falls short of the exact cut. The larger innovation is the inspectable chain represented by Questions 3–10, from trustworthy source layers through separate structural and cooling clues to scenarios, correction, and outcome evidence (Ravikumar, 2026a; Ravikumar, 2026b). This paper does not answer those questions. A convincing next study would compare the full workflow with a simpler LST map under the same field-review effort and a prespecified outcome. If it adds no useful information, the innovation claim should narrow.
 
