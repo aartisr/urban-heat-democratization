@@ -1,0 +1,56 @@
+[
+  {
+    "grid": "Smooth",
+    "alpha": 1,
+    "mean_input": 5.0,
+    "lambda2": 0.4200748971143998,
+    "sweep_conductance": 0.39757416283200886,
+    "exact_conductance": 0.3318786812958237,
+    "approximation_gap": 0.06569548153618515
+  },
+  {
+    "grid": "Scattered",
+    "alpha": 1,
+    "mean_input": 5.0,
+    "lambda2": 0.41699217151633466,
+    "sweep_conductance": 0.4085941422473014,
+    "exact_conductance": 0.34945376879776213,
+    "approximation_gap": 0.05914037344953926
+  },
+  {
+    "grid": "Smooth",
+    "alpha": 3,
+    "mean_input": 5.0,
+    "lambda2": 0.41492664102122234,
+    "sweep_conductance": 0.39271729318382426,
+    "exact_conductance": 0.3289507514065235,
+    "approximation_gap": 0.06376654177730073
+  },
+  {
+    "grid": "Scattered",
+    "alpha": 3,
+    "mean_input": 5.0,
+    "lambda2": 0.4213575450516192,
+    "sweep_conductance": 0.43956829911068035,
+    "exact_conductance": 0.39414065995722397,
+    "approximation_gap": 0.04542763915345638
+  },
+  {
+    "grid": "Smooth",
+    "alpha": 5,
+    "mean_input": 5.0,
+    "lambda2": 0.4097812657075751,
+    "sweep_conductance": 0.3878546634915902,
+    "exact_conductance": 0.32599856430002794,
+    "approximation_gap": 0.061856099191562264
+  },
+  {
+    "grid": "Scattered",
+    "alpha": 5,
+    "mean_input": 5.0,
+    "lambda2": 0.44290438152299016,
+    "sweep_conductance": 0.486060272983766,
+    "exact_conductance": 0.4526130716865103,
+    "approximation_gap": 0.033447201297255647
+  }
+]
