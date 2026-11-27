@@ -38,6 +38,9 @@ jobs:
       - name: Keep generated files out of Git
         run: python scripts/check_repository_hygiene.py
 
+      - name: Check maintained documentation links
+        run: python scripts/check_docs_links.py
+
       - name: Run Python tests
         run: PYTHONPATH=. pytest --strict-markers tests api/tests
 

@@ -296,5 +296,5 @@ The comparison must never:
 - [EPA: Benefits of Trees and Vegetation](https://www.epa.gov/heatislands/benefits-trees-and-vegetation)
 - [MapLibre comparison and synchronization plugins](https://maplibre.org/maplibre-gl-js/docs/plugins/)
 - [Existing Impact Evidence Protocol](IMPACT_EVIDENCE_PROTOCOL.md)
-- [Interactive Mitigation Lab Method](INTERACTIVE_MITIGATION_LAB_METHOD.md)
+- [Mitigation Lab evidence boundary](IMPLEMENTATION_STATUS.md)
 

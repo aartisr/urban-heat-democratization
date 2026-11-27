@@ -266,4 +266,4 @@ Avoid optimizing for social reach alone. A widely circulated but context-free he
 - [Roadmap, governance, and contribution](wiki/06-roadmap-governance-and-contribution.md)
 - [Boston study guide](BOSTON_STUDY_GUIDE.md)
 - [Boston classroom guide](BOSTON_CLASSROOM_GUIDE.md)
-- [Artifact strategy](ARTIFACT_STRATEGY.md)
+- [Release process](RELEASE_PROCESS.md)

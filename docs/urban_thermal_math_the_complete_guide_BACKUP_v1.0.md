@@ -1,3 +1,5 @@
+> **Historical design/reference.** This page contains earlier decisions or draft material; implementation and validation may have changed. Use the [capability status](IMPLEMENTATION_STATUS.md) and [math accountability](MATH_INNOVATION_ACCOUNTABILITY.md) for current claims.
+
 # Urban Thermal Math & Spatial Graph Analytics: The Complete Simplified Guide
 
 This guide breaks down advanced mathematical concepts, formulas, and analytical

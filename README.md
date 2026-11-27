@@ -14,6 +14,8 @@
 
 **Urban Heat Democratization** is an open, research-informed platform for turning urban heat from a remote technical signal into something people can inspect, question, teach, and act upon. It brings together maps, transparent scientific methods, scenario exploration, and an auditable local workflow so that a planner, student, educator, resident, or community organization can begin with the same essential question: **where is heat concentrated, who has the least access to relief, and what can be done first?**
 
+New here? The [documentation guide](docs/README.md) offers a short path for residents, educators, planners, and reviewers. The [civic starter guide](docs/wiki/12-civic-starter-guide.md) shows how to turn a map observation and local knowledge into a question a community can bring to a public meeting.
+
 This is not a claim that software alone can solve a public-health emergency. It is a practical contribution to a broader civic effort: making the evidence and reasoning needed for better heat decisions more legible and more widely available.
 
 Official website: [urban-heat.ai-aarti.com](https://urban-heat.ai-aarti.com) · Copyright © 2026 [Aarti S Ravikumar](https://ai-aarti.com) · [Publication record](https://publications.ai-aarti.com/) · [MIT License](LICENSE)

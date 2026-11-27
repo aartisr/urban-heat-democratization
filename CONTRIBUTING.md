@@ -5,6 +5,7 @@ Thank you for helping make urban-heat evidence more legible, testable, and usefu
 ## Start with the right record
 
 - Read the [research wiki](docs/wiki/README.md), especially the [evidence and responsible-use guide](docs/wiki/04-evidence-and-responsible-use.md).
+- Use the [documentation guide](docs/README.md) to find the current source for status, methods, and community workflows. Keep observed inputs, modeled signals, scenarios, and measured impacts distinct in any new claim.
 - For a city-specific contribution, start with the [city onboarding and partnership guide](docs/wiki/05-city-onboarding-and-partnership.md).
 - Before proposing a claim about a place or intervention, state its source, date, spatial support, transformation, uncertainty, and intended use.
 
@@ -24,7 +25,8 @@ Please do not represent an exploratory map, graph signal, or scenario as a healt
 1. Keep the change focused and explain the public question it improves.
 2. Run the relevant tests and checks described in the [README](README.md).
 3. Update the source, method, and limitation documentation when a public-facing claim changes.
-4. Regenerate discovery artifacts when a public route or field-guide page changes:
+4. Run `python3 scripts/check_docs_links.py` after changing documentation links.
+5. Regenerate discovery artifacts when a public route or field-guide page changes:
 
    ```bash
    cd web && npm run discovery:refresh && npm run discovery:check

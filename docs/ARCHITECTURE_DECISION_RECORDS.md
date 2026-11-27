@@ -1,3 +1,5 @@
+> **Historical design/reference.** This page contains earlier decisions or draft material; implementation and validation may have changed. Use the [capability status](IMPLEMENTATION_STATUS.md) and [math accountability](MATH_INNOVATION_ACCOUNTABILITY.md) for current claims.
+
 # Architecture Decision Records (ADRs)
 
 This directory contains Architecture Decision Records for major design decisions in the modernization of urban_heat_democratization.

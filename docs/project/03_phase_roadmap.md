@@ -1,3 +1,5 @@
+> **Project plan or design record.** This page describes intended behavior or an earlier design. Check the [capability status](../IMPLEMENTATION_STATUS.md) before treating a feature or outcome as available.
+
 # Urban Heat Democratization Phase Roadmap
 
 ## 0. Implementation Snapshot

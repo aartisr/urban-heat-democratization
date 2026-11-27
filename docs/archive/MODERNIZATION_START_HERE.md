@@ -1,3 +1,5 @@
+> **Historical snapshot.** This record may contain obsolete links or unverified completion, quality, or deployment claims. Use the [documentation guide](../README.md) and [capability status](../IMPLEMENTATION_STATUS.md) for current information.
+
 # 🏆 START HERE: Nobel-Caliber Architecture Modernization
 
 **Welcome!** You're about to transform urban_heat_democratization into world-class software.

@@ -1,75 +1,45 @@
-# Documentation Guide
+# Documentation guide
 
-This guide is the starting point for the project documentation. Each document
-has one job: use the concise status pages for what exists now, the plans for
-what is proposed, and the protocols for the conditions required before a claim
-or release is made.
+**Urban Heat Democratization** helps more people inspect urban heat evidence, understand the assumptions behind a map, and participate in decisions about cooling. It is authored by [Aarti S Ravikumar](https://ai-aarti.com/). The project combines established scientific methods with a public workflow; it has not demonstrated measured cooling or health outcomes from an intervention.
 
-## Start here
+## Choose a path
 
-- [Project README](../README.md) — installation, architecture, and repository entry point.
-- [Quick Reference](QUICK_REFERENCE.md) — the shortest practical run, build, and health-check guide.
-- [Demo Feature Guide](DEMO_FEATURE_GUIDE.md) — demo-ready inventory, value story, live walkthrough, and claim guardrails.
-- [Repository Capability Status](IMPLEMENTATION_STATUS.md) — current cross-project capabilities and limits.
-- [Screen Tour](SCREEN_TOUR.md) — a guided orientation to the public application.
+| I want to… | Read first | Then try |
+| --- | --- | --- |
+| Understand a neighborhood heat question | [Civic starter guide](wiki/12-civic-starter-guide.md) | [Boston atlas](https://urban-heat.ai-aarti.com/cities/boston) and its layer sources |
+| Teach or learn with a concrete example | [Boston classroom guide](BOSTON_CLASSROOM_GUIDE.md) | [Graph theory worked example](wiki/08-graph-theory-worked-example.md) |
+| Evaluate a planning option | [Boston study guide](BOSTON_STUDY_GUIDE.md) | [Scenarios](https://urban-heat.ai-aarti.com/scenarios), followed by the [evidence guide](wiki/04-evidence-and-responsible-use.md) |
+| Bring another city or community into the work | [City onboarding and partnership](wiki/05-city-onboarding-and-partnership.md) | [Civic starter guide](wiki/12-civic-starter-guide.md) |
+| Review the science or code | [Math accountability](MATH_INNOVATION_ACCOUNTABILITY.md) | [Technical reference](wiki/07-technical-reference.md), [architecture](ARCHITECTURE.md), and [API](API.md) |
+| Check what is available today | [Repository capability status](IMPLEMENTATION_STATUS.md) | [Impact evidence protocol](IMPACT_EVIDENCE_PROTOCOL.md) |
 
-## City evidence experience
+The [wiki index](wiki/README.md) is the public field guide. The [repository README](../README.md) explains setup, tests, and the overall project.
 
-The city experience is generic by design. Boston is the bundled study, not a
-special-case product contract.
+## Where the innovation lies
 
-- [City Evidence Experience: Delivery Status](CITY_EVIDENCE_EXPERIENCE_STATUS.md) — canonical phase and verification record.
-- [Implementation Plan](CITY_EVIDENCE_EXPERIENCE_IMPLEMENTATION_PLAN.md) — product, research, design, and technical plan.
-- [Research Protocol](CITY_EVIDENCE_EXPERIENCE_RESEARCH_PROTOCOL.md) — moderated-study questions and safeguards.
-- [Pilot Release Checklist](CITY_EVIDENCE_EXPERIENCE_PILOT_RELEASE_CHECKLIST.md) — external approval and release gates.
-- [City Onboarding Recipes](CITY_ONBOARDING_RECIPES.md) — how to add a city honestly.
-- [Boston Study Guide](BOSTON_STUDY_GUIDE.md) and [Boston Classroom Guide](BOSTON_CLASSROOM_GUIDE.md) — bundled-study and teaching companions.
+The project makes an **inspectable path from heat evidence to civic questions**: a thermal and vegetation raster can be converted into a declared graph; graph measures can highlight modeled bottlenecks and relative access to inferred cooling pixels; the interface exposes sources and limits alongside the result. A fictional mitigation grid and benchmark scenarios let people discuss possible responses without presenting a simulated change as an observed outcome. The methods are established; the contribution is their transparent integration, public explanation, and accountable use. See the [method trace](MATH_INNOVATION_ACCOUNTABILITY.md).
 
-## Methods, evidence, and responsible use
+## What communities can do with it
 
-- [Urban Thermal Math Deep Dive](Urban_Thermal_Math_Deep_Dive.md)
-- [How Urban Thermal Math Is Used in the Project](URBAN_THERMAL_MATH_IN_PROJECT.md)
-- [Mathematical Innovation Accountability Report](MATH_INNOVATION_ACCOUNTABILITY.md) — implementation trace, claim boundaries, and improvement agenda.
-- [Advanced Thermal Math & Map Layers Plan](ADVANCED_THERMAL_MATH_AND_MAP_LAYERS_IMPLEMENTATION_PLAN.md) — staged, validation-gated plan for new thermal, spatial, temporal, and context layers.
-- [Future Computational Urban-Thermal Research Program](FUTURE_COMPUTATIONAL_URBAN_THERMAL_RESEARCH.md)
-- [Impact Evidence Protocol](IMPACT_EVIDENCE_PROTOCOL.md)
-- [Address-Level Spectral Urbanism Advice](ADDRESS_LEVEL_SPECTRAL_URBANISM_ADVICE.md)
-- [Research Sharing and Publication Strategy](RESEARCH_SHARING_AND_PUBLICATION_STRATEGY.md)
-- [Source-backed intervention costs](INTERVENTION_UNIT_COSTS.md)
-- [Top 25 City Analysis References](TOP_25_CITY_ANALYSIS_REFERENCES.md)
+Start with a specific question, inspect a map layer's source and date, and compare it with local experience: shade at walking times, public access, maintenance, mobility barriers, and places residents actually seek relief. Record where the map agrees or conflicts with lived knowledge. Bring those findings to a community organization or public agency and ask what additional measurement, consent, or review is needed before acting. The [civic guide](wiki/12-civic-starter-guide.md) gives a meeting workflow; the [partnership guide](wiki/05-city-onboarding-and-partnership.md) explains how to add a city responsibly. Avoid sharing personal addresses or health details in public issues.
 
-## Interactive mitigation lab
+## Read results at the right evidence level
 
-- [Lab Plan](INTERACTIVE_MITIGATION_LAB_PLAN.md) — canonical delivery roadmap and safety boundary.
-- [Lab Method](INTERACTIVE_MITIGATION_LAB_METHOD.md)
-- [Calibration Gate](INTERACTIVE_MITIGATION_LAB_CALIBRATION_GATE.md)
-- [Facilitation Guide](INTERACTIVE_MITIGATION_LAB_FACILITATION_GUIDE.md)
-- [Scenario Map Comparison: Research and Product Design](SCENARIO_MAP_COMPARISON_DESIGN.md) — evidence boundary, comparative-map UX, and scientific rationale.
-- [Scenario Map Comparison: Staged Implementation Plan](SCENARIO_MAP_COMPARISON_IMPLEMENTATION_PLAN.md) — plug-and-play component design, delivery stages, and release gates.
-- [Scenario Map Comparison: Delivery Status](SCENARIO_MAP_COMPARISON_STATUS.md) — canonical record of implemented stages and remaining gates.
+- **Observed or sourced inputs:** inspect the date, provider, geography, and measurement type before drawing a conclusion.
+- **Derived model signals:** a graph bottleneck, priority class, or cooling-access proxy is a calculation under stated assumptions. It is a prompt for investigation, not a measured condition at a person's location.
+- **Exploratory scenarios:** benchmark costs, modeled reach, and fictional learning grids are discussion aids. They do not predict local temperature, health, or intervention effectiveness.
+- **Measured impact:** requires a documented intervention, baseline and follow-up measurements, comparison design, uncertainty, and community review. The [impact evidence protocol](IMPACT_EVIDENCE_PROTOCOL.md) describes that threshold; this repository does not claim to have met it.
 
-## Design, quality, and operations
+Boston is the bundled study. Other city presets and onboarding paths do not imply completed local studies. For current capability and limits, use [implementation status](IMPLEMENTATION_STATUS.md). For immediate heat-safety decisions, follow current local public-health guidance.
 
-- [Design and Accessibility System](DESIGN_ACCESSIBILITY_SYSTEM.md)
-- [Responsive and Usability Audit](RESPONSIVE_USABILITY_AUDIT.md)
-- [Mobile Map Experience Research](MOBILE_MAP_EXPERIENCE_RESEARCH.md)
-- [Production Blueprint](PRODUCTION_BLUEPRINT.md)
-- [Vercel Deployment](VERCEL_DEPLOYMENT.md)
-- [Analytics Setup](ANALYTICS_SETUP.md)
-- [Live Thermal Setup](LIVE_THERMAL_SETUP.md) and [Live Provider Bridges](LIVE_PROVIDER_BRIDGES.md)
+## Documentation map
 
-## Wiki
+- **Public use:** [wiki](wiki/README.md), [Boston study](BOSTON_STUDY_GUIDE.md), [classroom guide](BOSTON_CLASSROOM_GUIDE.md).
+- **Methods and evidence:** [math accountability](MATH_INNOVATION_ACCOUNTABILITY.md), [urban thermal math deep dive](Urban_Thermal_Math_Deep_Dive.md), [impact evidence protocol](IMPACT_EVIDENCE_PROTOCOL.md), [data and provenance](../data/README.md).
+- **Engineering:** [API](API.md), [architecture](ARCHITECTURE.md), [design patterns](DESIGN_PATTERNS.md), [release process](RELEASE_PROCESS.md), [live thermal setup](LIVE_THERMAL_SETUP.md).
+- **Proposals and research directions:** [advanced math and layers plan](ADVANCED_THERMAL_MATH_AND_MAP_LAYERS_IMPLEMENTATION_PLAN.md), [future research](FUTURE_COMPUTATIONAL_URBAN_THERMAL_RESEARCH.md), [scenario comparison design](SCENARIO_MAP_COMPARISON_DESIGN.md). A plan is not a shipped feature.
+- **Historical snapshots:** [archive](archive/README.md). Old test counts and completion claims are not current verification.
 
-The [project wiki](wiki/README.md) is the public-facing field guide. It gives
-readers a durable explanation of the platform, methods, governance, and ways
-to participate.
+## Keep the guide trustworthy
 
-## Documentation maintenance
-
-- Update the canonical status record when implementation changes; link to it
-  from plans and checklists instead of copying phase status.
-- Retain dates only for verification records, release history, or source
-  provenance. Do not use a date as a substitute for current status.
-- Do not delete a document merely because its topic is related to another one:
-  plans, methods, protocols, and release gates serve different readers and
-  accountability needs.
+When a feature or public claim changes, update its source, evidence level, limit, and [capability status](IMPLEMENTATION_STATUS.md). Link to the source of truth instead of copying status numbers into multiple pages. Run `python3 scripts/check_docs_links.py` from the repository root before submitting documentation. See [CONTRIBUTING.md](../CONTRIBUTING.md) for contributions.

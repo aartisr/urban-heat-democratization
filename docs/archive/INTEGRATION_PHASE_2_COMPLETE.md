@@ -1,3 +1,5 @@
+> **Historical snapshot.** This record may contain obsolete links or unverified completion, quality, or deployment claims. Use the [documentation guide](../README.md) and [capability status](../IMPLEMENTATION_STATUS.md) for current information.
+
 # Phase 2: Integration Testing - COMPLETE ✅
 
 **Status**: PASSED - All integration tests verified successfully  
