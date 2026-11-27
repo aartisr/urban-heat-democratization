@@ -270,8 +270,10 @@ def build_pdf() -> None:
     document = read_document()
     blocks = document["blocks"]
     metadata = document["meta"]
+    paper_title = cover_text(metadata, "title")
+    paper_subtitle = cover_text(metadata, "subtitle")
     doc = PaperDoc(str(OUTPUT), pagesize=letter, leftMargin=57, rightMargin=57,
-                   topMargin=58, bottomMargin=62, title="Can the Same Heat Values Tell Different Stories?",
+                   topMargin=58, bottomMargin=62, title=paper_title,
                    author="Aarti Sri Ravikumar", subject="Student-facing scientific paper on auditable urban heat graphs")
     frame = Frame(57, 62, 498, 672, id="body", leftPadding=0, rightPadding=0,
                   topPadding=0, bottomPadding=0)
@@ -279,8 +281,8 @@ def build_pdf() -> None:
     toc = TableOfContents()
     toc.levelStyles = [TOC_ENTRY]
     story = [
-        Spacer(1, 88), Paragraph("Can the Same Heat Values<br/>Tell Different Stories?", TITLE),
-        Paragraph("Testing one link in an inspectable, community-centered heat evidence chain", COVER),
+        Spacer(1, 88), Paragraph(html.escape(paper_title).replace(": ", ":<br/>", 1), TITLE),
+        Paragraph(html.escape(paper_subtitle), COVER),
         Spacer(1, 60), Paragraph("Aarti Sri Ravikumar", COVER),
         Paragraph(f"School: {html.escape(cover_text(metadata, 'school'))}", COVER),
         Paragraph(f"Grade and class: {html.escape(cover_text(metadata, 'grade_class'))}", COVER),

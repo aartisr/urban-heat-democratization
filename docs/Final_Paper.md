@@ -1,6 +1,6 @@
 ---
-title: "Can the Same Heat Values Tell Different Stories?"
-subtitle: "Testing one link in an inspectable, community-centered heat evidence chain"
+title: "Urban Heat Democratization: What Can a Heat Map Tell Us?"
+subtitle: "A reproducible graph experiment and same-input map comparison"
 author: "Aarti Sri Ravikumar"
 date: "November 27, 2026"
 school: "Pioneer Charter School of Science II"
