@@ -92,7 +92,10 @@ TITLE = ParagraphStyle(
 )
 COVER = ParagraphStyle("CoverDetail", parent=BODY, fontSize=12, leading=20, alignment=TA_CENTER)
 TOC_HEADING = ParagraphStyle("TOCHeading", parent=HEADING, fontSize=19, leading=24)
-TOC_ENTRY = ParagraphStyle("TOCEntry", parent=BODY, fontSize=10.4, leading=16, leftIndent=10, firstLineIndent=0)
+TOC_ENTRY = ParagraphStyle(
+    "TOCEntry", parent=BODY, fontSize=10.4, leading=16, leftIndent=10,
+    firstLineIndent=0, textColor=colors.HexColor("#075f78"),
+)
 BIBLIOGRAPHY = ParagraphStyle(
     "Bibliography", parent=BODY, fontSize=10.3, leading=14.5, spaceAfter=7,
 )
@@ -176,7 +179,11 @@ def create_figures(rows: list[dict]) -> None:
 class PaperDoc(BaseDocTemplate):
     def afterFlowable(self, flowable):
         if isinstance(flowable, Paragraph) and getattr(flowable, "toc_level", None) == 0:
-            self.notify("TOCEntry", (0, flowable.getPlainText(), self.page))
+            key = flowable.toc_key
+            heading_top = self.frame._y + flowable.height + flowable.getSpaceAfter() + 6
+            self.canv.bookmarkHorizontalAbsolute(key, heading_top)
+            self.canv.addOutlineEntry(flowable.getPlainText(), key, level=0)
+            self.notify("TOCEntry", (0, flowable.getPlainText(), self.page, key))
 
 
 def footer(canvas, doc):
@@ -286,6 +293,7 @@ def build_pdf() -> None:
     with tempfile.TemporaryDirectory(prefix="final-paper-math-") as directory:
         math = MathImages(Path(directory))
         section = ""
+        heading_number = 0
         for index, block in enumerate(blocks):
             kind = block["t"]
             if kind == "Header":
@@ -293,6 +301,8 @@ def build_pdf() -> None:
                 section = html.unescape(heading)
                 para = Paragraph(heading, HEADING)
                 para.toc_level = 0
+                para.toc_key = f"paper-section-{heading_number}"
+                heading_number += 1
                 story.append(para)
             elif kind == "Para":
                 equation = display_math(block)
