@@ -6,7 +6,7 @@ date: "November 27, 2026"
 school: "Pioneer Charter School of Science II"
 grade_class: "9th grade · Ms. Focke's class"
 teacher: "Ms. Focke"
-location: "[City], [State] [ZIP code]"
+location: "Saugus, MA 01906"
 ---
 
 ## Abstract
