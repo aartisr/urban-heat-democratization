@@ -105,7 +105,7 @@ def build() -> None:
             paragraph.style = doc.styles["Title"]
             paragraph.paragraph_format.space_before = Pt(110)
             paragraph.paragraph_format.keep_with_next = True
-        if index == 1 and paragraph.text.strip():
+        if index == 1 or paragraph.text.startswith("Version:"):
             paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             paragraph.paragraph_format.first_line_indent = Inches(0)
             paragraph.paragraph_format.line_spacing = 1.3

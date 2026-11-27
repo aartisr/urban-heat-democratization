@@ -236,8 +236,11 @@ def render() -> None:
         story += [Paragraph("Code baseline: 4c073d5. Funding and competing-interest statements require author confirmation before submission.", NO_INDENT)]
         story.append(PageBreak())
 
-        # The first source paragraph repeats title-page information; skip it.
-        index = 2
+        # Source author/version lines repeat the formatted title page.
+        index = next(
+            i for i, block in enumerate(blocks)
+            if block["t"] == "Header" and inline_markup(block["c"][2], math) == "Abstract"
+        )
         assert blocks[index]["t"] == "Header" and "Abstract" in inline_markup(blocks[index]["c"][2], math)
         story += [Paragraph("Abstract", H1)]
         story += [Paragraph(inline_markup(blocks[index + 1]["c"], math), NO_INDENT)]
