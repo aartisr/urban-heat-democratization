@@ -54,21 +54,21 @@ The main constraint is that this is a computer experiment on nine cells. It cann
 
 ## Materials
 
-The materials were a computer with Python, NumPy, NetworkX, and SciPy; the repository's `core/raster.py`, `core/graph.py`, `core/spectra.py`, and `core/assurance.py`; two 3-by-3 arrays shown in Figure 1; the script `scripts/build_final_paper.py`; and the research and project sources in the Works Cited. No thermometer, physical sensor, field photograph, or human-subject data was used.
+Materials: Python, NumPy, NetworkX, SciPy, the four repository modules `core/raster.py`, `core/graph.py`, `core/spectra.py`, and `core/assurance.py`, the two Figure 1 arrays, and `scripts/build_final_paper.py`. No sensor, photograph, or human-subject data was used.
 
 ## Procedure
 
-1. Record the smooth grid as rows [1, 2, 3], [4, 5, 6], [7, 8, 9]. Record the scattered grid as rows [1, 8, 3], [6, 5, 4], [7, 2, 9]. Check that each grid contains 1 through 9 once and has mean 5.
-2. For each grid, call `core.raster.normalize` to scale the values using the 2nd and 98th percentiles, clipping results to the interval from zero to one. This makes the graph input relative rather than a physical temperature.
-3. For alpha equal to 1, 3, and 5, call `build_weighted_grid` with four-neighbor connections, no NDVI, and beta equal to zero. The code computes an edge weight from the average local gradient at its two ends.
-4. Call `lambda2_and_fiedler` and `sweep_conductance` for each graph. Record lambda 2 and the lowest conductance among cuts in the code's Fiedler ordering.
-5. Call `fiedler_exact_cut_benchmark`, which checks every nonduplicate nonempty partition of this nine-node graph. Record its exact minimum conductance and the difference between the sweep and exact values.
-6. Put the six runs in Table 1 and graph the sweep and exact scores in Figure 2. Re-run the script once and compare the recorded values. There is no hourly timetable because the independent variable is a digital arrangement, not a process changing over time; the three alpha settings are the prespecified checkpoints.
-7. Interpret only what the experiment measures. Compare the results with the hypothesis and list what a real neighborhood study would need before making a public recommendation.
+1. Enter the smooth rows [1, 2, 3], [4, 5, 6], [7, 8, 9] and scattered rows [1, 8, 3], [6, 5, 4], [7, 2, 9]. Verify that each uses 1–9 once and has mean 5.
+2. Normalize each grid with `core.raster.normalize` (2nd/98th percentiles; clip to 0–1). The output is relative, not a physical temperature.
+3. At alpha 1, 3, and 5, build four-neighbor weighted graphs with no NDVI and beta zero. Each edge uses the neighboring cells' local-gradient magnitudes.
+4. Run `lambda2_and_fiedler` and `sweep_conductance`; record lambda 2 and the best cut in the Fiedler ordering.
+5. Run `fiedler_exact_cut_benchmark` over all nonduplicate nonempty cuts; record the exact minimum and the sweep–exact gap.
+6. Record the six runs in Table 1 and Figure 2, rerun the script, and check agreement. Alpha settings are the planned checkpoints; the digital arrangement does not change over time.
+7. Compare results with the hypothesis and state the evidence needed before any neighborhood recommendation.
 
 ## Pictures and Experiment Checkpoints
 
-Figure 1 is a computer-generated picture of the exact input grids. It is a record of the setup, not a satellite image or field photograph. The project had no camera or site visit in this experiment. The check before calculation was that both grids had the same values and mean; the check after calculation was that the six runs produced the table below.
+Figure 1 records the exact computer-generated input grids, not a satellite or field image. Before computing, I checked equal values and means; afterward, I checked the six runs against Table 1. There was no site visit.
 
 ![Figure 1. The two input grids use the same values in different positions. The numbers are unitless teaching values, not measured temperatures.](final_paper_assets/grid_comparison.png)
 
@@ -93,6 +93,12 @@ Figure 2 plots the sweep and exact conductance for both arrangements as alpha ch
 
 ![Figure 2. Conductance from the six runs. Solid lines are the implemented sweep; dashed lines are the exact minimum over all cuts.](final_paper_assets/conductance_graph.png)
 
+## Same-Input Comparison with a Simple Heat Map
+
+To make Question 4 concrete, I compared two rules on each bundled, source-labeled 32-by-32 array. A simple map selected the hottest 5% of cells; the project's graph priority selected the same number from the **same input array**. At default alpha 3, each chose 52 cells and shared 24 (Jaccard overlap 0.300) in both arrays. Figure 3 shows the Landsat-labeled array; both arrays and alpha 1 and 5 are in the [full reproducible comparison](BUNDLED_MAP_COMPARISON.md). The graph-selected cells had lower mean normalized heat and lower mean modeled poor access than the simple-map cells. The rules choose differently, **not** demonstrably better. Scene identifiers, dates, georeferencing, quality masks, and field labels are missing, so these arrays cannot validate a Boston site recommendation.
+
+![Figure 3. Simple hottest-cell selection, graph-priority selection, and overlap within the Landsat-labeled array. These are array positions, not verified geographic locations.](final_paper_assets/bundled_map_comparison_paper.png)
+
 ## Analysis and Mathematical Proof
 
 The results support the hypothesis for these two arrangements. At alpha 3, both grids have mean 5, but sweep conductance rises from 0.3927 for the smooth grid to 0.4396 for the scattered grid, a difference of about 0.0469. The exact minimum changes from 0.3290 to 0.3941. Both comparisons detect spatial arrangement that the mean misses. The sweep score is above the exact minimum in every run, so the method produces a candidate cut rather than claiming to find the best cut. Alpha matters as well: the scattered grid's sweep score rises from 0.4086 at alpha 1 to 0.4861 at alpha 5. Lambda 2 does not move in one direction across all three settings, which is another reason to report all measures instead of choosing a favorable one. These are descriptive results for six prespecified computations, not estimates of a population effect.
@@ -115,7 +121,7 @@ The main weakness is that nine invented, unitless values are far from a lived ci
 
 ## Applications and Further Research
 
-A teacher can use the two grids to ask what an average misses and check the graph's answer. I also ran a [companion comparison](BUNDLED_MAP_COMPARISON.md) on each bundled 32-by-32 source-labeled array: the simple hottest-5% map and graph priority each chose 52 cells from the same input, sharing 24 at default alpha (Jaccard 0.300). This shows different choices, not a better method. The graph-selected cells had lower mean heat and lower mean modeled poor access; the arrays lack scene-level provenance and field labels. They cannot validate Boston site choices. Questions 3–10 therefore remain open. A fair next study would give both maps equal field-review effort, include local reviewers, register outcomes, and publish null results. Proving cooling would also require comparable before-and-after observations, comparison sites, uncertainty, and a credible causal design (Ravikumar, 2026c).
+A teacher can use the two teaching grids to ask what an average misses, then use Figure 3 to show how two declared rules make different selections from the same array. Questions 3–10 remain open as claims about public value. A fair next study would give both maps equal field-review effort, include local reviewers, register outcomes, and publish null results. Proving cooling would also require comparable before-and-after observations, comparison sites, uncertainty, and a credible causal design (Ravikumar, 2026c).
 
 ## Works Cited (MLA)
 

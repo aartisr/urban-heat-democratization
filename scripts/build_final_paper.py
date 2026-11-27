@@ -229,7 +229,7 @@ def render_figure(block: dict, math: MathImages) -> list:
     from PIL import Image as PILImage
     with PILImage.open(path) as im:
         width, height = im.size
-    display_width = 450
+    display_width = 320 if path.name == "grid_comparison.png" else 450
     display_height = display_width * height / width
     return [KeepTogether([
         Spacer(1, 7), Image(str(path), width=display_width, height=display_height, hAlign="CENTER"),

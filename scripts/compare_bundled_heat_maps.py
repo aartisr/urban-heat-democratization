@@ -145,6 +145,28 @@ def save_figure(plots: list[tuple[str, tuple]]) -> None:
     plt.close(fig)
 
 
+def save_paper_figure(plot: tuple[str, tuple]) -> None:
+    """A compact single-array comparison that stays legible in the paper."""
+    source, (heat, baseline, graph) = plot
+    fig, axes = plt.subplots(1, 3, figsize=(11.5, 3.6), constrained_layout=True)
+    for ax, mask, title, color in zip(
+        axes,
+        (baseline, graph, baseline & graph),
+        ("Hottest 5%", "Graph priority 5%", "Selected by both"),
+        ("#d94828", "#126b69", "#6546a6"),
+    ):
+        ax.imshow(heat, cmap="Greys", vmin=0, vmax=1, interpolation="nearest")
+        overlay = np.zeros((*heat.shape, 4))
+        overlay[mask] = matplotlib.colors.to_rgba(color, 0.88)
+        ax.imshow(overlay, interpolation="nearest")
+        ax.set_title(title, fontsize=12)
+        ax.set_xticks([])
+        ax.set_yticks([])
+    fig.suptitle(f"{source} source-labeled array · 52 cells per method · no verified coordinates", fontsize=12)
+    fig.savefig(ASSETS / "bundled_map_comparison_paper.png", dpi=180)
+    plt.close(fig)
+
+
 def save_report(results: list[dict]) -> None:
     shapes = ", ".join(f"{item['source_label'].split(' ')[0]} {item['shape'][0]}×{item['shape'][1]}" for item in results)
     selected_counts = {item["rows"][0]["selected_per_method"] for item in results}
@@ -225,6 +247,7 @@ def main() -> None:
         json.dumps(machine, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
     save_figure(plots)
+    save_paper_figure(plots[0])
     save_report(results)
     print(REPORT)
 
