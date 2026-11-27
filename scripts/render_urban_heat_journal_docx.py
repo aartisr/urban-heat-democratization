@@ -23,7 +23,7 @@ OUTPUT = SOURCE.with_suffix(".docx")
 TITLE = "The Right to Question the Map: Democratizing Urban Heat Decisions Through Auditable Spatial Graphs"
 
 
-def set_style(style, *, size=12, bold=False, italic=False, before=0, after=0, line=2.0, align=None):
+def set_style(style, *, size=11.5, bold=False, italic=False, before=0, after=5, line=1.25, align=None):
     style.font.name = "Times New Roman"
     style.font.size = Pt(size)
     style.font.bold = bold
@@ -49,12 +49,6 @@ def build() -> None:
     source = re.sub(r"\A---\n.*?\n---\n", "", source, count=1, flags=re.DOTALL)
     assert source.count("## Abstract") == 1
     assert source.count("**Keywords:**") == 1
-    source = re.sub(
-        r"(\*\*Keywords:\*\*[^\n]+\n)",
-        lambda match: match.group(1) + "\n# " + TITLE + "\n",
-        source,
-        count=1,
-    )
 
     with tempfile.TemporaryDirectory(prefix="urban-heat-journal-word-") as tmp:
         temp = Path(tmp)
@@ -76,10 +70,10 @@ def build() -> None:
                 set_style(ref.styles[name])
                 ref.styles[name].paragraph_format.first_line_indent = Inches(0.5)
         if "Title" in ref.styles:
-            set_style(ref.styles["Title"], bold=True, after=24, align=WD_ALIGN_PARAGRAPH.CENTER)
+            set_style(ref.styles["Title"], bold=True, after=10, align=WD_ALIGN_PARAGRAPH.CENTER)
         for name in ("Heading 1", "Heading 2", "Heading 3"):
             if name in ref.styles:
-                set_style(ref.styles[name], bold=name != "Heading 3", italic=name == "Heading 3", before=14, after=4, align=WD_ALIGN_PARAGRAPH.CENTER if name == "Heading 1" else WD_ALIGN_PARAGRAPH.LEFT)
+                set_style(ref.styles[name], bold=name != "Heading 3", italic=name == "Heading 3", before=11, after=3, align=WD_ALIGN_PARAGRAPH.CENTER if name == "Heading 1" else WD_ALIGN_PARAGRAPH.LEFT)
                 ref.styles[name].paragraph_format.keep_with_next = True
         header = section.header.paragraphs[0]
         header.text = "THE RIGHT TO QUESTION THE MAP"
@@ -103,16 +97,12 @@ def build() -> None:
     for index, paragraph in enumerate(doc.paragraphs):
         if index == 0 and paragraph.text.strip() == TITLE:
             paragraph.style = doc.styles["Title"]
-            paragraph.paragraph_format.space_before = Pt(110)
+            paragraph.paragraph_format.space_before = Pt(0)
             paragraph.paragraph_format.keep_with_next = True
         if index == 1 or paragraph.text.startswith("Version:"):
             paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
             paragraph.paragraph_format.first_line_indent = Inches(0)
             paragraph.paragraph_format.line_spacing = 1.3
-        if paragraph.text.strip() == "Abstract" or (index > 0 and paragraph.text.strip() == TITLE):
-            paragraph.paragraph_format.page_break_before = True
-        if paragraph.text.strip() == "References" or paragraph.text.startswith(("Appendix A:", "Appendix B:")):
-            paragraph.paragraph_format.page_break_before = True
         if paragraph.text.strip() == "References":
             in_references = True
         elif paragraph.text.startswith("Appendix A:"):

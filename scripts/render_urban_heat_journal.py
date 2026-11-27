@@ -1,4 +1,4 @@
-"""Render the Urban Heat Democratization APA-style manuscript to PDF.
+"""Render the Urban Heat Democratization working manuscript to PDF.
 
 Requires pandoc plus the repository's requirements-research.txt packages.
 Run: .venv/bin/python scripts/render_urban_heat_journal.py
@@ -62,22 +62,22 @@ pdfmetrics.registerFontFamily(
 )
 
 BODY = ParagraphStyle(
-    "APA body", fontName="Times", fontSize=12, leading=24, alignment=TA_LEFT,
-    firstLineIndent=36, spaceAfter=0,
+    "Manuscript body", fontName="Times", fontSize=11.5, leading=16.5, alignment=TA_LEFT,
+    firstLineIndent=24, spaceAfter=5,
 )
 NO_INDENT = ParagraphStyle("APA unindented", parent=BODY, firstLineIndent=0)
 TITLE = ParagraphStyle(
     "APA title", parent=BODY, fontName="Times-Bold", alignment=TA_CENTER,
-    firstLineIndent=0, spaceAfter=24,
+    firstLineIndent=0, spaceAfter=12,
 )
 TITLE_DETAIL = ParagraphStyle("APA title detail", parent=NO_INDENT, alignment=TA_CENTER)
 H1 = ParagraphStyle(
     "APA heading 1", parent=BODY, fontName="Times-Bold", alignment=TA_CENTER,
-    firstLineIndent=0, spaceBefore=20, spaceAfter=0, keepWithNext=True,
+    firstLineIndent=0, spaceBefore=14, spaceAfter=4, keepWithNext=True,
 )
 H2 = ParagraphStyle(
     "APA heading 2", parent=BODY, fontName="Times-Bold", alignment=TA_LEFT,
-    firstLineIndent=0, spaceBefore=16, spaceAfter=0, keepWithNext=True,
+    firstLineIndent=0, spaceBefore=11, spaceAfter=3, keepWithNext=True,
 )
 REF = ParagraphStyle("APA reference", parent=BODY, firstLineIndent=-36, leftIndent=36)
 TABLE_CELL = ParagraphStyle("APA table cell", parent=NO_INDENT, fontSize=8.5, leading=11.5)
@@ -225,16 +225,13 @@ def render() -> None:
         math = MathImages(Path(tmp))
         story: list = []
 
-        # APA professional title page.
-        story += [Spacer(1, 115), Paragraph(inline_markup(blocks[0]["c"][2], math), TITLE)]
+        # A compact, readable pre-submission layout keeps title and abstract
+        # with the body instead of spending two pages on front matter.
+        story += [Paragraph(inline_markup(blocks[0]["c"][2], math), TITLE)]
         story += [Paragraph("Aarti Sri Ravikumar", TITLE_DETAIL)]
         story += [Paragraph("Independent researcher and creator, Urban Heat Democratization", TITLE_DETAIL)]
-        story += [Spacer(1, 70), Paragraph("<b>Author Note</b>", TITLE_DETAIL)]
-        story += [Paragraph("ORCID: 0009-0009-9807-5273", NO_INDENT)]
-        story += [Paragraph("Correspondence: https://urban-heat.ai-aarti.com/", NO_INDENT)]
-        story += [Paragraph("Open working manuscript; not peer reviewed. November 27, 2026.", NO_INDENT)]
-        story += [Paragraph("Code baseline: 4c073d5. Funding and competing-interest statements require author confirmation before submission.", NO_INDENT)]
-        story.append(PageBreak())
+        story += [Paragraph("ORCID: 0009-0009-9807-5273 · https://urban-heat.ai-aarti.com/", TITLE_DETAIL)]
+        story += [Paragraph("Open working manuscript; not peer reviewed · November 27, 2026 · Code baseline: 4c073d5", TITLE_DETAIL)]
 
         # Source author/version lines repeat the formatted title page.
         index = next(
@@ -245,9 +242,6 @@ def render() -> None:
         story += [Paragraph("Abstract", H1)]
         story += [Paragraph(inline_markup(blocks[index + 1]["c"], math), NO_INDENT)]
         story += [Spacer(1, 10), Paragraph(inline_markup(blocks[index + 2]["c"], math), NO_INDENT)]
-        story.append(PageBreak())
-
-        story += [Paragraph(inline_markup(blocks[0]["c"][2], math), TITLE)]
         section = ""
         table_number = 0
         for block in blocks[index + 3:]:
@@ -259,8 +253,6 @@ def render() -> None:
                     c["c"] if c["t"] == "Str" else " " if c["t"] == "Space" else ""
                     for c in block["c"][2]
                 ))
-                if section in ("References", "Appendix A: Reproducibility and Source Crosswalk", "Appendix B: Notation and Interpretation"):
-                    story.append(PageBreak())
                 story.append(Paragraph(heading, H1 if level == 2 else H2))
             elif kind == "Para":
                 inlines = block["c"]
@@ -277,7 +269,7 @@ def render() -> None:
         pdf = BaseDocTemplate(
             str(OUTPUT), pagesize=letter, leftMargin=72, rightMargin=72,
             topMargin=72, bottomMargin=72, title="The Right to Question the Map",
-            author="Aarti Sri Ravikumar", subject="APA-style methods manuscript on Urban Heat Democratization",
+            author="Aarti Sri Ravikumar", subject="Methods and perspective manuscript on Urban Heat Democratization",
         )
         frame = Frame(72, 72, 468, 648, id="body", leftPadding=0, rightPadding=0, topPadding=0, bottomPadding=0)
         pdf.addPageTemplates(PageTemplate(id="APA", frames=[frame], onPage=header_footer))
