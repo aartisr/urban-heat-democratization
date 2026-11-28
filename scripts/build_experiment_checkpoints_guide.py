@@ -278,10 +278,15 @@ def sweep_chart(path: Path, row: dict):
     bars = fig.add_subplot(grid[1])
     bars.bar(range(1, 9), scores,
              color=[ORANGE if stop == 5 else TEAL for stop in range(1, 9)])
-    bars.set_xticks(range(1, 9))
-    bars.set_xlabel("Divider after this many cards")
+    bars.add_patch(Rectangle((8.65, 0), .7, 1.02, facecolor="#f4f4f4",
+                             edgecolor="#8d989d", hatch="//", linewidth=1.3))
+    bars.text(9, .52, "NO\nSPLIT", ha="center", va="center",
+              fontsize=9, fontweight="bold", color=NAVY)
+    bars.set_xticks(range(1, 10), [str(n) for n in range(1, 9)] + ["9\ninvalid"])
+    bars.set_xlabel("Divider after card number: only 1-8 leave cards on both sides")
     bars.set_ylabel("Split score\n(conductance)")
     bars.set_ylim(0, 1.1)
+    bars.set_xlim(.4, 9.6)
     bars.grid(axis="y", alpha=.2)
     bars.set_axisbelow(True)
     fig.savefig(path, dpi=170, facecolor="white")
@@ -563,15 +568,17 @@ def build_pdf(rows: list[dict]):
     y = label(pdf, "How does it work?", y) - 8
     y = body(pdf, "The graph's link strengths give the cells an order. For the smooth grid "
              "at alpha 3 it is 1, 4, 2, 7, 5, 3, 8, 6, 9, not coldest to hottest. "
-             "Imagine sliding a divider through this row, stopping after each card. "
+             "Imagine sliding a divider through this row, stopping after each of "
+             "the first eight cards. "
              "Score the split at each stop and keep the lowest score. That is the sweep.", y) - 7
     y = image(pdf, ASSETS / "sweep.png", y, 516, 225) - 9
     y = box(pdf, "<b>What happened here?</b> At alpha 3, the chosen divider is after "
             "five cards: {1, 4, 2, 7, 5} versus {3, 8, 6, 9}. Its score is 0.3927. "
             "Stops 4 and 5 look tied when rounded; full precision picks stop 5.", y, 69) - 12
-    y = box(pdf, "<b>Why check it?</b> The sweep tries eight splits in this one order. "
-        "There are 255 distinct splits altogether, so the sweep is a quick proposal, "
-        "not proof of the best possible split. The exact check appears later.", y, 66)
+    y = box(pdf, "<b>Why eight scored bars for nine cards?</b> A split needs cards on "
+        "both sides. Before card 1 or after card 9, one side would be empty. The "
+        "outlined ninth position has no score. The sweep checks only 8 of 255 "
+        "possible splits, making its answer a quick proposal.", y, 66)
     assert y > 58, f"Sweep explanation overlaps footer: y={y}"
     pdf.showPage()
 
