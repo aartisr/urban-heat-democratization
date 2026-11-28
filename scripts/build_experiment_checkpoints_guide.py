@@ -570,11 +570,20 @@ def build_pdf(rows: list[dict]):
     # Page 10: conclusions and reproducibility.
     page_header(pdf, 10, "10. Verify and interpret the result",
                 "What the pictures and checkpoints support, and what they do not.")
-    y = label(pdf, "The result", 665) - 8
-    y = body(pdf, "At alpha 3, both grids have mean 5, but their sweep conductances are "
-             "0.3927 (smooth) and 0.4396 (scattered). Their exact minima also differ: "
-             "0.3290 and 0.3941. Arrangement changed the graph's answer while the mean "
-             "and histogram stayed fixed.", y) - 16
+    y = label(pdf, "What the numbers mean in everyday language", 665) - 8
+    y = body(pdf, "Imagine moving nine numbered tiles around without changing the "
+             "numbers. Both grids still average 5 and contain each number once. "
+             "At alpha 3, the quick sweep gives the smooth grid a split score of "
+             "0.3927 and the scattered grid 0.4396. The lower score means the model "
+             "found a weaker division in the smooth grid under its chosen rules; "
+             "it does not mean that grid is cooler. Checking all 255 possible splits "
+             "also gives different best scores: 0.3290 and 0.3941.", y) - 12
+    y = box(pdf, "<b>Why this matters for the experiment:</b> The project predicted "
+            "that its graph would notice where values sit, even when their average "
+            "stays the same. Both the quick sweep and the all-options check changed, "
+            "so the difference is not just a quirk of the quick search. An ordinary "
+            "heat map also shows positions; this test shows that the project's "
+            "additional graph rule gives a specific score and split to inspect.", y, 95) - 16
     y = label(pdf, "How the pictures and paper were made", y) - 8
     y = body(pdf, "A Python program stored the two 3-by-3 number grids. A drawing library "
              "colored the squares and printed their numbers. The program then ran the "
@@ -590,6 +599,7 @@ def build_pdf(rows: list[dict]):
              "was no site visit, sensor reading, human participant, or observed cooling "
              "outcome. The graphs describe the chosen model; they do not prove a real "
              "neighborhood boundary or a useful intervention.", y)
+    assert y > 58, f"Interpretation text overlaps footer: y={y}"
     pdf.showPage()
 
     # Page 11: mathematical argument and its scope.
