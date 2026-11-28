@@ -803,12 +803,13 @@ def build_pdf(rows: list[dict]):
     # Page 15: civic purpose and the exact scope of this experiment.
     page_header(pdf, 15, "So what does this add to the project?",
                 "It tests whether one proposed map explanation is more than an average.")
-    y = label(pdf, "Imagine someone asking about a hot bus stop", 665) - 8
-    y = body(pdf, "A citywide average cannot show whether high and low values sit "
-             "together or are scattered. A normal heat map does show their positions. "
-             "Urban Heat Democratization aims to add a stated rule for highlighting "
-             "possible weak connections between areas, so people can ask <i>why did "
-             "the tool mark this place?</i>", y) - 14
+    y = label(pdf, "Imagine families studying a school playground", 665) - 8
+    y = body(pdf, "Suppose a surface heat map shows warm pavement near a play area and "
+             "cooler-looking ground near trees. One average for the playground could "
+             "hide how those values are arranged. The heat map shows the positions; "
+             "the project's graph could add a stated, checkable rule for proposing "
+             "a division between groups of nearby values. Families could then ask "
+             "<i>why were these particular squares grouped together?</i>", y) - 14
     y = box(pdf, "<b>1. What this experiment tested:</b> The two little grids have the "
             "same values and average. After the values move, the project's graph "
             "scores change. So the graph calculation responds to the pattern of "
@@ -817,11 +818,12 @@ def build_pdf(rows: list[dict]):
             "division. Checking every division on this tiny grid shows how far that "
             "proposal is from the best score. The project can report the shortcut's "
             "limits instead of asking people to trust it blindly.", y, 79) - 13
-    y = box(pdf, "<b>3. How this could help someone later:</b> With real, properly "
-            "prepared data, a resident could inspect the highlighted area, ask which "
-            "values and settings produced it, and compare it with shade, access, and "
-            "local experience. That public-checking step is the aim of "
-            "<i>democratization</i>; it was not tested by the nine-cell experiment.", y, 93) - 17
+    y = box(pdf, "<b>3. How this could help at the playground later:</b> With real, "
+            "properly prepared data, parents and students could inspect a proposed "
+            "division and ask whether it matches shade during recess, the paved "
+            "areas children use, and what they observe on site. Their observations "
+            "could challenge the model. That public-checking step is the aim of "
+            "<i>democratization</i>; the nine-cell experiment did not test it.", y, 93) - 17
     y = label(pdf, "The honest takeaway", y) - 8
     y = body(pdf, "This is a successful <b>method check</b>: the graph adds a measurable "
              "description of position and its proposed split can be audited. It is not "
