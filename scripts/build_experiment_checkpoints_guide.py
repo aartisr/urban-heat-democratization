@@ -238,6 +238,8 @@ def playground_walkthrough(path_scene: Path, path_graph: Path, row: dict):
     for path, phases in ((path_scene, ("scene", "grid")),
                          (path_graph, ("graph", "split"))):
         fig, axes = plt.subplots(1, 2, figsize=(9.4, 4.05), constrained_layout=True)
+        fig.suptitle("TEACHING ILLUSTRATION — NO PLAYGROUND DATA WERE COLLECTED",
+                     color=ORANGE, fontsize=12, fontweight="bold")
         for ax, phase in zip(axes, phases):
             draw_playground(ax, labels=phase == "scene")
             if phase != "scene":
@@ -438,7 +440,7 @@ def page_header(pdf, number: int, title: str, subtitle: str):
     pdf.line(38, 42, 574, 42)
     pdf.setFont("Helvetica", 8.5)
     pdf.drawString(38, 28, "Companion to Final_Paper.pdf | Unitless teaching experiment")
-    pdf.drawRightString(574, 28, f"Page {number} of 18")
+    pdf.drawRightString(574, 28, f"Page {number} of 20")
 
 
 def image(pdf, path: Path, y: float, width: float, height: float):
@@ -898,7 +900,7 @@ def build_pdf(rows: list[dict]):
 
     # Page 15: civic purpose and the exact scope of this experiment.
     page_header(pdf, 15, "So what does this add to the project?",
-                "It tests whether one proposed map explanation is more than an average.")
+                "The next pictures are an analogy. The experiment did not use playground data.")
     y = label(pdf, "Imagine families studying a school playground", 665) - 8
     y = body(pdf, "Suppose a surface heat map shows warm pavement near a play area and "
              "cooler-looking ground near trees. One average for the playground could "
@@ -931,7 +933,7 @@ def build_pdf(rows: list[dict]):
 
     # Page 16: connect the fictional place to the teaching grid.
     page_header(pdf, 16, "Playground picture: place to grid",
-                "This is a fictional drawing to show the steps, not a measured playground.")
+                "Fictional scene plus invented teaching values. No site measurements were made.")
     y = label(pdf, "A. Start with a place people recognize", 665) - 8
     y = body(pdf, "The drawing has a school building, trees, a play set, and a paved "
              "court. These features help us picture a real question that families "
@@ -951,7 +953,7 @@ def build_pdf(rows: list[dict]):
 
     # Page 17: lay the graph and candidate split over the same fictional place.
     page_header(pdf, 17, "Playground picture: graph to split",
-                "The same fictional scene now shows the dots, links, and two groups.")
+                "The same fictional scene shows model dots, links, and groups—not a field finding.")
     y = label(pdf, "C. Turn each cell into a dot and connect neighbors", 665) - 8
     y = body(pdf, "There are 9 dots and 12 side-sharing links. Thicker lines mean "
              "stronger links under the model's rule at alpha 3. The links are "
@@ -971,8 +973,75 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Playground-graph page overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 18: one-page glossary and comprehension check.
-    page_header(pdf, 18, "Plain-words guide to the terms",
+    # Page 18: separate the finished toy experiment from a future field study.
+    page_header(pdf, 18, "What would a real playground study be?",
+                "That would be a NEW study. The nine-cell experiment did not measure a school.")
+    y = box(pdf, "<b>Already done:</b> The paper rearranged invented numbers on two "
+            "3-by-3 grids and checked the graph calculation. <b>Not done:</b> Taking "
+            "temperature readings at a playground, interviewing families, or "
+            "testing whether a decision or intervention helped children.", 665, 75) - 18
+    y = label(pdf, "A real study would need these steps", y) - 10
+    steps = [
+        "<b>1. Agree on a local question.</b> For example: which areas used during "
+        "recess or dismissal should be checked for heat and shade? Include the "
+        "times children actually use them.",
+        "<b>2. Gather real, correctly located evidence.</b> Obtain source-labeled "
+        "surface data at a useful scale, record date and time, and check missing "
+        "or misaligned cells. Measure air conditions separately if the question "
+        "is about what children breathe or feel.",
+        "<b>3. Run and disclose the model.</b> Make a grid from that evidence, "
+        "build neighboring links, state the alpha setting, and show whether the "
+        "proposed split changes at other settings. Also show the ordinary heat map.",
+        "<b>4. Check the place with people.</b> Ask students, parents, and teachers "
+        "about shade at relevant hours, where children stand or play, water, "
+        "access, and conditions the map misses.",
+        "<b>5. Record the decision and test any action.</b> Document what was "
+        "changed because of the evidence. If shade or another action is added, "
+        "measure outcomes separately; a model split cannot prove cooling.",
+    ]
+    for step in steps:
+        y = body(pdf, step, y) - 10
+    y = box(pdf, "<b>Why this is different from the toy test:</b> The 255-split "
+            "all-options check is feasible for only nine cells. A real site may "
+            "need many more cells, suitable source resolution, field review, and "
+            "an honest comparison with a simple map.", y, 72)
+    assert y > 58, f"Real-playground-study page overlaps footer: y={y}"
+    pdf.showPage()
+
+    # Page 19: concrete questions and civic value for parents and teachers.
+    page_header(pdf, 19, "Questions families and teachers can ask",
+                "The map should start a checkable conversation, not end it.")
+    y = label(pdf, "About the evidence", 665) - 8
+    y = body(pdf, "Was anything actually measured at this school? On what date and at "
+             "what time? Does the color show surface temperature or air temperature? "
+             "Are the map cells small enough for a playground question? Which "
+             "squares have missing or uncertain data?", y) - 13
+    y = label(pdf, "About the model's highlighted area", y) - 8
+    y = body(pdf, "Why did it put these cells together? Which source values and "
+             "alpha setting produced the split? Does the highlight move if alpha "
+             "changes? What does this add beyond the ordinary heat map? Is the "
+             "split a clue for inspection, or is someone treating it as a fact?", y) - 13
+    y = label(pdf, "About children's actual experience", y) - 8
+    y = body(pdf, "Where do children play, wait, and line up at the relevant hours? "
+             "Which areas have shade then, not just in the map image? Are water "
+             "and cooler spaces usable? What do students, families, and staff "
+             "notice that the data cannot show?", y) - 13
+    y = box(pdf, "<b>Example of the value:</b> Suppose a model highlights part of a "
+            "paved court. A teacher says children do not use it at the mapped time; "
+            "a parent says an unshaded dismissal line elsewhere is the concern. "
+            "Their knowledge can change what gets measured and discussed next. "
+            "The toy experiment did not show this happened; it only checked the "
+            "calculation that would need to be explained to them.", y, 103) - 13
+    y = label(pdf, "How this supports democratization", y) - 8
+    y = body(pdf, "Families and teachers can see the inputs, rules, and limits, "
+             "question a highlighted area, add local knowledge, and ask for a "
+             "record of what changed. Whether that process improves real decisions "
+             "still needs to be tested with them.", y)
+    assert y > 58, f"Parent-teacher questions page overlaps footer: y={y}"
+    pdf.showPage()
+
+    # Page 20: one-page glossary and comprehension check.
+    page_header(pdf, 20, "Plain-words guide to the terms",
                 "Use this page whenever a technical word interrupts the story.")
     y = box(pdf, "<b>The whole experiment in one sentence:</b> We moved the same numbers "
             "around, turned neighboring squares into linked dots, looked for a weak "
