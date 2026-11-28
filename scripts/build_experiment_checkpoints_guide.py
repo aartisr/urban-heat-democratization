@@ -19,7 +19,7 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Circle, Rectangle
 import networkx as nx
 import numpy as np
 from reportlab.lib import colors
@@ -193,6 +193,102 @@ def ranking_chart(path: Path, row: dict):
     plt.close(fig)
 
 
+def draw_playground(ax, *, labels: bool):
+    """Draw a fictional schoolyard underneath the teaching-grid overlays."""
+    ax.add_patch(Rectangle((0, 0), 3, 3, facecolor="#d9eed1",
+                           edgecolor="#738e7c", linewidth=2, zorder=0))
+    ax.add_patch(Rectangle((1.84, .12), 1.02, 2.24, facecolor="#aeb9bd",
+                           edgecolor="#7c878b", linewidth=1.4, zorder=1))
+    ax.add_patch(Rectangle((1.98, .28), .73, 1.91, fill=False,
+                           edgecolor="white", linewidth=2, zorder=2))
+    ax.plot([2.35, 2.35], [.28, 2.19], color="white", linewidth=1.5, zorder=2)
+    ax.add_patch(Circle((2.35, 1.22), .22, fill=False,
+                        edgecolor="white", linewidth=1.5, zorder=2))
+    ax.add_patch(Rectangle((.12, 2.48), 2.73, .39, facecolor="#e9d6ae",
+                           edgecolor="#927d62", linewidth=1.4, zorder=2))
+    for x in (.46, 1.02, 1.58, 2.14, 2.66):
+        ax.add_patch(Rectangle((x, 2.62), .22, .12, facecolor="#8bbac0",
+                               edgecolor="#658e93", linewidth=.6, zorder=3))
+    for x, y in ((.35, .47), (.67, 1.12), (.33, 1.81), (1.14, .37)):
+        ax.add_patch(Circle((x, y), .24, facecolor="#74b879",
+                            edgecolor="#4d8556", linewidth=1, zorder=2))
+        ax.add_patch(Circle((x-.05, y+.05), .15, facecolor="#9bd197",
+                            edgecolor="none", alpha=.8, zorder=3))
+    ax.plot([1.13, 1.62], [1.18, 1.18], color="#a97848", linewidth=5, zorder=3)
+    ax.plot([1.16, 1.16], [1.18, 1.69], color="#a97848", linewidth=4, zorder=3)
+    ax.plot([1.60, 1.60], [1.18, 1.69], color="#a97848", linewidth=4, zorder=3)
+    for x in (1.28, 1.47):
+        ax.plot([x, x], [1.17, 1.48], color="#5b6870", linewidth=1.4, zorder=3)
+        ax.plot([x-.07, x+.07], [1.16, 1.16], color="#d75b49", linewidth=3, zorder=3)
+    ax.add_patch(Rectangle((1.1, .49), .48, .11, facecolor="#e8b85d",
+                           edgecolor="#a77835", zorder=3))
+    if labels:
+        for x, y, name in ((1.50, 2.80, "School"), (.52, 2.22, "Trees / grass"),
+                            (1.34, 1.93, "Play set"), (2.37, .58, "Paved court")):
+            ax.text(x, y, name, ha="center", va="center", fontsize=9,
+                    color=NAVY, fontweight="bold", zorder=6,
+                    bbox=dict(facecolor="white", alpha=.85, edgecolor="none", pad=2))
+    ax.set(xlim=(-.05, 3.05), ylim=(-.05, 3.05))
+    ax.set_aspect("equal")
+    ax.axis("off")
+
+
+def playground_walkthrough(path_scene: Path, path_graph: Path, row: dict):
+    raw = GRIDS["Scattered"]
+    for path, phases in ((path_scene, ("scene", "grid")),
+                         (path_graph, ("graph", "split"))):
+        fig, axes = plt.subplots(1, 2, figsize=(9.4, 4.05), constrained_layout=True)
+        for ax, phase in zip(axes, phases):
+            draw_playground(ax, labels=phase == "scene")
+            if phase != "scene":
+                for boundary in (1, 2):
+                    ax.plot([boundary, boundary], [0, 3], color="#f8faf8",
+                            linewidth=2.8, zorder=7)
+                    ax.plot([0, 3], [boundary, boundary], color="#f8faf8",
+                            linewidth=2.8, zorder=7)
+                ax.add_patch(Rectangle((0, 0), 3, 3, fill=False,
+                                       edgecolor=NAVY, linewidth=2, zorder=7))
+            if phase == "grid":
+                for r in range(3):
+                    for c in range(3):
+                        ax.text(c+.5, 2.5-r, str(int(raw[r, c])), ha="center", va="center",
+                                fontsize=20, fontweight="bold", color=NAVY, zorder=10,
+                                bbox=dict(facecolor="white", alpha=.88,
+                                          edgecolor="none", boxstyle="round,pad=.25"))
+            if phase == "graph":
+                graph = row["graph"]
+                for u, v, data in graph.edges(data=True):
+                    x1, y1 = u % 3 + .5, 2.5 - u // 3
+                    x2, y2 = v % 3 + .5, 2.5 - v // 3
+                    ax.plot([x1, x2], [y1, y2], color=TEAL,
+                            linewidth=2 + 9 * data["w"], alpha=.9, zorder=8)
+                for node in graph.nodes:
+                    x, y = node % 3 + .5, 2.5 - node // 3
+                    ax.add_patch(Circle((x, y), .17, facecolor="white",
+                                        edgecolor=NAVY, linewidth=1.6, zorder=9))
+                    ax.text(x, y, str(int(raw.flat[node])), ha="center", va="center",
+                            fontsize=14, fontweight="bold", color=NAVY, zorder=10)
+            if phase == "split":
+                group = row["sweep_set"]
+                for node in range(9):
+                    r, c = divmod(node, 3)
+                    face = "#80c8b7" if node in group else "#e9bf8c"
+                    ax.add_patch(Rectangle((c, 2-r), 1, 1, facecolor=face,
+                                           alpha=.7, edgecolor="none", zorder=8))
+                    ax.text(c+.5, 2.5-r, str(int(raw.flat[node])), ha="center", va="center",
+                            fontsize=19, fontweight="bold", color=NAVY, zorder=10,
+                            bbox=dict(facecolor="white", alpha=.8, edgecolor="none", pad=2))
+            title = {
+                "scene": "A. Fictional playground",
+                "grid": "B. Overlay 3-by-3 teaching grid",
+                "graph": "C. Add 9 dots and 12 links",
+                "split": "D. Color the sweep's two groups",
+            }[phase]
+            ax.set_title(title, fontsize=13, color=NAVY, fontweight="bold")
+        fig.savefig(path, dpi=170, facecolor="white")
+        plt.close(fig)
+
+
 def cut_chart(path: Path, rows: list[dict]):
     selected_rows = [r for r in rows if r["alpha"] == 3]
     fig, axes = plt.subplots(2, 2, figsize=(8.6, 6.0), constrained_layout=True)
@@ -342,7 +438,7 @@ def page_header(pdf, number: int, title: str, subtitle: str):
     pdf.line(38, 42, 574, 42)
     pdf.setFont("Helvetica", 8.5)
     pdf.drawString(38, 28, "Companion to Final_Paper.pdf | Unitless teaching experiment")
-    pdf.drawRightString(574, 28, f"Page {number} of 16")
+    pdf.drawRightString(574, 28, f"Page {number} of 18")
 
 
 def image(pdf, path: Path, y: float, width: float, height: float):
@@ -833,8 +929,50 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Civic value page overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 16: one-page glossary and comprehension check.
-    page_header(pdf, 16, "Plain-words guide to the terms",
+    # Page 16: connect the fictional place to the teaching grid.
+    page_header(pdf, 16, "Playground picture: place to grid",
+                "This is a fictional drawing to show the steps, not a measured playground.")
+    y = label(pdf, "A. Start with a place people recognize", 665) - 8
+    y = body(pdf, "The drawing has a school building, trees, a play set, and a paved "
+             "court. These features help us picture a real question that families "
+             "might ask: where should we look more closely during recess?", y) - 10
+    y = image(pdf, ASSETS / "playground_scene_grid.png", y, 510, 235) - 13
+    y = label(pdf, "B. Lay a 3-by-3 grid over the same drawing", y) - 8
+    y = body(pdf, "Each square is a cell. The numbers are the scattered grid from this "
+             "paper: 1, 8, 3 / 6, 5, 4 / 7, 2, 9. They are invented, unitless "
+             "teaching values placed over a fictional playground. They were not "
+             "measured at these locations and do not tell us which playground "
+             "surface is actually hot.", y) - 14
+    y = box(pdf, "<b>Why draw the grid?</b> It shows how a continuous-looking place "
+            "becomes separate cells that a computer can compare. In a real study, "
+            "the cells would need correctly located, quality-checked source data.", y, 68)
+    assert y > 58, f"Playground-grid page overlaps footer: y={y}"
+    pdf.showPage()
+
+    # Page 17: lay the graph and candidate split over the same fictional place.
+    page_header(pdf, 17, "Playground picture: graph to split",
+                "The same fictional scene now shows the dots, links, and two groups.")
+    y = label(pdf, "C. Turn each cell into a dot and connect neighbors", 665) - 8
+    y = body(pdf, "There are 9 dots and 12 side-sharing links. Thicker lines mean "
+             "stronger links under the model's rule at alpha 3. The links are "
+             "mathematical relationships, not paths that children can walk.", y) - 10
+    y = image(pdf, ASSETS / "playground_graph_split.png", y, 510, 235) - 13
+    y = label(pdf, "D. Color the split chosen by the quick sweep", y) - 8
+    y = body(pdf, "For this scattered teaching grid, the sweep selects the cells "
+             "carrying 1, 2, 5, 6, and 7. They become green in their original "
+             "positions; 3, 4, 8, and 9 become tan. Its split score is 0.4396. "
+             "This is the same result as the scattered sweep picture earlier in "
+             "the guide. Green and tan name groups, not cool and hot areas.", y) - 12
+    y = box(pdf, "<b>What would a family do next?</b> Check the actual shade, "
+            "pavement, and children's use of the site during recess. The picture "
+            "does not measure those conditions or recommend an intervention. "
+            "The all-options check would choose a different group {2, 5, 6, 7} "
+            "with score 0.3941 on this toy grid.", y, 90)
+    assert y > 58, f"Playground-graph page overlaps footer: y={y}"
+    pdf.showPage()
+
+    # Page 18: one-page glossary and comprehension check.
+    page_header(pdf, 18, "Plain-words guide to the terms",
                 "Use this page whenever a technical word interrupts the story.")
     y = box(pdf, "<b>The whole experiment in one sentence:</b> We moved the same numbers "
             "around, turned neighboring squares into linked dots, looked for a weak "
@@ -882,6 +1020,10 @@ def main():
     graph_chart(ASSETS / "graphs.png", rows)
     alpha_chart(ASSETS / "alpha.png", rows)
     ranking_chart(ASSETS / "ranking.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
+    playground_walkthrough(
+        ASSETS / "playground_scene_grid.png", ASSETS / "playground_graph_split.png",
+        next(r for r in rows if r["alpha"] == 3 and r["name"] == "Scattered"),
+    )
     split_chart(ASSETS / "split.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
     sweep_chart(ASSETS / "sweep.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
     cut_chart(ASSETS / "cuts.png", rows)
