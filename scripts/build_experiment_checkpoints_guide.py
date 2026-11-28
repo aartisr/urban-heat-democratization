@@ -158,6 +158,41 @@ def alpha_chart(path: Path, rows: list[dict]):
     plt.close(fig)
 
 
+def ranking_chart(path: Path, row: dict):
+    vector = np.asarray(row["vector"]).copy()
+    nodes = row["nodes"]
+    if nodes[np.argsort(vector)[0]] != 0:
+        vector = -vector  # Eigenvector sign can flip; use a readable orientation.
+    ranked = sorted(zip(nodes, vector), key=lambda item: item[1])
+    assert [node for node, _ in ranked] == [0, 3, 1, 6, 4, 2, 7, 5, 8]
+    fig, axes = plt.subplots(1, 2, figsize=(8.8, 3.6), constrained_layout=True,
+                             gridspec_kw={"width_ratios": [1, 1.15]})
+    ax = axes[0]
+    ax.imshow(np.zeros((3, 3)), cmap="Greens", vmin=-.5, vmax=1)
+    for node, score in zip(nodes, vector):
+        r, c = divmod(node, 3)
+        ax.text(c, r - .12, str(int(GRIDS["Smooth"].flat[node])),
+                ha="center", va="center", fontsize=19, fontweight="bold", color=NAVY)
+        ax.text(c, r + .22, f"{score:+.3f}", ha="center", va="center",
+                fontsize=10, color=TEAL)
+    ax.set_title("Big: input value | Small: graph score", fontsize=12, color=NAVY)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_xticks(np.arange(-.5, 3, 1), minor=True)
+    ax.set_yticks(np.arange(-.5, 3, 1), minor=True)
+    ax.grid(which="minor", color="white", linewidth=3)
+    ax.tick_params(which="minor", bottom=False, left=False)
+    ax = axes[1]
+    for position, (node, score) in enumerate(ranked):
+        ax.text(.05, .91 - position * .102,
+                f"{position + 1}.  value {int(GRIDS['Smooth'].flat[node])}   |   score {score:+.3f}",
+                transform=ax.transAxes, fontsize=11.5, color=NAVY, va="center")
+    ax.set_title("Order from lowest score to highest", fontsize=12, color=NAVY)
+    ax.axis("off")
+    fig.savefig(path, dpi=170, facecolor="white")
+    plt.close(fig)
+
+
 def cut_chart(path: Path, rows: list[dict]):
     selected_rows = [r for r in rows if r["alpha"] == 3]
     fig, axes = plt.subplots(2, 2, figsize=(8.6, 6.0), constrained_layout=True)
@@ -302,7 +337,7 @@ def page_header(pdf, number: int, title: str, subtitle: str):
     pdf.line(38, 42, 574, 42)
     pdf.setFont("Helvetica", 8.5)
     pdf.drawString(38, 28, "Companion to Final_Paper.pdf | Unitless teaching experiment")
-    pdf.drawRightString(574, 28, f"Page {number} of 14")
+    pdf.drawRightString(574, 28, f"Page {number} of 15")
 
 
 def image(pdf, path: Path, y: float, width: float, height: float):
@@ -490,8 +525,34 @@ def build_pdf(rows: list[dict]):
         "Real-world meaning would need local observations.", y, 69)
     pdf.showPage()
 
-    # Page 7: plain-language explanation of the sweep search.
-    page_header(pdf, 7, "7. What does 'sweep' mean?",
+    # Page 7: show where the ordering and proposed split come from.
+    page_header(pdf, 7, "7. What creates the split?",
+                "The split is computed from graph link strengths, not drawn by eye.")
+    y = label(pdf, "Start with the graph from the earlier pages", 665) - 8
+    y = body(pdf, "The input values are scaled, side-sharing cells are linked, and "
+             "each link gets a model strength based on nearby changes and alpha. "
+             "The next calculation uses <b>all those link strengths</b> to give "
+             "each cell a graph-based ranking score. Its technical name is the "
+             "<i>Fiedler eigenvector</i> of the normalized Laplacian; you do not "
+             "need to calculate it by hand.", y) - 8
+    y = image(pdf, ASSETS / "ranking.png", y, 510, 230) - 10
+    y = label(pdf, "Sort by the graph score, then test dividers", y) - 8
+    y = body(pdf, "For the smooth grid at alpha 3, the order is 1, 4, 2, 7, 5, 3, 8, "
+             "6, 9. These small positive and negative scores are positions in a "
+             "math-based ranking, not heat readings. The sweep tests a divider "
+             "after each of the first eight cells and chooses the lowest split score.", y) - 9
+    y = box(pdf, "<b>The proposed split:</b> The best sweep stop is after the fifth "
+            "cell: {1, 4, 2, 7, 5} versus {3, 8, 6, 9}. Its conductance is 0.3927. "
+            "The rule is: choose the lowest score among the eight dividers in this "
+            "graph-based order. The cells were not grouped by their original values.", y, 84) - 10
+    y = box(pdf, "<b>The exact split has a different basis:</b> It scores all 255 "
+            "distinct ways to divide the nine cells, without using that ranking, "
+            "and keeps the lowest score. That is why it can improve on the sweep.", y, 66)
+    assert y > 58, f"Split-basis page overlaps footer: y={y}"
+    pdf.showPage()
+
+    # Page 8: plain-language explanation of the sweep search.
+    page_header(pdf, 8, "8. What does 'sweep' mean?",
                 "A sweep searches quickly for a weak division in a much larger set of possibilities.")
     y = label(pdf, "Why do a sweep?", 665) - 8
     y = body(pdf, "We want to find two groups joined relatively weakly in the model. "
@@ -510,12 +571,12 @@ def build_pdf(rows: list[dict]):
             "Stops 4 and 5 look tied when rounded; full precision picks stop 5.", y, 69) - 12
     y = box(pdf, "<b>Why check it?</b> The sweep tries eight splits in this one order. "
         "There are 255 distinct splits altogether, so the sweep is a quick proposal, "
-        "not proof of the best possible split. The exact check comes next.", y, 66)
+        "not proof of the best possible split. The exact check appears later.", y, 66)
     assert y > 58, f"Sweep explanation overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 8: sweep and exact cut pictures.
-    page_header(pdf, 8, "8. See the candidate and exact splits",
+    # Page 9: sweep and exact cut pictures.
+    page_header(pdf, 9, "9. See the candidate and exact splits",
                 "Compare the quick proposal with the best split found by checking every option.")
     y = label(pdf, "Read the four pictures", 665) - 8
     y = body(pdf, "The top row shows the split chosen by the quick sweep. The bottom "
@@ -533,8 +594,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Sweep comparison overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 9: exact comparison.
-    page_header(pdf, 9, "9. Check every distinct split",
+    # Page 10: exact comparison.
+    page_header(pdf, 10, "10. Check every distinct split",
                 "The tiny grid lets us check the sweep against every possible two-group division.")
     y = label(pdf, "Count the possible splits", 665) - 8
     y = body(pdf, "Calling the green cells Group A and the brown cells Group B describes "
@@ -567,8 +628,8 @@ def build_pdf(rows: list[dict]):
         "an entire city raster.", y, 66)
     pdf.showPage()
 
-    # Page 10: conclusions and reproducibility.
-    page_header(pdf, 10, "10. Verify and interpret the result",
+    # Page 11: conclusions and reproducibility.
+    page_header(pdf, 11, "11. Verify and interpret the result",
                 "What the pictures and checkpoints support, and what they do not.")
     y = label(pdf, "What the numbers mean in everyday language", 665) - 8
     y = body(pdf, "Imagine moving nine numbered tiles around without changing the "
@@ -602,8 +663,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Interpretation text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 11: mathematical argument and its scope.
-    page_header(pdf, 11, "Theory: why position can matter",
+    # Page 12: mathematical argument and its scope.
+    page_header(pdf, 12, "Theory: why position can matter",
                 "The first two steps use ordinary reasoning. The formula in step 3 is optional.")
     y = label(pdf, "1. The average and number counts cannot tell the grids apart", 665) - 8
     y = body(pdf, "A rearrangement leaves the nine values unchanged. Any statistic that "
@@ -639,8 +700,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Theory text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 12: evidence-linked conclusion and project value.
-    page_header(pdf, 12, "Conclusion: what this adds",
+    # Page 13: evidence-linked conclusion and project value.
+    page_header(pdf, 13, "Conclusion: what this adds",
                 "The strongest conclusion is about inspectable spatial structure in this model.")
     y = label(pdf, "The controlled result", 665) - 8
     y = body(pdf, "For these grids, the average and number counts are identical, yet both the "
@@ -672,8 +733,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Conclusion text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 13: civic purpose and the exact scope of this experiment.
-    page_header(pdf, 13, "So what does this add to the project?",
+    # Page 14: civic purpose and the exact scope of this experiment.
+    page_header(pdf, 14, "So what does this add to the project?",
                 "It tests whether one proposed map explanation is more than an average.")
     y = label(pdf, "Imagine someone asking about a hot bus stop", 665) - 8
     y = body(pdf, "A citywide average cannot show whether high and low values sit "
@@ -703,8 +764,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Civic value page overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 14: one-page glossary and comprehension check.
-    page_header(pdf, 14, "Plain-words guide to the terms",
+    # Page 15: one-page glossary and comprehension check.
+    page_header(pdf, 15, "Plain-words guide to the terms",
                 "Use this page whenever a technical word interrupts the story.")
     y = box(pdf, "<b>The whole experiment in one sentence:</b> We moved the same numbers "
             "around, turned neighboring squares into linked dots, looked for a weak "
@@ -751,6 +812,7 @@ def main():
     grid_chart(ASSETS / "normalized.png", {name: normalize(raw) for name, raw in GRIDS.items()}, ".3f", "YlGnBu")
     graph_chart(ASSETS / "graphs.png", rows)
     alpha_chart(ASSETS / "alpha.png", rows)
+    ranking_chart(ASSETS / "ranking.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
     split_chart(ASSETS / "split.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
     sweep_chart(ASSETS / "sweep.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
     cut_chart(ASSETS / "cuts.png", rows)
