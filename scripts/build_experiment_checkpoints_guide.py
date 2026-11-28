@@ -406,17 +406,20 @@ def build_pdf(rows: list[dict]):
              "sharply, a higher alpha makes that link weaker. <b>Alpha = 3</b> means "
              "the dial is set to 3 for this calculation. It does not mean 3 degrees, "
              "three times hotter, or a measured property of a neighborhood.", y) - 10
-    y = image(pdf, ASSETS / "alpha.png", y, 500, 228) - 10
+    y = image(pdf, ASSETS / "alpha.png", y, 500, 215) - 10
     y = label(pdf, "Follow the same example link", y) - 8
     y = body(pdf, "This chart tracks the link between the top-left and top-middle cells. "
              "In the smooth grid, its strength falls from 0.672 at alpha 1 to 0.304 "
              "at alpha 3 and 0.137 at alpha 5. In the scattered grid, the same "
              "positions give 0.472, 0.105, and 0.024. Smaller strength means "
              "the model treats that local connection as weaker.", y) - 12
-    y = box(pdf, "<b>Why use 3?</b> It is the project's default setting, not a value "
-            "measured in the field or proved best. We repeat the experiment at 1 and "
-            "5 to see whether the answer depends on that choice. That is called a "
-            "<i>sensitivity check</i>.", y, 77)
+    y = box(pdf, "<b>Why 1, 3, and 5?</b> The code already uses 3 as its default. "
+            "The experiment adds a lower setting (1) and a higher setting (5), equally "
+            "spaced around 3, to see whether the result changes when the dial moves. "
+            "This is a simple sensitivity check, not evidence that these are the best "
+            "settings. Other nonnegative values could be tried. For a real city, "
+            "researchers should state their choice in advance, test several values, "
+            "and compare the results with independent local evidence.", y, 120)
     assert y > 58, f"Alpha explanation overlaps footer: y={y}"
     pdf.showPage()
 
