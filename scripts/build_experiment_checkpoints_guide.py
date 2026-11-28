@@ -342,7 +342,7 @@ def page_header(pdf, number: int, title: str, subtitle: str):
     pdf.line(38, 42, 574, 42)
     pdf.setFont("Helvetica", 8.5)
     pdf.drawString(38, 28, "Companion to Final_Paper.pdf | Unitless teaching experiment")
-    pdf.drawRightString(574, 28, f"Page {number} of 15")
+    pdf.drawRightString(574, 28, f"Page {number} of 16")
 
 
 def image(pdf, path: Path, y: float, width: float, height: float):
@@ -582,8 +582,68 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Sweep explanation overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 9: sweep and exact cut pictures.
-    page_header(pdf, 9, "9. See the candidate and exact splits",
+    # Page 9: explain how the four colored panels are constructed.
+    page_header(pdf, 9, "9. How were the four pictures made?",
+                "Two input grids times two ways of choosing a split equals four pictures.")
+    y = label(pdf, "Repeat the same recipe for each grid", 665) - 8
+    y = body(pdf, "Keep the nine numbers in their original squares. At alpha 3, make "
+             "the weighted graph. Then choose a split by the quick sweep or by "
+             "checking all 255 splits. Finally, color one chosen group green and "
+             "the other brown.", y) - 15
+    step_y = y
+    steps = [
+        (38, "1. Input", "Smooth or scattered<br/>3-by-3 number grid"),
+        (220, "2. Choose", "Quick sweep (8 tries)<br/>or all-splits check (255)"),
+        (402, "3. Color", "Chosen group green;<br/>other group brown"),
+    ]
+    for x, title, detail in steps:
+        pdf.setFillColor(colors.HexColor(PALE))
+        pdf.roundRect(x, step_y - 69, 172, 69, 7, fill=1, stroke=0)
+        draw_paragraph(pdf, f"<b>{title}</b><br/>{detail}", x + 10, step_y - 9,
+                       152, size=10.7, leading=15)
+    pdf.setFillColor(colors.HexColor(ORANGE))
+    pdf.setFont("Helvetica-Bold", 15)
+    pdf.drawString(211, step_y - 43, ">")
+    pdf.drawString(393, step_y - 43, ">")
+    y = step_y - 86
+    y = label(pdf, "These are the four chosen green groups", y) - 8
+    headers = [(46, "Grid"), (148, "Method"), (260, "Numbers colored green"), (483, "Score")]
+    pdf.setFillColor(colors.HexColor(TEAL))
+    pdf.roundRect(38, y - 30, 536, 31, 5, fill=1, stroke=0)
+    pdf.setFillColor(colors.white)
+    pdf.setFont("Helvetica-Bold", 10)
+    for x, header in headers:
+        pdf.drawString(x, y - 18, header)
+    y -= 31
+    for index, (grid_name, method) in enumerate((("Smooth", "Sweep"), ("Scattered", "Sweep"),
+                                                   ("Smooth", "All splits"), ("Scattered", "All splits"))):
+        row = next(r for r in rows if r["name"] == grid_name and r["alpha"] == 3)
+        selected = row["sweep_set"] if method == "Sweep" else row["exact_set"]
+        values = sorted(int(GRIDS[grid_name].flat[node]) for node in selected)
+        score = row["sweep_score"] if method == "Sweep" else row["exact_score"]
+        if index % 2 == 0:
+            pdf.setFillColor(colors.HexColor("#f0f6f5"))
+            pdf.rect(38, y - 34, 536, 35, fill=1, stroke=0)
+        pdf.setFillColor(colors.HexColor(NAVY))
+        pdf.setFont("Helvetica", 10)
+        for x, value in ((46, grid_name), (148, method),
+                         (260, ", ".join(map(str, values))), (483, f"{score:.4f}")):
+            pdf.drawString(x, y - 21, value)
+        y -= 35
+    y -= 15
+    y = box(pdf, "<b>Example:</b> In the top-left picture, the smooth-grid sweep chose "
+            "{1, 2, 4, 5, 7}. Color those numbers green <i>where they already sit</i> "
+            "in the smooth grid; color {3, 6, 8, 9} brown. The top-right picture "
+            "uses the scattered grid and its own sweep result. The bottom two "
+            "repeat this coloring step using the best of all 255 splits.", y, 89) - 13
+    y = body(pdf, "Green and brown only name the two sides of a division. Switching "
+             "those colors would describe the same split and give the same score. "
+             "They do not mean hotter or cooler.", y)
+    assert y > 58, f"Four-picture recipe overlaps footer: y={y}"
+    pdf.showPage()
+
+    # Page 10: sweep and exact cut pictures.
+    page_header(pdf, 10, "10. See the four resulting pictures",
                 "Compare the quick proposal with the best split found by checking every option.")
     y = label(pdf, "Read the four pictures", 665) - 8
     y = body(pdf, "The top row shows the split chosen by the quick sweep. The bottom "
@@ -601,8 +661,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Sweep comparison overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 10: exact comparison.
-    page_header(pdf, 10, "10. Check every distinct split",
+    # Page 11: exact comparison.
+    page_header(pdf, 11, "11. Check every distinct split",
                 "The tiny grid lets us check the sweep against every possible two-group division.")
     y = label(pdf, "Count the possible splits", 665) - 8
     y = body(pdf, "Calling the green cells Group A and the brown cells Group B describes "
@@ -635,8 +695,8 @@ def build_pdf(rows: list[dict]):
         "an entire city raster.", y, 66)
     pdf.showPage()
 
-    # Page 11: conclusions and reproducibility.
-    page_header(pdf, 11, "11. Verify and interpret the result",
+    # Page 12: conclusions and reproducibility.
+    page_header(pdf, 12, "12. Verify and interpret the result",
                 "What the pictures and checkpoints support, and what they do not.")
     y = label(pdf, "What the numbers mean in everyday language", 665) - 8
     y = body(pdf, "Imagine moving nine numbered tiles around without changing the "
@@ -670,8 +730,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Interpretation text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 12: mathematical argument and its scope.
-    page_header(pdf, 12, "Theory: why position can matter",
+    # Page 13: mathematical argument and its scope.
+    page_header(pdf, 13, "Theory: why position can matter",
                 "The first two steps use ordinary reasoning. The formula in step 3 is optional.")
     y = label(pdf, "1. The average and number counts cannot tell the grids apart", 665) - 8
     y = body(pdf, "A rearrangement leaves the nine values unchanged. Any statistic that "
@@ -707,8 +767,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Theory text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 13: evidence-linked conclusion and project value.
-    page_header(pdf, 13, "Conclusion: what this adds",
+    # Page 14: evidence-linked conclusion and project value.
+    page_header(pdf, 14, "Conclusion: what this adds",
                 "The strongest conclusion is about inspectable spatial structure in this model.")
     y = label(pdf, "The controlled result", 665) - 8
     y = body(pdf, "For these grids, the average and number counts are identical, yet both the "
@@ -740,8 +800,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Conclusion text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 14: civic purpose and the exact scope of this experiment.
-    page_header(pdf, 14, "So what does this add to the project?",
+    # Page 15: civic purpose and the exact scope of this experiment.
+    page_header(pdf, 15, "So what does this add to the project?",
                 "It tests whether one proposed map explanation is more than an average.")
     y = label(pdf, "Imagine someone asking about a hot bus stop", 665) - 8
     y = body(pdf, "A citywide average cannot show whether high and low values sit "
@@ -771,8 +831,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Civic value page overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 15: one-page glossary and comprehension check.
-    page_header(pdf, 15, "Plain-words guide to the terms",
+    # Page 16: one-page glossary and comprehension check.
+    page_header(pdf, 16, "Plain-words guide to the terms",
                 "Use this page whenever a technical word interrupts the story.")
     y = box(pdf, "<b>The whole experiment in one sentence:</b> We moved the same numbers "
             "around, turned neighboring squares into linked dots, looked for a weak "
