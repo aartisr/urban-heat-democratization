@@ -137,6 +137,27 @@ def graph_chart(path: Path, rows: list[dict]):
     plt.close(fig)
 
 
+def alpha_chart(path: Path, rows: list[dict]):
+    fig, ax = plt.subplots(figsize=(8.6, 3.5), constrained_layout=True)
+    for name, color in (("Smooth", TEAL), ("Scattered", ORANGE)):
+        selected = [r for r in rows if r["name"] == name]
+        weights = [r["graph"][0][1]["w"] for r in selected]
+        ax.plot(ALPHAS, weights, marker="o", markersize=8, linewidth=2.5,
+                color=color, label=f"{name} grid")
+        for alpha, weight in zip(ALPHAS, weights):
+            ax.annotate(f"{weight:.3f}", (alpha, weight), xytext=(0, 9),
+                        textcoords="offset points", ha="center", fontsize=10, color=color)
+    ax.axvspan(2.75, 3.25, color="#fff3c4", alpha=.75, zorder=0)
+    ax.set_xticks(ALPHAS)
+    ax.set_xlabel("Alpha setting (model dial)")
+    ax.set_ylabel("Strength of one example link\n(1 = stronger, 0 = weaker)")
+    ax.set_ylim(0, .82)
+    ax.grid(axis="y", alpha=.2)
+    ax.legend(frameon=False, loc="upper right")
+    fig.savefig(path, dpi=170, facecolor="white")
+    plt.close(fig)
+
+
 def cut_chart(path: Path, rows: list[dict]):
     selected_rows = [r for r in rows if r["alpha"] == 3]
     fig, axes = plt.subplots(2, 2, figsize=(8.6, 6.0), constrained_layout=True)
@@ -281,7 +302,7 @@ def page_header(pdf, number: int, title: str, subtitle: str):
     pdf.line(38, 42, 574, 42)
     pdf.setFont("Helvetica", 8.5)
     pdf.drawString(38, 28, "Companion to Final_Paper.pdf | Unitless teaching experiment")
-    pdf.drawRightString(574, 28, f"Page {number} of 13")
+    pdf.drawRightString(574, 28, f"Page {number} of 14")
 
 
 def image(pdf, path: Path, y: float, width: float, height: float):
@@ -377,8 +398,30 @@ def build_pdf(rows: list[dict]):
         "exp(-3 x 0.750) = 0.1055. These are model weights, not measured heat flow.", y, 80)
     pdf.showPage()
 
-    # Page 4: alpha runs and lambda.
-    page_header(pdf, 4, "4. Repeat at three alpha settings",
+    # Page 4: explain alpha directly before showing all six runs.
+    page_header(pdf, 4, "4. What does alpha = 3 mean?",
+                "Alpha is a setting we choose for the model, like a sensitivity dial.")
+    y = label(pdf, "What the dial controls", 665) - 8
+    y = body(pdf, "The code gives each link a strength. When nearby values change "
+             "sharply, a higher alpha makes that link weaker. <b>Alpha = 3</b> means "
+             "the dial is set to 3 for this calculation. It does not mean 3 degrees, "
+             "three times hotter, or a measured property of a neighborhood.", y) - 10
+    y = image(pdf, ASSETS / "alpha.png", y, 500, 228) - 10
+    y = label(pdf, "Follow the same example link", y) - 8
+    y = body(pdf, "This chart tracks the link between the top-left and top-middle cells. "
+             "In the smooth grid, its strength falls from 0.672 at alpha 1 to 0.304 "
+             "at alpha 3 and 0.137 at alpha 5. In the scattered grid, the same "
+             "positions give 0.472, 0.105, and 0.024. Smaller strength means "
+             "the model treats that local connection as weaker.", y) - 12
+    y = box(pdf, "<b>Why use 3?</b> It is the project's default setting, not a value "
+            "measured in the field or proved best. We repeat the experiment at 1 and "
+            "5 to see whether the answer depends on that choice. That is called a "
+            "<i>sensitivity check</i>.", y, 77)
+    assert y > 58, f"Alpha explanation overlaps footer: y={y}"
+    pdf.showPage()
+
+    # Page 5: alpha runs and lambda.
+    page_header(pdf, 5, "5. Repeat at three alpha settings",
                 "Think of alpha as a sensitivity dial for the link-strength rule.")
     y = label(pdf, "Run both grids at alpha = 1, 3, and 5", 665) - 8
     y = body(pdf, "A higher alpha makes a sharp local change weaken a link more strongly. "
@@ -418,8 +461,8 @@ def build_pdf(rows: list[dict]):
         "to change in the same direction for every rearrangement.", y, 70)
     pdf.showPage()
 
-    # Page 5: define a split before discussing how to search for one.
-    page_header(pdf, 5, "5. What is a split?",
+    # Page 6: define a split before discussing how to search for one.
+    page_header(pdf, 6, "6. What is a split?",
                 "A split simply puts the nine cells into two groups.")
     y = label(pdf, "Think of dividing a small set of linked blocks", 665) - 8
     y = body(pdf, "Choose some cells for Group A. All remaining cells are Group B. "
@@ -444,8 +487,8 @@ def build_pdf(rows: list[dict]):
         "Real-world meaning would need local observations.", y, 69)
     pdf.showPage()
 
-    # Page 6: plain-language explanation of the sweep search.
-    page_header(pdf, 6, "6. What does 'sweep' mean?",
+    # Page 7: plain-language explanation of the sweep search.
+    page_header(pdf, 7, "7. What does 'sweep' mean?",
                 "A sweep searches quickly for a weak division in a much larger set of possibilities.")
     y = label(pdf, "Why do a sweep?", 665) - 8
     y = body(pdf, "We want to find two groups joined relatively weakly in the model. "
@@ -468,8 +511,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Sweep explanation overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 7: sweep and exact cut pictures.
-    page_header(pdf, 7, "7. See the candidate and exact splits",
+    # Page 8: sweep and exact cut pictures.
+    page_header(pdf, 8, "8. See the candidate and exact splits",
                 "Compare the quick proposal with the best split found by checking every option.")
     y = label(pdf, "Read the four pictures", 665) - 8
     y = body(pdf, "The top row shows the split chosen by the quick sweep. The bottom "
@@ -487,8 +530,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Sweep comparison overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 8: exact comparison.
-    page_header(pdf, 8, "8. Check every distinct split",
+    # Page 9: exact comparison.
+    page_header(pdf, 9, "9. Check every distinct split",
                 "The tiny grid lets us check the sweep against every possible two-group division.")
     y = label(pdf, "Count the possible splits", 665) - 8
     y = body(pdf, "Calling the green cells Group A and the brown cells Group B describes "
@@ -521,8 +564,8 @@ def build_pdf(rows: list[dict]):
         "an entire city raster.", y, 66)
     pdf.showPage()
 
-    # Page 9: conclusions and reproducibility.
-    page_header(pdf, 9, "9. Verify and interpret the result",
+    # Page 10: conclusions and reproducibility.
+    page_header(pdf, 10, "10. Verify and interpret the result",
                 "What the pictures and checkpoints support, and what they do not.")
     y = label(pdf, "The result", 665) - 8
     y = body(pdf, "At alpha 3, both grids have mean 5, but their sweep conductances are "
@@ -546,8 +589,8 @@ def build_pdf(rows: list[dict]):
              "neighborhood boundary or a useful intervention.", y)
     pdf.showPage()
 
-    # Page 10: mathematical argument and its scope.
-    page_header(pdf, 10, "Theory: why position can matter",
+    # Page 11: mathematical argument and its scope.
+    page_header(pdf, 11, "Theory: why position can matter",
                 "The first two steps use ordinary reasoning. The formula in step 3 is optional.")
     y = label(pdf, "1. The average and number counts cannot tell the grids apart", 665) - 8
     y = body(pdf, "A rearrangement leaves the nine values unchanged. Any statistic that "
@@ -583,8 +626,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Theory text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 11: evidence-linked conclusion and project value.
-    page_header(pdf, 11, "Conclusion: what this adds",
+    # Page 12: evidence-linked conclusion and project value.
+    page_header(pdf, 12, "Conclusion: what this adds",
                 "The strongest conclusion is about inspectable spatial structure in this model.")
     y = label(pdf, "The controlled result", 665) - 8
     y = body(pdf, "For these grids, the average and number counts are identical, yet both the "
@@ -616,8 +659,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Conclusion text overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 12: civic purpose and the exact scope of this experiment.
-    page_header(pdf, 12, "So what does this add to the project?",
+    # Page 13: civic purpose and the exact scope of this experiment.
+    page_header(pdf, 13, "So what does this add to the project?",
                 "It tests whether one proposed map explanation is more than an average.")
     y = label(pdf, "Imagine someone asking about a hot bus stop", 665) - 8
     y = body(pdf, "A citywide average cannot show whether high and low values sit "
@@ -647,8 +690,8 @@ def build_pdf(rows: list[dict]):
     assert y > 58, f"Civic value page overlaps footer: y={y}"
     pdf.showPage()
 
-    # Page 13: one-page glossary and comprehension check.
-    page_header(pdf, 13, "Plain-words guide to the terms",
+    # Page 14: one-page glossary and comprehension check.
+    page_header(pdf, 14, "Plain-words guide to the terms",
                 "Use this page whenever a technical word interrupts the story.")
     y = box(pdf, "<b>The whole experiment in one sentence:</b> We moved the same numbers "
             "around, turned neighboring squares into linked dots, looked for a weak "
@@ -694,6 +737,7 @@ def main():
     grid_chart(ASSETS / "inputs.png", GRIDS, ".0f")
     grid_chart(ASSETS / "normalized.png", {name: normalize(raw) for name, raw in GRIDS.items()}, ".3f", "YlGnBu")
     graph_chart(ASSETS / "graphs.png", rows)
+    alpha_chart(ASSETS / "alpha.png", rows)
     split_chart(ASSETS / "split.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
     sweep_chart(ASSETS / "sweep.png", next(r for r in rows if r["alpha"] == 3 and r["name"] == "Smooth"))
     cut_chart(ASSETS / "cuts.png", rows)
