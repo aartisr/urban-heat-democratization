@@ -607,9 +607,9 @@ def build_pdf(rows: list[dict]):
                 "A split simply puts the nine cells into two groups.")
     y = label(pdf, "Think of dividing a small set of linked blocks", 665) - 8
     y = body(pdf, "Choose some cells for Group A. All remaining cells are Group B. "
-             "The <b>split</b> is that division. Links joining a cell in A to a cell in B "
-             "<b>cross the split</b>. In the picture, the orange links cross; the gray "
-             "links stay within a group.", y) - 8
+             "The <b>split</b> is that division; graph theory also calls it a <b>cut</b>. "
+             "Links joining a cell in A to a cell in B <b>cross the cut</b>. In the "
+             "picture, the orange links cross; the gray links stay within a group.", y) - 8
     y = image(pdf, ASSETS / "split.png", y, 500, 190) - 10
     y = label(pdf, "Why look for a split?", y) - 8
     y = body(pdf, "A division with relatively little connection between its groups can "
@@ -619,13 +619,15 @@ def build_pdf(rows: list[dict]):
              "inspect or challenge. In this project, it points to a place to compare "
              "with real shade, streets, and local knowledge before any decision.", y) - 11
     y = label(pdf, "How is a split scored?", y) - 8
-    y = body(pdf, "Add the strengths of the orange crossing links. Then compare that sum "
+    y = body(pdf, "Add the strengths of the orange crossing links. That sum is the "
+             "<b>cut weight</b>. Then compare it "
              "with the total link strength attached to the smaller group. The resulting "
              "ratio is called <b>conductance</b>. A lower ratio means a weaker division "
              "<i>in this chosen graph</i>. The ratio has no temperature unit.", y) - 12
-    box(pdf, "<b>Important limit:</b> A split is a mathematical grouping of cells. It is "
-        "not a wall, a street boundary, a safe route, or proof that one side is hotter. "
-        "Real-world meaning would need local observations.", y, 69)
+    y = box(pdf, "<b>Important limit:</b> A cut is a mathematical grouping of cells. It is "
+            "not a wall, a street boundary, a safe route, or proof that one side is hotter. "
+            "Real-world meaning would need local observations.", y, 69)
+    assert y > 58, f"Cut explanation overlaps footer: y={y}"
     pdf.showPage()
 
     # Page 7: show where the ordering and proposed split come from.
@@ -1058,7 +1060,7 @@ def build_pdf(rows: list[dict]):
         ("Split", "A way to put all cells into two groups."),
     ]
     right = [
-        ("Crossing link", "A link joining cells in different groups."),
+        ("Cut / cut links", "A cut is a split; cut links join cells in different groups."),
         ("Conductance", "A ratio that scores how weak a split is in the chosen graph."),
         ("Sweep", "Moving a divider through a graph-based list and scoring each stop."),
         ("Exact check", "Scoring every different split to find the best one here."),
